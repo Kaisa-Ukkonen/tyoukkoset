@@ -2,51 +2,163 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const router = useRouter();
+  const [scrollDirection, setScrollDirection] = useState("up");
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    const updateScrollDir = () => {
+      const scrollY = window.scrollY;
+      if (scrollY > lastScrollY && scrollY > 50) {
+        setScrollDirection("down");
+      } else if (scrollY < lastScrollY) {
+        setScrollDirection("up");
+      }
+      lastScrollY = scrollY > 0 ? scrollY : 0;
+    };
+    window.addEventListener("scroll", updateScrollDir);
+    return () => window.removeEventListener("scroll", updateScrollDir);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
-      {/* Yläreunan logo ja menu */}
-      <header className="relative flex justify-between items-center px-6 py-4 bg-[url('/tausta.png')] bg-repeat-x bg-top bg-black text-white">
-        {/* Tummennuskerros */}
-        <div className="absolute inset-0 bg-black/60 z-0"></div>
-
+    <div className="min-h-screen bg-black text-white flex flex-col overflow-x-hidden">
+      {/* HEADER */}
+      <header
+        className={`fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 sm:px-8 transition-all duration-500
+        ${
+          scrollDirection === "down"
+            ? "h-20 bg-black/80 shadow-lg"
+            : "h-28 bg-black/60"
+        } 
+        backdrop-blur-sm`}
+      >
         {/* Logo */}
-        <div className="relative z-10 flex items-center">
+        <div className="flex items-center z-20">
           <Image
-            src="/logo.jpg"
+            src="/logo2.png"
             alt="TyöUkkoset logo"
-            width={180}
-            height={80}
-            className="object-contain w-32 sm:w-40 md:w-48"
+            width={0}
+            height={0}
+            sizes="100vw"
+            className="object-contain w-44 sm:w-52 md:w-60 lg:w-80 max-w-[80%] ml-2"
             priority
           />
         </div>
 
-        {/* Menu-nappi */}
+        {/* Desktop-navigaatio */}
+        <nav className="hidden md:flex gap-6 text-sm sm:text-base font-semibold uppercase tracking-wide z-10">
+          {["Etusivu", "Yhteystiedot"].map((item) => (
+            <button
+              key={item}
+              onClick={() => {
+                if (item === "Etusivu") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                } else if (item === "Yhteystiedot") {
+                  const section = document.getElementById("yhteystiedot");
+                  section?.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              className="relative text-gray-200 hover:text-white transition-colors duration-200 group"
+            >
+              {item}
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-red-600 transition-all duration-300 group-hover:w-full"></span>
+            </button>
+          ))}
+        </nav>
+
+        {/* Hamburger button (mobiili) */}
         <button
-          className="relative z-10 text-white text-3xl border border-white/50 rounded-lg px-3 py-1 hover:border-red-600 transition"
+          className="md:hidden relative z-20 text-white text-3xl border border-white/40 rounded-lg px-3 py-1 hover:border-red-600 transition"
+          onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Avaa valikko"
         >
           ☰
         </button>
+
+        {/* Mobiilivalikko (overlay) */}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="absolute top-full left-0 w-full bg-black/90 backdrop-blur-md flex flex-col items-center gap-6 py-6 md:hidden z-10"
+            >
+              {["Etusivu", "Yhteystiedot"].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => {
+                    if (item === "Etusivu") {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    } else if (item === "Yhteystiedot") {
+                      const section = document.getElementById("yhteystiedot");
+                      section?.scrollIntoView({ behavior: "smooth" });
+                    }
+                    setMenuOpen(false); // sulkee menun
+                  }}
+                  className="text-lg font-semibold uppercase text-gray-200 hover:text-white transition"
+                >
+                  {item}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
-      {/* Keskiosa */}
-      <main className="flex flex-1 flex-col items-center justify-center gap-10 text-center">
-        <motion.h2
-          className="text-3xl font-semibold text-gray-200"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-        ></motion.h2>
+      {/* MAIN */}
+      <main
+        className="relative flex flex-1 flex-col items-center justify-start 
+             gap-10 text-center bg-[#0a0a0a] text-white 
+             pt-32 px-4 sm:px-6 pb-20 sm:pb-32
+             w-full max-w-full overflow-x-hidden overflow-y-visible"
+      >
+        {/* Sumu-/valoefekti */}
+        <div
+          className="absolute inset-0 
+               bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.07)_0%,rgba(0,0,0,1)_80%)] 
+               pointer-events-none"
+        ></div>
+
+        {/* Esittelyteksti */}
+        <motion.section
+          className="relative z-10 w-full px-4 sm:px-8 py-10 mb-8
+           bg-[#141414]/95 border-y border-red-900
+           shadow-[0_0_25px_rgba(0,0,0,0.4)]
+           flex flex-col items-center justify-center text-center"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center">
+            TyöUkkoset –{" "}
+            <span className="text-red-600">
+              Tatuointia ja Stand Upia asenteella
+            </span>
+          </h2>
+          <p className="text-gray-300 text-lg leading-relaxed max-w-3xl">
+            Tervetuloa TyöUkkosten maailmaan. Jesse Ukkonen yhdistää luovan
+            tatuointitaiteen ja stand up -komiikan samaan intensiiviseen
+            pakettiin.
+            <br className="hidden sm:block" />
+            Valitse alta polkusi:{" "}
+            <span className="text-red-600 font-semibold">
+              Tatuoinnit
+            </span> vai{" "}
+            <span className="text-red-600 font-semibold">Naurut</span> ja astu
+            sisään.
+          </p>
+        </motion.section>
 
         {/* Pyöreät napit */}
         <motion.div
-          className="flex flex-col md:flex-row gap-10 items-center justify-center"
+          className="flex flex-col md:flex-row gap-10 items-center justify-center relative z-10 mb-20 md:mb-10"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
@@ -55,7 +167,7 @@ export default function Home() {
           <motion.div
             onClick={() => router.push("/tattoos")}
             className="relative flex flex-col items-center justify-end 
-                       w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48
+                      w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56
                        bg-red-700 hover:bg-red-600 rounded-full 
                        shadow-[0_0_15px_rgba(255,0,0,0.4)]
                        cursor-pointer overflow-hidden 
@@ -78,7 +190,7 @@ export default function Home() {
           <motion.div
             onClick={() => router.push("/standup")}
             className="relative flex flex-col items-center justify-end 
-                       w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48
+                       w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56
                        bg-red-700 hover:bg-red-600 rounded-full 
                        shadow-[0_0_15px_rgba(255,0,0,0.4)]
                        cursor-pointer overflow-hidden 
@@ -99,9 +211,55 @@ export default function Home() {
         </motion.div>
       </main>
 
-      {/* Footer */}
-      <footer className="p-4 text-center text-gray-500 text-sm">
+      {/* INFO-FOOTER */}
+      <section
+        id="yhteystiedot"
+        className="w-full bg-gradient-to-b from-[#0a0a0a] via-[#111] to-[#1a1a1a] border-t border-red-900 py-10 text-gray-300"
+      >
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-10 justify-center text-center md:text-left">
+          {/* YHTEYSTIEDOT */}
+          <div className="md:justify-self-end">
+            <h3 className="text-red-500 font-bold uppercase mb-3">
+              Yhteystiedot
+            </h3>
+            <p className="text-sm leading-relaxed">
+              Siilinjärvi <br />
+              Tmi TyöUkkoset <br />
+              Sähköposti:{" "}
+              <a
+                href="mailto:tyoukkoset@gmail.com"
+                className="text-red-400 hover:text-red-500 underline"
+              >
+                tyoukkoset@gmail.com
+              </a>{" "}
+              <br />
+              Puh: 044 218 6506 <br />
+              Y-tunnus: 3518481-5
+            </p>
+          </div>
+
+          {/* SÄÄNNÖT JA TIEDOT */}
+          <div className="md:justify-self-start">
+            <h3 className="text-red-500 font-bold uppercase mb-3">
+              Säännöt ja tiedot
+            </h3>
+            <p className="text-sm leading-relaxed">
+              Ikäraja tatuointeihin on <strong>18 vuotta</strong> <br />
+              Pidä henkilöllisyystodistus mukana. <br />
+              Maksutavat: käteinen ja kortti.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer
+        id="footer"
+        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-red-800"
+      >
+        <p className="text-sm text-gray-400">
         © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
+        </p>
       </footer>
     </div>
   );
