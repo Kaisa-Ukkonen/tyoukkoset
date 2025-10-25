@@ -1,5 +1,4 @@
 "use client";
-
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,23 +23,22 @@ export default function Home() {
     window.addEventListener("scroll", updateScrollDir);
     return () => window.removeEventListener("scroll", updateScrollDir);
   }, []);
-
   return (
     <div className="min-h-screen bg-black text-white flex flex-col overflow-x-hidden">
       {/* HEADER */}
       <header
         className={`fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 sm:px-8 transition-all duration-500
-        ${
-          scrollDirection === "down"
-            ? "h-20 bg-black/80 shadow-lg"
-            : "h-28 bg-black/60"
-        } 
-        backdrop-blur-sm`}
+  ${
+    scrollDirection === "down"
+      ? "h-20 sm:h-28 bg-black/80 shadow-lg"
+      : "h-28 sm:h-36 bg-black/60"
+  } 
+  backdrop-blur-sm border-b border-yellow-600/30`}
       >
         {/* Logo */}
         <div className="flex items-center z-20">
           <Image
-            src="/logo2.png"
+            src="/keltainenlogo.png"
             alt="TyöUkkoset logo"
             width={0}
             height={0}
@@ -66,21 +64,21 @@ export default function Home() {
               className="relative text-gray-200 hover:text-white transition-colors duration-200 group"
             >
               {item}
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-red-600 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
             </button>
           ))}
         </nav>
 
-        {/* Hamburger button (mobiili) */}
+        {/* Hamburger button */}
         <button
-          className="md:hidden relative z-20 text-white text-3xl border border-white/40 rounded-lg px-3 py-1 hover:border-red-600 transition"
+          className="md:hidden relative z-20 text-white text-3xl border border-yellow-500/40 rounded-lg px-3 py-1 hover:border-yellow-400 transition"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Avaa valikko"
         >
           ☰
         </button>
 
-        {/* Mobiilivalikko (overlay) */}
+        {/* Mobiilivalikko */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
@@ -88,7 +86,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="absolute top-full left-0 w-full bg-black/90 backdrop-blur-md flex flex-col items-center gap-6 py-6 md:hidden z-10"
+              className="absolute top-full left-0 w-full bg-black/90 backdrop-blur-md flex flex-col items-center gap-6 py-6 md:hidden z-10 border-t border-yellow-600/30"
             >
               {["Etusivu", "Yhteystiedot"].map((item) => (
                 <button
@@ -100,7 +98,7 @@ export default function Home() {
                       const section = document.getElementById("yhteystiedot");
                       section?.scrollIntoView({ behavior: "smooth" });
                     }
-                    setMenuOpen(false); // sulkee menun
+                    setMenuOpen(false);
                   }}
                   className="text-lg font-semibold uppercase text-gray-200 hover:text-white transition"
                 >
@@ -116,10 +114,11 @@ export default function Home() {
       <main
         className="relative flex flex-1 flex-col items-center justify-start 
              gap-10 text-center bg-[#0a0a0a] text-white 
-             pt-32 px-4 sm:px-6 pb-20 sm:pb-32
+             pt-32 sm:pt-40 md:pt-38 lg:pt-42 
+             px-4 sm:px-6 pb-20 sm:pb-32
              w-full max-w-full overflow-x-hidden overflow-y-visible"
       >
-        {/* Sumu-/valoefekti */}
+        {/* Hienovarainen tausta */}
         <div
           className="absolute inset-0 
                bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.07)_0%,rgba(0,0,0,1)_80%)] 
@@ -129,8 +128,7 @@ export default function Home() {
         {/* Esittelyteksti */}
         <motion.section
           className="relative z-10 w-full px-4 sm:px-8 py-10 mb-8
-           bg-[#141414]/95 border-y border-red-900
-           shadow-[0_0_25px_rgba(0,0,0,0.4)]
+           bg-[#141414]/95 border-y border-yellow-600/30
            flex flex-col items-center justify-center text-center"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -138,7 +136,7 @@ export default function Home() {
         >
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center">
             TyöUkkoset –{" "}
-            <span className="text-red-600">
+            <span className="text-yellow-400">
               Tatuointia ja Stand Upia asenteella
             </span>
           </h2>
@@ -148,11 +146,11 @@ export default function Home() {
             pakettiin.
             <br className="hidden sm:block" />
             Valitse alta polkusi:{" "}
-            <span className="text-red-600 font-semibold">
+            <span className="text-yellow-400 font-semibold">
               Tatuoinnit
-            </span> vai{" "}
-            <span className="text-red-600 font-semibold">Naurut</span> ja astu
-            sisään.
+            </span>{" "}
+            vai <span className="text-yellow-400 font-semibold">Naurut</span> ja
+            astu sisään.
           </p>
         </motion.section>
 
@@ -168,10 +166,10 @@ export default function Home() {
             onClick={() => router.push("/tattoos")}
             className="relative flex flex-col items-center justify-end 
                       w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56
-                       bg-red-700 hover:bg-red-600 rounded-full 
-                       shadow-[0_0_15px_rgba(255,0,0,0.4)]
-                       cursor-pointer overflow-hidden 
-                       transition-transform hover:scale-110"
+                      bg-yellow-500 hover:bg-yellow-400 rounded-full 
+                      shadow-[0_0_25px_rgba(255,215,50,0.6)]
+                      cursor-pointer overflow-hidden 
+                      transition-transform hover:scale-110 animate-pulseGlow"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -191,8 +189,8 @@ export default function Home() {
             onClick={() => router.push("/standup")}
             className="relative flex flex-col items-center justify-end 
                        w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56
-                       bg-red-700 hover:bg-red-600 rounded-full 
-                       shadow-[0_0_15px_rgba(255,0,0,0.4)]
+                       bg-yellow-500 hover:bg-yellow-400 rounded-full 
+                       shadow-[0_0_25px_rgba(255,215,50,0.6)]
                        cursor-pointer overflow-hidden 
                        transition-transform hover:scale-110 animate-pulseGlow"
             whileHover={{ scale: 1.1 }}
@@ -214,12 +212,12 @@ export default function Home() {
       {/* INFO-FOOTER */}
       <section
         id="yhteystiedot"
-        className="w-full bg-gradient-to-b from-[#0a0a0a] via-[#111] to-[#1a1a1a] border-t border-red-900 py-10 text-gray-300"
+        className="w-full bg-gradient-to-b from-[#0a0a0a] via-[#111] to-[#1a1a1a] border-t border-yellow-600/30 py-10 text-gray-300"
       >
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-10 justify-center text-center md:text-left">
           {/* YHTEYSTIEDOT */}
           <div className="md:justify-self-end">
-            <h3 className="text-red-500 font-bold uppercase mb-3">
+            <h3 className="text-yellow-400 font-bold uppercase mb-3">
               Yhteystiedot
             </h3>
             <p className="text-sm leading-relaxed">
@@ -228,7 +226,7 @@ export default function Home() {
               Sähköposti:{" "}
               <a
                 href="mailto:tyoukkoset@gmail.com"
-                className="text-red-400 hover:text-red-500 underline"
+                className="text-yellow-400 hover:text-yellow-300 underline"
               >
                 tyoukkoset@gmail.com
               </a>{" "}
@@ -240,7 +238,7 @@ export default function Home() {
 
           {/* SÄÄNNÖT JA TIEDOT */}
           <div className="md:justify-self-start">
-            <h3 className="text-red-500 font-bold uppercase mb-3">
+            <h3 className="text-yellow-400 font-bold uppercase mb-3">
               Säännöt ja tiedot
             </h3>
             <p className="text-sm leading-relaxed">
@@ -255,10 +253,10 @@ export default function Home() {
       {/* FOOTER */}
       <footer
         id="footer"
-        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-red-800"
+        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-600/30"
       >
         <p className="text-sm text-gray-400">
-        © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
+          © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
         </p>
       </footer>
     </div>
