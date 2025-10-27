@@ -18,21 +18,21 @@ export default function Tattoos() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrollDirection, setScrollDirection] = useState("up");
 
-   const [tattoos, setTattoos] = useState<Tattoo[]>([]);
+  const [tattoos, setTattoos] = useState<Tattoo[]>([]);
 
   // 🔹 Hae tatuoinnit tietokannasta Prisma API:n kautta
- useEffect(() => {
-  const fetchTattoos = async () => {
-    try {
-      const res = await fetch("/api/tattoos");
-      const data = await res.json();
-      setTattoos(data);
-    } catch (err) {
-      console.error("Virhe tatuointien haussa:", err);
-    }
-  };
-  fetchTattoos();
-}, []);
+  useEffect(() => {
+    const fetchTattoos = async () => {
+      try {
+        const res = await fetch("/api/tattoos");
+        const data = await res.json();
+        setTattoos(data);
+      } catch (err) {
+        console.error("Virhe tatuointien haussa:", err);
+      }
+    };
+    fetchTattoos();
+  }, []);
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const updateScrollDir = () => {
@@ -86,30 +86,40 @@ export default function Tattoos() {
 
         {/* Desktop-navigaatio */}
         <nav className="hidden md:flex gap-6 text-sm sm:text-base font-semibold uppercase tracking-wide z-10">
-          {["Etusivu", "Galleria", "Info", "Yhteystiedot"].map((item) => (
-            <button
-              key={item}
-              onClick={() => {
-                if (item === "Etusivu") router.push("/");
-                else if (item === "Galleria")
-                  document
-                    .getElementById("gallery")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                else if (item === "Info")
-                  document
-                    .getElementById("info")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                else if (item === "Yhteystiedot")
-                  document
-                    .getElementById("footer")
-                    ?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="relative text-gray-200 hover:text-white transition-colors duration-200 group"
-            >
-              {item}
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
-            </button>
-          ))}
+          {["Etusivu", "Galleria", "Info", "Yhteystiedot", "Ota yhteyttä"].map(
+            (item) => (
+              <button
+                key={item}
+                onClick={() => {
+                  if (item === "Etusivu") {
+                    router.push("/");
+                  } else if (item === "Galleria") {
+                    const section = document.getElementById("gallery");
+                    if (section) {
+                      section.scrollIntoView({ behavior: "smooth" });
+                    } else {
+                      router.push("/tattoos#gallery");
+                    }
+                  } else if (item === "Info") {
+                    const section = document.getElementById("info");
+                    if (section) {
+                      section.scrollIntoView({ behavior: "smooth" });
+                    } else {
+                      router.push("/tattoos#info");
+                    }
+                  } else if (item === "Yhteystiedot") {
+                    router.push("/#yhteystiedot");
+                  } else if (item === "Ota yhteyttä") {
+                    router.push("/#yhteydenotto");
+                  }
+                }}
+                className="relative text-gray-200 hover:text-white transition-colors duration-200 group"
+              >
+                {item}
+                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+              </button>
+            )
+          )}
         </nav>
 
         {/* Hamburger (mobiili) */}
@@ -131,24 +141,38 @@ export default function Tattoos() {
               transition={{ duration: 0.3 }}
               className="absolute top-full left-0 w-full bg-black/90 backdrop-blur-md flex flex-col items-center gap-6 py-6 md:hidden z-10 border-t border-yellow-600/30"
             >
-              {["Etusivu", "Galleria", "Info", "Yhteystiedot"].map((item) => (
+              {[
+                "Etusivu",
+                "Galleria",
+                "Info",
+                "Yhteystiedot",
+                "Ota yhteyttä",
+              ].map((item) => (
                 <button
                   key={item}
                   onClick={() => {
-                    if (item === "Etusivu") router.push("/");
-                    else if (item === "Galleria")
-                      document
-                        .getElementById("gallery")
-                        ?.scrollIntoView({ behavior: "smooth" });
-                    else if (item === "Info")
-                      document
-                        .getElementById("info")
-                        ?.scrollIntoView({ behavior: "smooth" });
-                    else if (item === "Yhteystiedot")
-                      document
-                        .getElementById("footer")
-                        ?.scrollIntoView({ behavior: "smooth" });
-                    setMenuOpen(false);
+                    if (item === "Etusivu") {
+                      router.push("/");
+                    } else if (item === "Galleria") {
+                      const section = document.getElementById("gallery");
+                      if (section) {
+                        section.scrollIntoView({ behavior: "smooth" });
+                      } else {
+                        router.push("/tattoos#gallery");
+                      }
+                    } else if (item === "Info") {
+                      const section = document.getElementById("info");
+                      if (section) {
+                        section.scrollIntoView({ behavior: "smooth" });
+                      } else {
+                        router.push("/tattoos#info");
+                      }
+                    } else if (item === "Yhteystiedot") {
+                      router.push("/#yhteystiedot");
+                    } else if (item === "Ota yhteyttä") {
+                      router.push("/#yhteydenotto");
+                    }
+                    setMenuOpen(false); // 🔹 sulkee mobiilivalikon painalluksen jälkeen
                   }}
                   className="text-lg font-semibold uppercase text-gray-200 hover:text-yellow-400 transition"
                 >
@@ -226,21 +250,66 @@ export default function Tattoos() {
         {/* Info Section */}
         <section
           id="info"
-          className="w-full max-w-4xl mx-auto py-16 px-6 border-t border-yellow-700/40"
+          className="w-full max-w-4xl mx-auto py-16 px-6 border-t border-yellow-700/40 text-gray-300"
         >
-          <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
-            Tatuoinnin hoito-ohjeet
+          <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
+            Uuden tatuoinnin hoito
           </h2>
-          <ul className="text-gray-300 leading-relaxed list-disc list-inside space-y-3 text-left">
-            <li>Pidä tuore tatuointi puhtaana ja kuivana ensimmäiset päivät.</li>
-            <li>Poista suojakalvo tatuoijan ohjeiden mukaisesti.</li>
-            <li>Levitä ohut kerros hoitovoidetta 2–3 kertaa päivässä.</li>
-            <li>Vältä saunaa, uimista ja aurinkoa 2 viikon ajan.</li>
-            <li>Älä raavi tai koske tatuointiin likaisin käsin.</li>
-          </ul>
-          <p className="text-sm text-gray-500 mt-6 italic text-center">
-            Hoito-ohjeiden noudattaminen varmistaa parhaan lopputuloksen ja
-            värien säilyvyyden.
+
+          <div className="space-y-10">
+            {/* Ensimmäinen päivä */}
+            <div>
+              <h3 className="text-xl font-semibold text-yellow-300 mb-3">
+                Ensimmäinen päivä
+              </h3>
+              <p className="leading-relaxed">
+                Kun tatuointi on valmis, se peitetään suojakalvolla tai
+                siteellä, joka pidetään paikallaan muutaman tunnin ajan. Tämän
+                jälkeen tatuointi pestään varovasti haalealla vedellä ja
+                miedolla, hajusteettomalla saippualla, jotta ylimääräinen muste,
+                veri ja plasma poistuvat. Kuivaa iho kevyesti taputtelemalla ja
+                levitä ohut kerros tatuoinnin hoitovoidetta. Vältä liiallista
+                rasvan määrää, jotta iho pääsee hengittämään.
+              </p>
+            </div>
+
+            {/* Ensimmäiset viikot */}
+            <div>
+              <h3 className="text-xl font-semibold text-yellow-300 mb-3">
+                Ensimmäiset viikot
+              </h3>
+              <p className="leading-relaxed">
+                Tuore tatuointi voi olla arka, punoittava tai turvonnut.
+                Puhdista tatuointi 1–2 kertaa päivässä ja käytä hoitovoidetta
+                aina pesun jälkeen vähintään kahden viikon ajan. Voit rasvata
+                useammin, jos iho tuntuu kuivalta tai kiristävältä. Jatka
+                kosteutusta säännöllisesti koko ensimmäisen kuukauden ajan.
+                Kelmua voi käyttää tarvittaessa, jos vaatteet hankaavat ihoa,
+                mutta muista puhdistaa ja rasvata iho aina ennen sen
+                laittamista.
+              </p>
+            </div>
+
+            {/* Vältä nämä */}
+            <div>
+              <h3 className="text-xl font-semibold text-yellow-300 mb-3">
+                Vältä nämä
+              </h3>
+              <ul className="list-disc list-inside space-y-2">
+                <li>Älä koskettele tai raavi tatuointia likaisin käsin.</li>
+                <li>Älä repi rupia — ne voivat viedä väriä mukanaan.</li>
+                <li>
+                  Vältä saunomista, uimista ja auringonottoa vähintään 2
+                  viikkoa.
+                </li>
+                <li>Vältä myös auringonottoa ensimmäisen kuukauden ajan.</li>
+              </ul>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-500 mt-10 italic text-center">
+            Huolellinen jälkihoito varmistaa parhaan lopputuloksen ja värien
+            pysyvyyden.
           </p>
         </section>
       </main>

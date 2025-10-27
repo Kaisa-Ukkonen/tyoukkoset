@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: jesse_site
+    ports:
+      - "3306:3306"
+    volumes:
+      - jesse_mysql_data:/var/lib/mysql
+
+
+volumes:
+  jesse_mysql_data:

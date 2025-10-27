@@ -50,7 +50,7 @@ export default function Home() {
 
         {/* Desktop-navigaatio */}
         <nav className="hidden md:flex gap-6 text-sm sm:text-base font-semibold uppercase tracking-wide z-10">
-          {["Etusivu", "Yhteystiedot"].map((item) => (
+          {["Etusivu", "Yhteystiedot", "Ota yhteyttä"].map((item) => (
             <button
               key={item}
               onClick={() => {
@@ -58,6 +58,9 @@ export default function Home() {
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 } else if (item === "Yhteystiedot") {
                   const section = document.getElementById("yhteystiedot");
+                  section?.scrollIntoView({ behavior: "smooth" });
+                } else if (item === "Ota yhteyttä") {
+                  const section = document.getElementById("yhteydenotto");
                   section?.scrollIntoView({ behavior: "smooth" });
                 }
               }}
@@ -248,6 +251,114 @@ export default function Home() {
             </p>
           </div>
         </div>
+      </section>
+
+      {/* YHTEYDENOTTOLOMAKE */}
+      <section
+        id="yhteydenotto"
+        className="w-full max-w-3xl mx-auto py-16 px-6 border-t border-yellow-700/40 text-gray-300"
+      >
+        <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
+          Ota yhteyttä
+        </h2>
+        <form
+          onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            const form = e.currentTarget as HTMLFormElement & {
+              name: { value: string };
+              email: { value: string };
+              phone: { value: string };
+              service: { value: string };
+              message: { value: string };
+            };
+
+            const data = {
+              name: form.name.value,
+              email: form.email.value,
+              phone: form.phone.value,
+              service: form.service.value,
+              message: form.message.value,
+            };
+
+            const res = await fetch("/api/contact", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+
+            if (res.ok) {
+              alert("Kiitos yhteydenotosta! Otamme sinuun pian yhteyttä.");
+              form.reset();
+            } else {
+              alert("Virhe lähetyksessä. Yritä uudelleen.");
+            }
+          }}
+          className="flex flex-col gap-5"
+        >
+          {/* Nimi ja sähköposti */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input
+              type="text"
+              name="name"
+              placeholder="Nimi"
+              required
+              className="bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+              focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Sähköposti"
+              required
+              className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+              focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+            />
+          </div>
+
+          {/* Puhelin ja valinta */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input
+              type="text"
+              name="phone"
+              placeholder="Puhelinnumero"
+              className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+              focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+            />
+            <select
+              name="service"
+              required
+              className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+              focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+            >
+              <option value="" className="bg-[#0a0a0a] text-gray-400">
+                Valitse palvelu
+              </option>
+              <option value="Tatuoinnit" className="bg-[#0a0a0a] text-white">
+                Tatuoinnit
+              </option>
+              <option value="Stand Up" className="bg-[#0a0a0a] text-white">
+                Stand Up
+              </option>
+            </select>
+          </div>
+
+          {/* Viesti */}
+          <textarea
+            name="message"
+            placeholder="Kerro mitä haluaisit..."
+            required
+            rows={5}
+            className="bg-white/5 border border-yellow-600/30 text-white rounded-md px-4 py-2 focus:outline-none focus:border-yellow-400 placeholder-gray-500"
+          ></textarea>
+
+          {/* Lähetyspainike */}
+          <button
+            type="submit"
+            className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded-md transition-all duration-300"
+          >
+            Lähetä viesti
+          </button>
+        </form>
       </section>
 
       {/* FOOTER */}
