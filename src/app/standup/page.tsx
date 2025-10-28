@@ -66,7 +66,7 @@ export default function StandUpPage() {
           {[
             "Etusivu",
             "Galleria",
-            "Kalenteri",
+            "Keikat",
             "Yhteystiedot",
             "Ota yhteyttä",
           ].map((item) => (
@@ -82,7 +82,7 @@ export default function StandUpPage() {
                   } else {
                     router.push("/standup#gallery");
                   }
-                } else if (item === "Kalenteri") {
+                } else if (item === "Keikat") {
                   const section = document.getElementById("calendar");
                   if (section) {
                     section.scrollIntoView({ behavior: "smooth" });
@@ -125,7 +125,7 @@ export default function StandUpPage() {
               {[
                 "Etusivu",
                 "Galleria",
-                "Kalenteri",
+                "Keikat",
                 "Yhteystiedot",
                 "Ota yhteyttä",
               ].map((item) => (
@@ -141,7 +141,7 @@ export default function StandUpPage() {
                       } else {
                         router.push("/standup#gallery");
                       }
-                    } else if (item === "Kalenteri") {
+                    } else if (item === "Keikat") {
                       const section = document.getElementById("calendar");
                       if (section) {
                         section.scrollIntoView({ behavior: "smooth" });
@@ -166,33 +166,114 @@ export default function StandUpPage() {
       </header>
 
       {/* --- SISÄLTÖ --- */}
-      <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-32 z-10 px-4">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-4">Stand Up</h1>
-        <p className="text-gray-400 mb-10">
-          Tähän tulee keikkakalenteri ja videot.
-        </p>
+      <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-44 sm:mt-52 z-10 px-4">
+       
+
+        {/* Koomikkoesittely */}
+        <section className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-8 text-gray-300 mb-16">
+          {/* Tekstiosio */}
+          <div className="md:w-1/2 text-center md:text-left leading-relaxed">
+            <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
+              Koomikko Jesse Ukkonen
+            </h2>
+
+            <p className="mb-4">
+              Jesse on arjen kommelluksista tarinoitaan ammentava suorasanainen
+              ja aavistuksen yksinkertainen savolaiskoomikko, jonka huumori
+              iskee varmasti niin sohvan pohjalla laiskottelevaan
+              työnvieroksujaan kuin yrittäjähenkiseen ylisuorittajaan.
+            </p>
+
+            <p className="mb-4">
+              Teini-isyyden kokeneena, monialayrittäjänä ja itsepäisenä oman
+              tiensä kulkijana Jesse tietää, ettei elämä mene aina
+              käsikirjoituksen mukaan – ja juuri siitä ne parhaat tarinat
+              syntyvät.
+            </p>
+
+            <p className="italic text-yellow-400 mb-4">
+              Elämän mottona: "Muut tekkee mitä osaa. Mää teen mitä kehtoon."
+            </p>
+
+            <p>
+              Jessen tyyli on rento, rehellinen ja sopivasti itseironinen.
+              Täydellinen kattaus niille, jotka tunnistavat itsensä arkisista
+              mokista ja elämän pienistä yllätyksistä.
+            </p>
+          </div>
+
+          {/* Kuvan osio */}
+          <div className="md:w-1/2 flex justify-center">
+            <Image
+              src="/kolmoset-9.webp"
+              alt="Koomikko Jesse Ukkonen"
+              width={400}
+              height={400}
+              className="rounded-2xl shadow-lg shadow-yellow-700/40 hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+        </section>
 
         {/* Galleria-osio */}
         <section id="gallery" className="w-full max-w-3xl py-10">
           <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
             Galleria
           </h2>
-          <p className="text-gray-400 italic">
-            Stand up -kuvia ja tunnelmia keikoilta tulee tähän.
-          </p>
+
+          {/* Videon kehys */}
+          <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg shadow-yellow-700/30">
+            <iframe
+              className="absolute inset-0 w-full h-full"
+              src="https://www.youtube.com/embed/Ue3obS6zFG4"
+              title="Stand Up -video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            ></iframe>
+          </div>
+
+          {/* YouTube-linkki */}
+          <a
+            href="https://youtube.com/shorts/Ue3obS6zFG4?si=ipD2exaHBIatwkzJ"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-6 px-6 py-3 bg-yellow-500/10 border border-yellow-500 text-yellow-400 rounded-full font-semibold hover:bg-yellow-500/20 transition-all duration-300"
+          >
+            Katso YouTubessa
+          </a>
         </section>
 
-        {/* Kalenteri-osio */}
+        {/* Keikat-osio */}
         <section
           id="calendar"
-          className="w-full max-w-3xl py-10 border-t border-yellow-700 mt-10"
+          className="w-full max-w-3xl py-10 border-t border-yellow-700 mt-10 text-left"
         >
-          <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
-            Kalenteri
+          <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
+            Keikat
           </h2>
-          <p className="text-gray-400 italic">
-            Tähän lisätään tulevat keikat ja tapahtumat.
-          </p>
+
+          <h3 className="text-xl font-semibold text-yellow-300 mb-4 text-center">
+            Marraskuu
+          </h3>
+
+          <ul className="space-y-3 text-gray-300 text-center">
+            <li>
+              <span className="text-yellow-400 font-bold">8.11.</span> –
+              Hankasalmi, Timpan baari
+            </li>
+            <li>
+              <span className="text-yellow-400 font-bold">12.11.</span> – Oulu,
+              Remakka
+            </li>
+            <li>
+              <span className="text-yellow-400 font-bold">20.11.</span> –
+              Kuopio, Haaska
+            </li>
+            <li>
+              <span className="text-yellow-400 font-bold">28.11.</span> –
+              Vantaa, Hupisipuli
+            </li>
+          </ul>
         </section>
       </main>
 
@@ -201,9 +282,57 @@ export default function StandUpPage() {
         id="footer"
         className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-700"
       >
-        <p className="text-sm text-gray-400">
-          © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
-        </p>
+        <div className="flex justify-center items-center gap-3">
+          <p className="text-sm text-gray-400">
+            © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
+          </p>
+
+          <a
+            href="https://www.instagram.com/jesseukkonen?igsh=MXg2b2U4bWlkM3h0dA=="
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Avaa Instagram-profiili"
+          >
+            <Image
+              src="/instagramLogo.png"
+              alt="Instagram"
+              width={25}
+              height={25}
+              className="rounded-md hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(255,200,0,0.6)] transition-all duration-300"
+            />
+          </a>
+
+          {/* YouTube-linkki */}
+          <a
+            href="https://www.youtube.com/@koomikkoukkonen"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Avaa YouTube-kanava"
+          >
+            <Image
+              src="/youtubeLogo.png"
+              alt="YouTube"
+              width={32}
+              height={32}
+              className="rounded-md hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(255,200,0,0.6)] transition-all duration-300"
+            />
+          </a>
+          {/* TikTok-linkki */}
+          <a
+            href="https://www.tiktok.com/@koomikkoukkonen?_t=ZN-90vA5YvDm0k&_r=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Avaa TikTok-profiili"
+          >
+            <Image
+              src="/tiktokLogo.png"
+              alt="TikTok"
+              width={28}
+              height={28}
+              className="rounded-md hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(255,200,0,0.6)] transition-all duration-300"
+            />
+          </a>
+        </div>
       </footer>
     </div>
   );
