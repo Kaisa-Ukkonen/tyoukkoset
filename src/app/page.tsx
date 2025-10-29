@@ -35,18 +35,24 @@ export default function Home() {
   } 
   backdrop-blur-sm border-b border-yellow-600/30`}
       >
-        {/* Logo */}
-        <div className="flex items-center z-20">
+        {/* Logo (animoitu scrollatessa) */}
+        <motion.div
+          className="flex items-center z-20 cursor-pointer"
+          onClick={() => router.push("/")}
+          initial={{ scale: 1 }}
+          animate={{ scale: scrollDirection === "down" ? 0.8 : 1 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
           <Image
             src="/keltainenlogo.png"
             alt="TyöUkkoset logo"
             width={0}
             height={0}
             sizes="100vw"
-            className="object-contain w-44 sm:w-52 md:w-60 lg:w-80 max-w-[80%] ml-2"
+            className="object-contain w-44 sm:w-52 md:w-60 lg:w-80 max-w-[80%] ml-2 transition-all duration-500"
             priority
           />
-        </div>
+        </motion.div>
 
         {/* Desktop-navigaatio */}
         <nav className="hidden md:flex gap-6 text-sm sm:text-base font-semibold uppercase tracking-wide z-10">

@@ -42,10 +42,13 @@ export default function StandUpPage() {
           }
           backdrop-blur-sm border-b border-yellow-600/30`}
       >
-        {/* Logo */}
-        <div
+        {/* Logo (animoitu scrollatessa) */}
+        <motion.div
           className="flex items-center z-20 cursor-pointer"
           onClick={() => router.push("/")}
+          initial={{ scale: 1 }}
+          animate={{ scale: scrollDirection === "down" ? 0.8 : 1 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
         >
           <Image
             src="/keltainenlogo.png"
@@ -56,30 +59,32 @@ export default function StandUpPage() {
             className="object-contain w-44 sm:w-52 md:w-60 lg:w-80 max-w-[80%] ml-2 transition-all duration-500"
             priority
           />
-        </div>
+        </motion.div>
 
         {/* Desktop-navigaatio */}
         <nav className="hidden md:flex gap-6 text-sm sm:text-base font-semibold uppercase tracking-wide z-10">
-          {["Etusivu", "Galleria", "Keikat", "Yhteystiedot", "Ota yhteyttä"].map(
-            (item) => (
-              <button
-                key={item}
-                onClick={() => {
-                  if (item === "Etusivu") router.push("/");
-                  else if (item === "Galleria") router.push("/standup#gallery");
-                  else if (item === "Keikat") router.push("/standup#calendar");
-                  else if (item === "Yhteystiedot")
-                    router.push("/#yhteystiedot");
-                  else if (item === "Ota yhteyttä")
-                    router.push("/#yhteydenotto");
-                }}
-                className="relative text-gray-200 hover:text-white transition-colors duration-200 group"
-              >
-                {item}
-                <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
-              </button>
-            )
-          )}
+          {[
+            "Etusivu",
+            "Galleria",
+            "Keikat",
+            "Yhteystiedot",
+            "Ota yhteyttä",
+          ].map((item) => (
+            <button
+              key={item}
+              onClick={() => {
+                if (item === "Etusivu") router.push("/");
+                else if (item === "Galleria") router.push("/standup#gallery");
+                else if (item === "Keikat") router.push("/standup#calendar");
+                else if (item === "Yhteystiedot") router.push("/#yhteystiedot");
+                else if (item === "Ota yhteyttä") router.push("/#yhteydenotto");
+              }}
+              className="relative text-gray-200 hover:text-white transition-colors duration-200 group"
+            >
+              {item}
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+            </button>
+          ))}
         </nav>
 
         {/* Hamburger (mobiili) */}
@@ -114,7 +119,8 @@ export default function StandUpPage() {
                     if (item === "Etusivu") router.push("/");
                     else if (item === "Galleria")
                       router.push("/standup#gallery");
-                    else if (item === "Keikat") router.push("/standup#calendar");
+                    else if (item === "Keikat")
+                      router.push("/standup#calendar");
                     else if (item === "Yhteystiedot")
                       router.push("/#yhteystiedot");
                     else if (item === "Ota yhteyttä")
@@ -283,16 +289,20 @@ export default function StandUpPage() {
           </h3>
           <ul className="space-y-3 text-gray-300 text-center">
             <li>
-              <span className="text-yellow-400 font-bold">8.11.</span> – Hankasalmi, Timpan baari
+              <span className="text-yellow-400 font-bold">8.11.</span> –
+              Hankasalmi, Timpan baari
             </li>
             <li>
-              <span className="text-yellow-400 font-bold">12.11.</span> – Oulu, Remakka
+              <span className="text-yellow-400 font-bold">12.11.</span> – Oulu,
+              Remakka
             </li>
             <li>
-              <span className="text-yellow-400 font-bold">20.11.</span> – Kuopio, Haaska
+              <span className="text-yellow-400 font-bold">20.11.</span> –
+              Kuopio, Haaska
             </li>
             <li>
-              <span className="text-yellow-400 font-bold">28.11.</span> – Vantaa, Hupisipuli
+              <span className="text-yellow-400 font-bold">28.11.</span> –
+              Vantaa, Hupisipuli
             </li>
           </ul>
         </motion.section>
