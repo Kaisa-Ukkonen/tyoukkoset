@@ -17,10 +17,9 @@ export default function Tattoos() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrollDirection, setScrollDirection] = useState("up");
-
   const [tattoos, setTattoos] = useState<Tattoo[]>([]);
 
-  // 🔹 Hae tatuoinnit tietokannasta Prisma API:n kautta
+  // 🔹 Hae tatuoinnit tietokannasta
   useEffect(() => {
     const fetchTattoos = async () => {
       try {
@@ -33,15 +32,14 @@ export default function Tattoos() {
     };
     fetchTattoos();
   }, []);
+
+  // 🔹 Headerin kutistuminen
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const updateScrollDir = () => {
       const scrollY = window.scrollY;
-      if (scrollY > lastScrollY && scrollY > 50) {
-        setScrollDirection("down");
-      } else if (scrollY < lastScrollY) {
-        setScrollDirection("up");
-      }
+      if (scrollY > lastScrollY && scrollY > 50) setScrollDirection("down");
+      else if (scrollY < lastScrollY) setScrollDirection("up");
       lastScrollY = scrollY > 0 ? scrollY : 0;
     };
     window.addEventListener("scroll", updateScrollDir);
@@ -68,7 +66,6 @@ export default function Tattoos() {
           } 
           backdrop-blur-sm border-b border-yellow-600/30`}
       >
-        {/* Logo */}
         <div
           className="flex items-center z-20 cursor-pointer"
           onClick={() => router.push("/")}
@@ -91,27 +88,13 @@ export default function Tattoos() {
               <button
                 key={item}
                 onClick={() => {
-                  if (item === "Etusivu") {
-                    router.push("/");
-                  } else if (item === "Galleria") {
-                    const section = document.getElementById("gallery");
-                    if (section) {
-                      section.scrollIntoView({ behavior: "smooth" });
-                    } else {
-                      router.push("/tattoos#gallery");
-                    }
-                  } else if (item === "Info") {
-                    const section = document.getElementById("info");
-                    if (section) {
-                      section.scrollIntoView({ behavior: "smooth" });
-                    } else {
-                      router.push("/tattoos#info");
-                    }
-                  } else if (item === "Yhteystiedot") {
+                  if (item === "Etusivu") router.push("/");
+                  else if (item === "Galleria") router.push("/tattoos#gallery");
+                  else if (item === "Info") router.push("/tattoos#info");
+                  else if (item === "Yhteystiedot")
                     router.push("/#yhteystiedot");
-                  } else if (item === "Ota yhteyttä") {
+                  else if (item === "Ota yhteyttä")
                     router.push("/#yhteydenotto");
-                  }
                 }}
                 className="relative text-gray-200 hover:text-white transition-colors duration-200 group"
               >
@@ -151,28 +134,15 @@ export default function Tattoos() {
                 <button
                   key={item}
                   onClick={() => {
-                    if (item === "Etusivu") {
-                      router.push("/");
-                    } else if (item === "Galleria") {
-                      const section = document.getElementById("gallery");
-                      if (section) {
-                        section.scrollIntoView({ behavior: "smooth" });
-                      } else {
-                        router.push("/tattoos#gallery");
-                      }
-                    } else if (item === "Info") {
-                      const section = document.getElementById("info");
-                      if (section) {
-                        section.scrollIntoView({ behavior: "smooth" });
-                      } else {
-                        router.push("/tattoos#info");
-                      }
-                    } else if (item === "Yhteystiedot") {
+                    if (item === "Etusivu") router.push("/");
+                    else if (item === "Galleria")
+                      router.push("/tattoos#gallery");
+                    else if (item === "Info") router.push("/tattoos#info");
+                    else if (item === "Yhteystiedot")
                       router.push("/#yhteystiedot");
-                    } else if (item === "Ota yhteyttä") {
+                    else if (item === "Ota yhteyttä")
                       router.push("/#yhteydenotto");
-                    }
-                    setMenuOpen(false); // 🔹 sulkee mobiilivalikon painalluksen jälkeen
+                    setMenuOpen(false);
                   }}
                   className="text-lg font-semibold uppercase text-gray-200 hover:text-yellow-400 transition"
                 >
@@ -185,13 +155,24 @@ export default function Tattoos() {
       </header>
 
       {/* --- SISÄLTÖ --- */}
-     <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-12 sm:mt-28 z-10 px-4">
-        {/* Artist Section */}
-        <section
+      <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-12 sm:mt-28 z-10 px-4">
+
+        {/* ARTISTI */}
+        <motion.section
           id="artist"
           className="relative w-full max-w-5xl mx-auto mt-20 px-6 py-12 flex flex-col md:flex-row items-center gap-10 border-b border-yellow-700/40"
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
         >
-          <div className="w-full md:w-1/2 text-center md:text-left">
+          <motion.div
+            className="w-full md:w-1/2 text-center md:text-left"
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
             <h2 className="text-3xl font-bold text-yellow-400 mb-4">
               Jesse Ukkonen
             </h2>
@@ -202,8 +183,15 @@ export default function Tattoos() {
               kontrasteihin ja tarinallisuuteen – jokaisella tatuoinnilla on oma
               merkityksensä.
             </p>
-          </div>
-          <div className="w-full md:w-1/2 flex justify-center">
+          </motion.div>
+
+          <motion.div
+            className="w-full md:w-1/2 flex justify-center"
+            initial={{ opacity: 0, x: 80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
             <Image
               src="/tattoo-icon.png"
               alt="Jesse Ukkonen Tattoo Artist"
@@ -211,11 +199,18 @@ export default function Tattoos() {
               height={350}
               className="rounded-2xl shadow-[0_0_25px_rgba(255,215,0,0.3)] object-cover"
             />
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
-        {/* Galleria Section */}
-        <section id="gallery" className="w-full max-w-6xl mx-auto py-20 px-6">
+        {/* GALLERIA */}
+        <motion.section
+          id="gallery"
+          className="w-full max-w-6xl mx-auto py-20 px-6"
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
           <h2 className="text-3xl font-bold text-yellow-400 mb-10 text-center">
             Galleria
           </h2>
@@ -223,9 +218,13 @@ export default function Tattoos() {
           {tattoos.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
               {tattoos.map((tattoo) => (
-                <div
+                <motion.div
                   key={tattoo.id}
                   className="relative overflow-hidden rounded-xl group"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6 }}
+                  viewport={{ once: true }}
                 >
                   <Image
                     src={tattoo.imageUrl}
@@ -237,7 +236,7 @@ export default function Tattoos() {
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-end justify-center text-yellow-300 font-semibold">
                     <p className="mb-3">{tattoo.title}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           ) : (
@@ -245,12 +244,16 @@ export default function Tattoos() {
               Ei vielä tatuointikuvia tietokannassa.
             </p>
           )}
-        </section>
+        </motion.section>
 
-        {/* Info Section */}
-        <section
+        {/* INFO */}
+        <motion.section
           id="info"
           className="w-full max-w-4xl mx-auto py-16 px-6 border-t border-yellow-700/40 text-gray-300"
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
         >
           <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
             Uuden tatuoinnin hoito
@@ -311,36 +314,34 @@ export default function Tattoos() {
             Huolellinen jälkihoito varmistaa parhaan lopputuloksen ja värien
             pysyvyyden.
           </p>
-        </section>
+         </motion.section>
       </main>
 
       {/* FOOTER */}
-            <footer
-              id="footer"
-              className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-700"
-            >
-              <div className="flex justify-center items-center gap-3">
-                <p className="text-sm text-gray-400">
-                  © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
-                </p>
-      
-                <a
-                  href="https://www.instagram.com/tattoos_by_ukkone?igsh=MTQwMmE4M3dubmZl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Avaa Instagram-profiili"
-                >
-                  <Image
-                    src="/instagramLogo.png"
-                    alt="Instagram"
-                    width={25}
-                    height={25}
-                    className="rounded-md hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(255,200,0,0.6)] transition-all duration-300"
-                  />
-                </a>
-
-              </div>
-            </footer>
+      <footer
+        id="footer"
+        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-700"
+      >
+        <div className="flex justify-center items-center gap-3">
+          <p className="text-sm text-gray-400">
+            © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
+          </p>
+          <a
+            href="https://www.instagram.com/tattoos_by_ukkone?igsh=MTQwMmE4M3dubmZl"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Avaa Instagram-profiili"
+          >
+            <Image
+              src="/instagramLogo.png"
+              alt="Instagram"
+              width={25}
+              height={25}
+              className="rounded-md hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(255,200,0,0.6)] transition-all duration-300"
+            />
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }
