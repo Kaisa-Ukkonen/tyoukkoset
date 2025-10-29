@@ -223,7 +223,7 @@ export default function Tattoos() {
               {tattoos.map((tattoo) => (
                 <motion.div
                   key={tattoo.id}
-                  className="relative overflow-hidden rounded-xl"
+                  className="relative overflow-hidden rounded-xl aspect-[3/4]"
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.6 }}
@@ -232,10 +232,10 @@ export default function Tattoos() {
                   <Image
                     src={tattoo.imageUrl}
                     alt={tattoo.title}
-                    width={400}
-                    height={400}
-                    className="object-cover w-full h-full"
+                    fill
+                    className="object-cover object-center transition-transform duration-500"
                   />
+
                   {tattoo.title && (
                     <div className="absolute bottom-3 w-full text-center text-yellow-300 font-semibold bg-black/40 py-1">
                       {tattoo.title}

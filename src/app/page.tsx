@@ -174,7 +174,8 @@ export default function Home() {
           <motion.div
             onClick={() => router.push("/tattoos")}
             className="relative flex flex-col items-center justify-end 
-                      w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56
+                     w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 lg:w-75 lg:h-75
+
                       bg-yellow-500 hover:bg-yellow-400 rounded-full 
                       shadow-[0_0_25px_rgba(255,215,50,0.6)]
                       cursor-pointer overflow-hidden 
@@ -197,7 +198,8 @@ export default function Home() {
           <motion.div
             onClick={() => router.push("/standup")}
             className="relative flex flex-col items-center justify-end 
-                       w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56
+                       w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 lg:w-75 lg:h-75
+
                        bg-yellow-500 hover:bg-yellow-400 rounded-full 
                        shadow-[0_0_25px_rgba(255,215,50,0.6)]
                        cursor-pointer overflow-hidden 
