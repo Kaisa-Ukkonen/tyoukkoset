@@ -140,55 +140,75 @@ export default function StandUpPage() {
       {/* --- SISÄLTÖ --- */}
       <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-44 sm:mt-52 z-10 px-4">
         {/* Koomikkoesittely */}
-        <motion.section
-          className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-8 text-gray-300 mb-16"
-          initial={{ opacity: 0, y: 80 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          viewport={{ once: true }}
-        >
-          <div className="md:w-1/2 text-center md:text-left leading-relaxed">
-            <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
-              Koomikko Jesse Ukkonen
-            </h2>
-            <p className="mb-4">
-              Jesse on arjen kommelluksista tarinoitaan ammentava suorasanainen
-              ja aavistuksen yksinkertainen savolaiskoomikko, jonka huumori
-              iskee varmasti niin sohvan pohjalla laiskottelevaan
-              työnvieroksujaan kuin yrittäjähenkiseen ylisuorittajaan.
-            </p>
-            <p className="mb-4">
-              Teini-isyyden kokeneena, monialayrittäjänä ja itsepäisenä oman
-              tiensä kulkijana Jesse tietää, ettei elämä mene aina
-              käsikirjoituksen mukaan – ja juuri siitä ne parhaat tarinat
-              syntyvät.
-            </p>
-            <p className="italic text-yellow-400 mb-4">
-              Elämän mottona: Muut tekkee mitä osaa. Mää teen mitä kehtoon.
-            </p>
-            <p>
-              Jessen tyyli on rento, rehellinen ja sopivasti itseironinen.
-              Täydellinen kattaus niille, jotka tunnistavat itsensä arkisista
-              mokista ja elämän pienistä yllätyksistä.
-            </p>
-          </div>
-
-          <motion.div
-            className="md:w-1/2 flex justify-center"
-            initial={{ opacity: 0, y: 100 }}
+        <section className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-8 text-gray-300 mb-16">
+          {/* Tekstiosio animoitu ensin */}
+          {/* Koomikkoesittely – optimoitu versio */}
+          {/* Koomikkoesittely – kevyt ja sulava liike mobiilissa */}
+          <motion.section
+            className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-8 text-gray-300 mb-16"
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.2 }}
-            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }} // kevyt ease-in-out
+            viewport={{ once: true, amount: 0.3 }}
           >
-            <Image
-              src="/kolmoset-9.webp"
-              alt="Koomikko Jesse Ukkonen"
-              width={350}
-              height={350}
-              className="rounded-2xl shadow-lg shadow-yellow-700/40 hover:scale-105 transition-transform duration-500"
-            />
-          </motion.div>
-        </motion.section>
+            {/* Teksti */}
+            <motion.div
+              className="md:w-1/2 text-center md:text-left leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
+                Koomikko Jesse Ukkonen
+              </h2>
+              <p className="mb-4">
+                Jesse on arjen kommelluksista tarinoitaan ammentava
+                suorasanainen ja aavistuksen yksinkertainen savolaiskoomikko,
+                jonka huumori iskee varmasti niin sohvan pohjalla
+                laiskottelevaan työnvieroksujaan kuin yrittäjähenkiseen
+                ylisuorittajaan.
+              </p>
+              <p className="mb-4">
+                Teini-isyyden kokeneena, monialayrittäjänä ja itsepäisenä oman
+                tiensä kulkijana Jesse tietää, ettei elämä mene aina
+                käsikirjoituksen mukaan – ja juuri siitä ne parhaat tarinat
+                syntyvät.
+              </p>
+              <p className="italic text-yellow-400 mb-4">
+                Elämän mottona: Muut tekkee mitä osaa. Mää teen mitä kehtoon.
+              </p>
+              <p>
+                Jessen tyyli on rento, rehellinen ja sopivasti itseironinen.
+                Täydellinen kattaus niille, jotka tunnistavat itsensä arkisista
+                mokista ja elämän pienistä yllätyksistä.
+              </p>
+            </motion.div>
+
+            {/* Kuva – tulee kevyellä viiveellä */}
+            <motion.div
+              className="md:w-1/2 flex justify-center"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.8,
+                delay: 0.2,
+                ease: [0.25, 0.1, 0.25, 1],
+              }}
+              viewport={{ once: true }}
+            >
+              <Image
+                src="/kolmoset-9.webp"
+                alt="Koomikko Jesse Ukkonen"
+                width={350}
+                height={350}
+                className="rounded-2xl shadow-lg shadow-yellow-700/40 transition-transform duration-500 hover:scale-[1.03]"
+                loading="lazy"
+                decoding="async"
+              />
+            </motion.div>
+          </motion.section>
+        </section>
 
         {/* Kolmoset-esittely */}
         <motion.section
