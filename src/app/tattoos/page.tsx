@@ -116,7 +116,7 @@ export default function Tattoos() {
                 className="relative text-gray-200 hover:text-white transition-colors duration-200 group"
               >
                 {item}
-                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+                <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
               </button>
             )
           )}
@@ -185,7 +185,7 @@ export default function Tattoos() {
       </header>
 
       {/* --- SISÄLTÖ --- */}
-      <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-32 z-10 px-4">
+     <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-12 sm:mt-28 z-10 px-4">
         {/* Artist Section */}
         <section
           id="artist"
@@ -207,8 +207,8 @@ export default function Tattoos() {
             <Image
               src="/tattoo-icon.png"
               alt="Jesse Ukkonen Tattoo Artist"
-              width={400}
-              height={400}
+              width={350}
+              height={350}
               className="rounded-2xl shadow-[0_0_25px_rgba(255,215,0,0.3)] object-cover"
             />
           </div>
@@ -315,14 +315,32 @@ export default function Tattoos() {
       </main>
 
       {/* FOOTER */}
-      <footer
-        id="footer"
-        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-600/40"
-      >
-        <p className="text-sm text-gray-400">
-          © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
-        </p>
-      </footer>
+            <footer
+              id="footer"
+              className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-700"
+            >
+              <div className="flex justify-center items-center gap-3">
+                <p className="text-sm text-gray-400">
+                  © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
+                </p>
+      
+                <a
+                  href="https://www.instagram.com/tattoos_by_ukkone?igsh=MTQwMmE4M3dubmZl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Avaa Instagram-profiili"
+                >
+                  <Image
+                    src="/instagramLogo.png"
+                    alt="Instagram"
+                    width={25}
+                    height={25}
+                    className="rounded-md hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(255,200,0,0.6)] transition-all duration-300"
+                  />
+                </a>
+
+              </div>
+            </footer>
     </div>
   );
 }

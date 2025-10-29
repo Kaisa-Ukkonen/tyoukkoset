@@ -98,7 +98,7 @@ export default function StandUpPage() {
               className="relative text-gray-200 hover:text-white transition-colors duration-200 group"
             >
               {item}
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
             </button>
           ))}
         </nav>
@@ -167,8 +167,6 @@ export default function StandUpPage() {
 
       {/* --- SISÄLTÖ --- */}
       <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-44 sm:mt-52 z-10 px-4">
-       
-
         {/* Koomikkoesittely */}
         <section className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-8 text-gray-300 mb-16">
           {/* Tekstiosio */}
@@ -192,7 +190,7 @@ export default function StandUpPage() {
             </p>
 
             <p className="italic text-yellow-400 mb-4">
-              Elämän mottona: "Muut tekkee mitä osaa. Mää teen mitä kehtoon."
+              Elämän mottona: Muut tekkee mitä osaa. Mää teen mitä kehtoon.
             </p>
 
             <p>
@@ -207,10 +205,55 @@ export default function StandUpPage() {
             <Image
               src="/kolmoset-9.webp"
               alt="Koomikko Jesse Ukkonen"
+              width={350}
+              height={350}
+              className="rounded-2xl shadow-lg shadow-yellow-700/40 hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+        </section>
+
+        {/* Kolmoset-esittely */}
+        <section className="w-full max-w-5xl flex flex-col md:flex-row-reverse items-center justify-center gap-8 text-gray-300 mb-16">
+          {/* Kuvan osio (vasemmalle desktopissa) */}
+          <div className="md:w-1/2 flex justify-center">
+            <Image
+              src="/kolmoset-33.webp"
+              alt="Kolmoset stand up -ryhmä"
               width={400}
               height={400}
               className="rounded-2xl shadow-lg shadow-yellow-700/40 hover:scale-105 transition-transform duration-500"
             />
+          </div>
+
+          {/* Tekstiosio */}
+          <div className="md:w-1/2 text-center md:text-left leading-relaxed">
+            <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
+              Kolmoset
+            </h2>
+
+            <p className="mb-4">
+              Mitä saadaan, kun Savonlinnan poika lyöttäytyy yhteen Siilinjärven
+              kasvattien kanssa? Ainakin roppakaupalla itseironialla höystettyä
+              huumoria, elämän kipupisteitä ja arkisia oivalluksia, jotka osuvat
+              suoraan nauruhermoon!
+            </p>
+
+            <p className="mb-4">
+              Kolmoset on kolmen koomikon muodostama stand up -ryhmä, jossa
+              Oliver, Jesse ja Miro käyvät läpi elämänsä kompastuksia aina
+              työttömyydestä teini-isyyteen ja opiskelun ihanuuksista
+              kolmenkympin kriisiin. Jokainen tuo lavalle oman näkökulmansa ja
+              ennen kaikkea oman totuutensa siitä, miltä kasvu aikuisuuteen
+              oikeasti tuntuu.
+            </p>
+
+            <p>
+              Tämä on show, jossa ei säästellä puujalkoja, paljasteta vain
+              sopivasti ja nauretaan ennen kaikkea itsellemme. Tule kokemaan
+              Kolmosten nauruntäyteinen ilta {" "}
+              <span className="italic text-yellow-400">rehellinen, samaistuttava ja
+              juuri sopivan sekaisin</span>.
+            </p>
           </div>
         </section>
 
