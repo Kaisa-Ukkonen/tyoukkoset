@@ -186,9 +186,27 @@ export default function StandUpPage() {
             </motion.div>
 
             {/* Kuva – tulee kevyellä viiveellä */}
-            
-            
-            
+            <motion.div
+              className="md:w-1/2 flex justify-center"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.8,
+                delay: 0.2,
+                ease: [0.25, 0.1, 0.25, 1],
+              }}
+              viewport={{ once: true }}
+            >
+              <Image
+                src="/kolmoset-9.webp"
+                alt="Koomikko Jesse Ukkonen"
+                width={350}
+                height={350}
+                className="rounded-2xl shadow-lg shadow-yellow-700/40 transition-transform duration-500 hover:scale-[1.03]"
+                loading="lazy"
+                decoding="async"
+              />
+            </motion.div>
           </motion.section>
         </section>
 
