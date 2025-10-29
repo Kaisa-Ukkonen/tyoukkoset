@@ -165,7 +165,7 @@ export default function Home() {
 
         {/* Pyöreät napit */}
         <motion.div
-          className="flex flex-col md:flex-row gap-10 items-center justify-center relative z-10 mb-20 md:mb-10"
+  className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24 relative z-10 mt-4 md:mt-24 mb-10 md:mb-20"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
