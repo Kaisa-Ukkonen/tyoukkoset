@@ -133,13 +133,12 @@ export default function StandUpPage() {
 
       {/* --- SISÄLTÖ --- */}
       <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-44 sm:mt-52 z-10 px-4">
-
         {/* Koomikkoesittely */}
         <motion.section
           className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-8 text-gray-300 mb-16"
-          initial={{ opacity: 0, y: 60 }}
+          initial={{ opacity: 0, y: 80 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
           viewport={{ once: true }}
         >
           <div className="md:w-1/2 text-center md:text-left leading-relaxed">
@@ -167,11 +166,12 @@ export default function StandUpPage() {
               mokista ja elämän pienistä yllätyksistä.
             </p>
           </div>
+
           <motion.div
             className="md:w-1/2 flex justify-center"
-            initial={{ opacity: 0, y: 80 }}
+            initial={{ opacity: 0, y: 100 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+            transition={{ duration: 0.9, delay: 0.2 }}
             viewport={{ once: true }}
           >
             <Image
@@ -187,16 +187,16 @@ export default function StandUpPage() {
         {/* Kolmoset-esittely */}
         <motion.section
           className="w-full max-w-5xl flex flex-col md:flex-row-reverse items-center justify-center gap-8 text-gray-300 mb-16"
-          initial={{ opacity: 0, y: 60 }}
+          initial={{ opacity: 0, y: 80 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
         >
           <motion.div
             className="md:w-1/2 flex justify-center"
-            initial={{ opacity: 0, y: 80 }}
+            initial={{ opacity: 0, y: 100 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+            transition={{ duration: 0.9, delay: 0.3 }}
             viewport={{ once: true }}
           >
             <Image
@@ -207,6 +207,7 @@ export default function StandUpPage() {
               className="rounded-2xl shadow-lg shadow-yellow-700/40 hover:scale-105 transition-transform duration-500"
             />
           </motion.div>
+
           <div className="md:w-1/2 text-center md:text-left leading-relaxed">
             <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
               Kolmoset
@@ -237,9 +238,9 @@ export default function StandUpPage() {
         <motion.section
           id="gallery"
           className="w-full max-w-3xl py-10"
-          initial={{ opacity: 0, y: 60 }}
+          initial={{ opacity: 0, y: 80 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
           viewport={{ once: true }}
         >
           <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
@@ -269,9 +270,9 @@ export default function StandUpPage() {
         <motion.section
           id="calendar"
           className="w-full max-w-3xl py-10 border-t border-yellow-700 mt-10 text-left"
-          initial={{ opacity: 0, y: 60 }}
+          initial={{ opacity: 0, y: 80 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
           viewport={{ once: true }}
         >
           <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
