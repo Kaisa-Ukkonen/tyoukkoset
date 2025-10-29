@@ -223,7 +223,7 @@ export default function Tattoos() {
               {tattoos.map((tattoo) => (
                 <motion.div
                   key={tattoo.id}
-                  className="relative overflow-hidden rounded-xl group"
+                  className="relative overflow-hidden rounded-xl"
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.6 }}
@@ -234,11 +234,13 @@ export default function Tattoos() {
                     alt={tattoo.title}
                     width={400}
                     height={400}
-                    className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                    className="object-cover w-full h-full"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-end justify-center text-yellow-300 font-semibold">
-                    <p className="mb-3">{tattoo.title}</p>
-                  </div>
+                  {tattoo.title && (
+                    <div className="absolute bottom-3 w-full text-center text-yellow-300 font-semibold bg-black/40 py-1">
+                      {tattoo.title}
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </div>
