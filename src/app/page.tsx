@@ -67,7 +67,7 @@ export default function Home() {
               className="relative text-gray-200 hover:text-white transition-colors duration-200 group"
             >
               {item}
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
             </button>
           ))}
         </nav>
@@ -131,7 +131,7 @@ export default function Home() {
         {/* Esittelyteksti */}
         <motion.section
           className="relative z-10 w-full px-4 sm:px-8 py-10 mb-8
-           bg-[#141414]/95 border-y border-yellow-600/30
+           bg-[#141414]/95 
            flex flex-col items-center justify-center text-center"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -215,7 +215,7 @@ export default function Home() {
       {/* INFO-FOOTER */}
       <section
         id="yhteystiedot"
-        className="w-full bg-gradient-to-b from-[#0a0a0a] via-[#111] to-[#1a1a1a] border-t border-yellow-600/30 py-10 text-gray-300"
+        className="w-full bg-linear-to-b from-[#0a0a0a] via-[#111] to-[#1a1a1a] border-t border-yellow-600/30 py-10 text-gray-300"
       >
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-10 justify-center text-center md:text-left">
           {/* YHTEYSTIEDOT */}
