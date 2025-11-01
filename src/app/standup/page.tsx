@@ -231,6 +231,7 @@ export default function StandUpPage() {
                 width={400}
                 height={400}
                 className="rounded-2xl shadow-lg shadow-yellow-700/40 hover:scale-105 transition-transform duration-500"
+                loading="lazy"
               />
             </motion.div>
 
@@ -348,6 +349,7 @@ export default function StandUpPage() {
               width={25}
               height={25}
               className="rounded-md hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(255,200,0,0.6)] transition-all duration-300"
+              loading="lazy"
             />
           </a>
           <a
@@ -361,6 +363,7 @@ export default function StandUpPage() {
               width={32}
               height={32}
               className="rounded-md hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(255,200,0,0.6)] transition-all duration-300"
+              loading="lazy"
             />
           </a>
           <a
@@ -374,6 +377,7 @@ export default function StandUpPage() {
               width={28}
               height={28}
               className="rounded-md hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(255,200,0,0.6)] transition-all duration-300"
+              loading="lazy"
             />
           </a>
         </div>

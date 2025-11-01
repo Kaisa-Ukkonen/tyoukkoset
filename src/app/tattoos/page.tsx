@@ -209,6 +209,7 @@ export default function Tattoos() {
                 width={350}
                 height={350}
                 className="rounded-2xl shadow-[0_0_25px_rgba(255,215,0,0.3)] object-cover"
+                loading="lazy"
               />
             </motion.div>
           </motion.section>
@@ -242,6 +243,7 @@ export default function Tattoos() {
                       alt={tattoo.title}
                       fill
                       className="object-cover object-center transition-transform duration-500"
+                      loading="lazy"
                     />
 
                     {tattoo.title && (
@@ -352,6 +354,7 @@ export default function Tattoos() {
               width={25}
               height={25}
               className="rounded-md hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(255,200,0,0.6)] transition-all duration-300"
+              loading="lazy"
             />
           </a>
         </div>

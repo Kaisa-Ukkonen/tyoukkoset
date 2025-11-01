@@ -54,6 +54,7 @@ export default function Home() {
             height={0}
             sizes="100vw"
             className="object-contain w-44 sm:w-52 md:w-60 lg:w-80 max-w-[80%] ml-2 transition-all duration-500"
+  
             priority
           />
         </motion.div>
@@ -201,6 +202,7 @@ export default function Home() {
               alt="Tattoos"
               fill
               className="object-cover"
+              loading="lazy"
             />
             <div className="absolute bottom-3 w-full text-center text-sm sm:text-base md:text-lg font-bold bg-black/40 text-white">
               Tattoos
@@ -225,6 +227,7 @@ export default function Home() {
               alt="Stand Up"
               fill
               className="object-cover object-top"
+              loading="lazy"
             />
             <div className="absolute bottom-3 w-full text-center text-sm sm:text-base md:text-lg font-bold bg-black/40 text-white">
               Stand Up
