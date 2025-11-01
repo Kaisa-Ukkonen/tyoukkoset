@@ -97,19 +97,24 @@ export default function Home() {
               transition={{ duration: 0.3 }}
               className="absolute top-full left-0 w-full bg-black/90 backdrop-blur-md flex flex-col items-center gap-6 py-6 md:hidden z-10 border-t border-yellow-600/30"
             >
-              {["Etusivu", "Yhteystiedot"].map((item) => (
+              {["Etusivu", "Yhteystiedot", "Ota yhteyttä"].map((item) => (
                 <button
                   key={item}
                   onClick={() => {
                     if (item === "Etusivu") {
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     } else if (item === "Yhteystiedot") {
-                      const section = document.getElementById("yhteystiedot");
-                      section?.scrollIntoView({ behavior: "smooth" });
+                      document
+                        .getElementById("yhteystiedot")
+                        ?.scrollIntoView({ behavior: "smooth" });
+                    } else if (item === "Ota yhteyttä") {
+                      document
+                        .getElementById("yhteydenotto")
+                        ?.scrollIntoView({ behavior: "smooth" });
                     }
                     setMenuOpen(false);
                   }}
-                  className="text-lg font-semibold uppercase text-gray-200 hover:text-white transition"
+                  className="text-lg font-semibold uppercase text-gray-200 hover:text-yellow-400 transition"
                 >
                   {item}
                 </button>
@@ -121,51 +126,55 @@ export default function Home() {
 
       {/* MAIN */}
       <main
-        className="relative flex flex-1 flex-col items-center justify-start 
-             gap-10 text-center bg-[#0a0a0a] text-white 
-             pt-32 sm:pt-40 md:pt-38 lg:pt-42 
-             px-4 sm:px-6 pb-20 sm:pb-32
-             w-full max-w-full overflow-x-hidden overflow-y-visible"
+        className="relative flex flex-col justify-start
+                  gap-10 text-white
+                  pt-32 sm:pt-40 md:pt-38 lg:pt-42 
+                  pb-20 sm:pb-32
+                  w-full max-w-full overflow-x-hidden overflow-y-visible
+                  bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed"
       >
-        {/* Hienovarainen tausta */}
+        {/* Tumma overlay + hienovarainen gradientti */}
         <div
           className="absolute inset-0 
-               bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.07)_0%,rgba(0,0,0,1)_80%)] 
-               pointer-events-none"
+                    bg-black/60 
+                    bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,rgba(0,0,0,1)_80%)] 
+                    pointer-events-none"
         ></div>
 
         {/* Esittelyteksti */}
         <motion.section
-          className="relative z-10 w-full px-4 sm:px-8 py-10 mb-8
-           bg-[#141414]/95 
-           flex flex-col items-center justify-center text-center"
+          className="relative z-10 self-stretch w-full 
+                    bg-[#141414]/30 backdrop-blur-md 
+                    shadow-[0_0_20px_rgba(0,0,0,0.4)] py-12 transition-all duration-500"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8 }}
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center">
-            TyöUkkoset –{" "}
-            <span className="text-yellow-400">
-              Tatuointia ja Stand Upia asenteella
-            </span>
-          </h2>
-          <p className="text-gray-300 text-lg leading-relaxed max-w-3xl">
-            Tervetuloa TyöUkkosten maailmaan. Jesse Ukkonen yhdistää luovan
-            tatuointitaiteen ja stand up -komiikan samaan intensiiviseen
-            pakettiin.
-            <br className="hidden sm:block" />
-            Valitse alta polkusi:{" "}
-            <span className="text-yellow-400 font-semibold">
-              Tatuoinnit
-            </span>{" "}
-            vai <span className="text-yellow-400 font-semibold">Naurut</span> ja
-            astu sisään.
-          </p>
+          <div className="max-w-6xl mx-auto px-6 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              TyöUkkoset –{" "}
+              <span className="text-yellow-400">
+                Tatuointia ja Stand Upia asenteella
+              </span>
+            </h2>
+            <p className="text-gray-300 text-lg leading-relaxed max-w-3xl mx-auto">
+              Tervetuloa TyöUkkosten maailmaan. Jesse Ukkonen yhdistää luovan
+              tatuointitaiteen ja stand up -komiikan samaan intensiiviseen
+              pakettiin.
+              <br className="hidden sm:block" />
+              Valitse alta polkusi:{" "}
+              <span className="text-yellow-400 font-semibold">
+                Tatuoinnit
+              </span>{" "}
+              vai <span className="text-yellow-400 font-semibold">Naurut</span>{" "}
+              ja astu sisään.
+            </p>
+          </div>
         </motion.section>
 
         {/* Pyöreät napit */}
         <motion.div
-  className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24 relative z-10 mt-4 md:mt-24 mb-10 md:mb-20"
+          className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24 relative z-10 mt-4 md:mt-24 mb-10 md:mb-20"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
@@ -223,7 +232,8 @@ export default function Home() {
       {/* INFO-FOOTER */}
       <section
         id="yhteystiedot"
-        className="w-full bg-linear-to-b from-[#0a0a0a] via-[#111] to-[#1a1a1a] border-t border-yellow-600/30 py-10 text-gray-300"
+        className="w-full bg-linear-to-b from-[#0a0a0a] via-[#111] to-[#1a1a1a]
+                  border-t border-yellow-600/30 py-10 text-gray-300 scroll-mt-32"
       >
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-10 justify-center text-center md:text-left">
           {/* YHTEYSTIEDOT */}
@@ -264,109 +274,117 @@ export default function Home() {
       {/* YHTEYDENOTTOLOMAKE */}
       <section
         id="yhteydenotto"
-        className="w-full max-w-3xl mx-auto py-16 px-6 border-t border-yellow-700/40 text-gray-300"
+        className="relative w-full py-20 px-6 border-t border-yellow-700/40 text-gray-300 
+                  bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden"
       >
-        <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
-          Ota yhteyttä
-        </h2>
-        <form
-          onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-            const form = e.currentTarget as HTMLFormElement & {
-              name: { value: string };
-              email: { value: string };
-              phone: { value: string };
-              service: { value: string };
-              message: { value: string };
-            };
+        {/* Tumma overlay */}
+        <div className="absolute inset-0 bg-black/70 pointer-events-none"></div>
 
-            const data = {
-              name: form.name.value,
-              email: form.email.value,
-              phone: form.phone.value,
-              service: form.service.value,
-              message: form.message.value,
-            };
+        {/* Lomakekonteineri */}
+        <div className="relative z-10 max-w-3xl mx-auto">
+          <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
+            Ota yhteyttä
+          </h2>
 
-            const res = await fetch("/api/contact", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(data),
-            });
+          <form
+            onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+              e.preventDefault();
+              const form = e.currentTarget as HTMLFormElement & {
+                name: { value: string };
+                email: { value: string };
+                phone: { value: string };
+                service: { value: string };
+                message: { value: string };
+              };
 
-            if (res.ok) {
-              alert("Kiitos yhteydenotosta! Otamme sinuun pian yhteyttä.");
-              form.reset();
-            } else {
-              alert("Virhe lähetyksessä. Yritä uudelleen.");
-            }
-          }}
-          className="flex flex-col gap-5"
-        >
-          {/* Nimi ja sähköposti */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="name"
-              placeholder="Nimi"
-              required
-              className="bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
-              focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Sähköposti"
-              required
-              className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
-              focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
-            />
-          </div>
+              const data = {
+                name: form.name.value,
+                email: form.email.value,
+                phone: form.phone.value,
+                service: form.service.value,
+                message: form.message.value,
+              };
 
-          {/* Puhelin ja valinta */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="phone"
-              placeholder="Puhelinnumero"
-              className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
-              focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
-            />
-            <select
-              name="service"
-              required
-              className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
-              focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
-            >
-              <option value="" className="bg-[#0a0a0a] text-gray-400">
-                Valitse palvelu
-              </option>
-              <option value="Tatuoinnit" className="bg-[#0a0a0a] text-white">
-                Tatuoinnit
-              </option>
-              <option value="Stand Up" className="bg-[#0a0a0a] text-white">
-                Stand Up
-              </option>
-            </select>
-          </div>
+              const res = await fetch("/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+              });
 
-          {/* Viesti */}
-          <textarea
-            name="message"
-            placeholder="Kerro mitä haluaisit..."
-            required
-            rows={5}
-            className="bg-white/5 border border-yellow-600/30 text-white rounded-md px-4 py-2 focus:outline-none focus:border-yellow-400 placeholder-gray-500"
-          ></textarea>
-
-          {/* Lähetyspainike */}
-          <button
-            type="submit"
-            className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded-md transition-all duration-300"
+              if (res.ok) {
+                alert("Kiitos yhteydenotosta! Otamme sinuun pian yhteyttä.");
+                form.reset();
+              } else {
+                alert("Virhe lähetyksessä. Yritä uudelleen.");
+              }
+            }}
+            className="flex flex-col gap-5"
           >
-            Lähetä viesti
-          </button>
-        </form>
+            {/* Nimi ja sähköposti */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                type="text"
+                name="name"
+                placeholder="Nimi"
+                required
+                className="bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+                          focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Sähköposti"
+                required
+                className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+                          focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+              />
+            </div>
+
+            {/* Puhelin ja valinta */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                type="text"
+                name="phone"
+                placeholder="Puhelinnumero"
+                className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+                          focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+              />
+              <select
+                name="service"
+                required
+                className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+                          focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+              >
+                <option value="" className="bg-[#0a0a0a] text-gray-400">
+                  Valitse palvelu
+                </option>
+                <option value="Tatuoinnit" className="bg-[#0a0a0a] text-white">
+                  Tatuoinnit
+                </option>
+                <option value="Stand Up" className="bg-[#0a0a0a] text-white">
+                  Stand Up
+                </option>
+              </select>
+            </div>
+
+            {/* Viesti */}
+            <textarea
+              name="message"
+              placeholder="Kerro mitä haluaisit..."
+              required
+              rows={5}
+              className="bg-white/5 border border-yellow-600/30 text-white rounded-md px-4 py-2 focus:outline-none focus:border-yellow-400 placeholder-gray-500"
+            ></textarea>
+
+            {/* Lähetyspainike */}
+            <button
+              type="submit"
+              className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded-md transition-all duration-300"
+            >
+              Lähetä viesti
+            </button>
+          </form>
+        </div>
       </section>
 
       {/* FOOTER */}
