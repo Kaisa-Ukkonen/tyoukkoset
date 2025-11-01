@@ -8,6 +8,10 @@ export default function Home() {
   const router = useRouter();
   const [scrollDirection, setScrollDirection] = useState("up");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -143,12 +147,12 @@ export default function Home() {
 
         {/* Esittelyteksti */}
         <motion.section
-          className="relative z-10 self-stretch w-full 
-                    bg-[#141414]/10 backdrop-blur-md 
-                    shadow-[0_0_20px_rgba(0,0,0,0.4)] py-12 transition-all duration-500"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.8 }}
+          className="relative z-20 self-stretch w-full 
+             bg-[#141414]/10 backdrop-blur-md 
+             shadow-[0_0_20px_rgba(0,0,0,0.4)] py-12 transition-all duration-500"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <div className="max-w-6xl mx-auto px-6 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
@@ -275,7 +279,7 @@ export default function Home() {
       <section
         id="yhteydenotto"
         className="relative w-full py-20 px-6 border-t border-yellow-700/40 text-gray-300 
-                  bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden"
+            bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden"
       >
         {/* Tumma overlay */}
         <div className="absolute inset-0 bg-black/70 pointer-events-none"></div>
@@ -289,91 +293,184 @@ export default function Home() {
           <form
             onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
               e.preventDefault();
+
               const form = e.currentTarget as HTMLFormElement & {
-                name: { value: string };
+                firstName: { value: string };
+                lastName: { value: string };
                 email: { value: string };
                 phone: { value: string };
-                service: { value: string };
                 message: { value: string };
               };
 
+              if (!selectedService) {
+                setNotification("Valitse palvelu ennen lähettämistä!");
+                setIsError(true);
+                setTimeout(() => setNotification(null), 5000);
+                return;
+              }
+
               const data = {
-                name: form.name.value,
+                name: `${form.firstName.value} ${form.lastName.value}`,
                 email: form.email.value,
                 phone: form.phone.value,
-                service: form.service.value,
+                service: selectedService,
                 message: form.message.value,
               };
 
-              const res = await fetch("/api/contact", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-              });
+              try {
+                const res = await fetch("/api/contact", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(data),
+                });
 
-              if (res.ok) {
-                alert("Kiitos yhteydenotosta! Otamme sinuun pian yhteyttä.");
-                form.reset();
-              } else {
-                alert("Virhe lähetyksessä. Yritä uudelleen.");
+                if (res.ok) {
+                  setNotification(
+                    "Kiitos yhteydenotosta! Otamme sinuun pian yhteyttä."
+                  );
+                  setIsError(false);
+                  form.reset();
+                  setSelectedService("");
+                } else {
+                  setNotification("Virhe lähetyksessä. Yritä uudelleen.");
+                  setIsError(true);
+                }
+              } catch {
+                setNotification(
+                  "Verkkovirhe – tarkista yhteys ja yritä uudelleen."
+                );
+                setIsError(true);
               }
+
+              // Piilotetaan ilmoitus 10 sekunnin jälkeen
+              setTimeout(() => setNotification(null), 10000);
             }}
             className="flex flex-col gap-5"
           >
-            {/* Nimi ja sähköposti */}
+            {/* 🔔 Ilmoitusviesti — tämä näkyy lomakkeen yläosassa */}
+            {notification && (
+              <div
+                className={`text-center py-2 mb-4 rounded-md transition-all duration-300 ${
+                  isError
+                    ? "bg-red-900/60 text-red-300 border border-red-500/40"
+                    : "bg-yellow-900/40 text-yellow-300 border border-yellow-500/40"
+                }`}
+              >
+                {notification}
+              </div>
+            )}
+
+            {/* ✏️ Etunimi ja Sukunimi */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input
                 type="text"
-                name="name"
-                placeholder="Nimi"
+                name="firstName"
+                placeholder="Etunimi *"
                 required
                 className="bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
-                          focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+        focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
               />
               <input
-                type="email"
-                name="email"
-                placeholder="Sähköposti"
+                type="text"
+                name="lastName"
+                placeholder="Sukunimi *"
                 required
-                className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
-                          focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+                className="bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+        focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
               />
             </div>
 
-            {/* Puhelin ja valinta */}
+            {/* Sähköposti ja Puhelin */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                type="email"
+                name="email"
+                placeholder="Sähköposti *"
+                required
+                className="bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+                    focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+              />
               <input
                 type="text"
                 name="phone"
-                placeholder="Puhelinnumero"
-                className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
-                          focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
-              />
-              <select
-                name="service"
+                placeholder="Puhelinnumero *"
                 required
-                className="appearance-none bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
-                          focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+                className="bg-[#111]/80 border border-yellow-600/30 text-white rounded-md px-4 py-2
+                    focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
+              />
+            </div>
+
+            {/* Palvelun valinta – mukautettu dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="w-full bg-[#111]/80 border border-[rgba(255,215,0,0.4)] text-white rounded-md px-4 py-2 text-left
+               flex justify-between items-center focus:outline-none focus:border-yellow-400
+               transition-all duration-200"
+                aria-haspopup="listbox"
+                aria-expanded={dropdownOpen}
               >
-                <option value="" className="bg-[#0a0a0a] text-gray-400">
-                  Valitse palvelu
-                </option>
-                <option value="Tatuoinnit" className="bg-[#0a0a0a] text-white">
-                  Tatuoinnit
-                </option>
-                <option value="Stand Up" className="bg-[#0a0a0a] text-white">
-                  Stand Up
-                </option>
-              </select>
+                {selectedService || "Valitse palvelu *"}
+                <svg
+                  className={`w-5 h-5 text-yellow-400 transition-transform ${
+                    dropdownOpen ? "rotate-180" : ""
+                  }`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {dropdownOpen && (
+                <ul
+                  className="absolute z-20 mt-1 w-full bg-[#1a1a1a] border border-[rgba(255,215,0,0.4)] rounded-md shadow-lg overflow-hidden"
+                  role="listbox"
+                >
+                  {["Tatuoinnit", "Stand Up"].map((option) => (
+                    <li
+                      key={option}
+                      onClick={() => {
+                        setSelectedService(option);
+                        setDropdownOpen(false);
+                      }}
+                      className="px-4 py-2 cursor-pointer text-white hover:bg-[#2a2a2a] hover:drop-shadow-[0_0_6px_rgba(255,215,0,0.3)] transition-all duration-150"
+                      role="option"
+                      aria-selected={selectedService === option}
+                    >
+                      {option}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Tämä hidden input tekee tempun 👇 */}
+              <input
+                type="text"
+                name="service"
+                value={selectedService}
+                onChange={() => {}}
+                required
+                className="sr-only"
+              />
             </div>
 
             {/* Viesti */}
             <textarea
               name="message"
-              placeholder="Kerro mitä haluaisit..."
+              placeholder="Kerro mitä haluaisit... *"
               required
               rows={5}
-              className="bg-white/5 border border-yellow-600/30 text-white rounded-md px-4 py-2 focus:outline-none focus:border-yellow-400 placeholder-gray-500"
+              className="bg-white/5 border border-yellow-600/30 text-white rounded-md px-4 py-2
+                  focus:outline-none focus:border-yellow-400 placeholder-gray-500 focus:bg-[#111]/90 transition duration-200"
             ></textarea>
 
             {/* Lähetyspainike */}

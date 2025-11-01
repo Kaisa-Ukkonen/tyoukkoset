@@ -231,7 +231,7 @@ export default function Tattoos() {
                 {tattoos.map((tattoo) => (
                   <motion.div
                     key={tattoo.id}
-                    className="relative overflow-hidden rounded-xl aspect-[3/4]"
+                    className="relative overflow-hidden rounded-xl aspect-3/4"
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.6 }}
