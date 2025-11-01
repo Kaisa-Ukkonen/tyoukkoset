@@ -222,7 +222,7 @@ export default function StandUpPage() {
               className="md:w-1/2 flex justify-center"
               initial={{ opacity: 0, y: 100 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.3 }}
+              transition={{ duration: 0.9, delay: 0.15 }}
               viewport={{ once: true }}
             >
               <Image
@@ -259,17 +259,16 @@ export default function StandUpPage() {
               </p>
             </div>
           </motion.section>
-
           {/* Galleria */}
           <motion.section
             id="gallery"
-            className="w-full max-w-3xl py-10"
+            className="w-full max-w-3xl py-10 border-t border-yellow-600/30 text-center"
             initial={{ opacity: 0, y: 80 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
+            <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
               Galleria
             </h2>
             <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg shadow-yellow-700/30">
@@ -298,7 +297,7 @@ export default function StandUpPage() {
             className="w-full max-w-3xl py-10 border-t border-yellow-600/30 mt-10 text-left"
             initial={{ opacity: 0, y: 80 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
           >
             <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
