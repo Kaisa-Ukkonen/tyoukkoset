@@ -35,12 +35,12 @@ export default function StandUpPage() {
       {/* HEADER */}
       <header
         className={`fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 sm:px-8 transition-all duration-500
-          ${
-            scrollDirection === "down"
-              ? "h-20 sm:h-28 bg-black/80 shadow-lg"
-              : "h-28 sm:h-36 bg-black/60"
-          }
-          backdrop-blur-sm border-b border-yellow-600/30`}
+  ${
+    scrollDirection === "down"
+      ? "h-20 sm:h-28 bg-black/45 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
+      : "h-28 sm:h-36 bg-black/25 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
+  } 
+  backdrop-blur-md border-b border-yellow-600/10`}
       >
         {/* Logo (animoitu scrollatessa) */}
         <motion.div
@@ -140,7 +140,7 @@ export default function StandUpPage() {
       {/* --- SISÄLTÖ --- */}
       <main className="relative w-full pt-36 sm:pt-44 z-10 bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden">
         {/* Tumma suodatin taustan päällä */}
-        <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
 
         {/* Varsinainen sisältö – tämä osa pysyy keskellä */}
         <div className="relative z-10 flex flex-col items-center px-4">
@@ -372,7 +372,11 @@ export default function StandUpPage() {
       {/* FOOTER */}
       <footer
         id="footer"
-        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-600/30"
+        className="relative z-10 
+             bg-zinc-800/25 backdrop-blur-sm 
+             text-white p-6 text-center 
+             border-t border-yellow-600/20 
+             shadow-[0_-2px_15px_rgba(0,0,0,0.4)]"
       >
         <div className="flex justify-center items-center gap-3">
           <p className="text-sm text-gray-400">

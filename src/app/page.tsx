@@ -34,10 +34,10 @@ export default function Home() {
         className={`fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 sm:px-8 transition-all duration-500
   ${
     scrollDirection === "down"
-      ? "h-20 sm:h-28 bg-black/80 shadow-lg"
-      : "h-28 sm:h-36 bg-black/60"
+      ? "h-20 sm:h-28 bg-black/45 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
+      : "h-28 sm:h-36 bg-black/25 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
   } 
-  backdrop-blur-sm border-b border-yellow-600/30`}
+  backdrop-blur-md border-b border-yellow-600/10`}
       >
         {/* Logo (animoitu scrollatessa) */}
         <motion.div
@@ -54,7 +54,6 @@ export default function Home() {
             height={0}
             sizes="100vw"
             className="object-contain w-44 sm:w-52 md:w-60 lg:w-80 max-w-[80%] ml-2 transition-all duration-500"
-  
             priority
           />
         </motion.div>
@@ -139,12 +138,7 @@ export default function Home() {
                   bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed"
       >
         {/* Tumma overlay + hienovarainen gradientti */}
-        <div
-          className="absolute inset-0 
-                    bg-black/60 
-                    bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,rgba(0,0,0,1)_80%)] 
-                    pointer-events-none"
-        ></div>
+        <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
 
         {/* Esittelyteksti */}
         <motion.section
@@ -285,7 +279,7 @@ export default function Home() {
             bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden"
       >
         {/* Tumma overlay */}
-        <div className="absolute inset-0 bg-black/70 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
 
         {/* Lomakekonteineri */}
         <div className="relative z-10 max-w-3xl mx-auto">
@@ -490,7 +484,11 @@ export default function Home() {
       {/* FOOTER */}
       <footer
         id="footer"
-        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-600/30"
+        className="relative z-10 
+             bg-zinc-800/20 backdrop-blur-sm 
+             text-white p-6 text-center 
+             border-t border-yellow-600/20 
+             shadow-[0_-2px_15px_rgba(0,0,0,0.4)]"
       >
         <p className="text-sm text-gray-400">
           © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
