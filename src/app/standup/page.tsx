@@ -160,9 +160,30 @@ export default function StandUpPage() {
               transition={{ duration: 0.7, ease: "easeOut" }}
               viewport={{ once: true }}
             >
-              <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
-                Koomikko Jesse Ukkonen
-              </h2>
+              {/* --- OTSIKKO + INSTAGRAM-LINKKI --- */}
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-2xl font-semibold text-yellow-400">
+                  Koomikko Jesse Ukkonen
+                </h2>
+
+                <a
+                  href="https://www.instagram.com/jesseukkonen?igsh=MXg2b2U4bWlkM3h0dA=="
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Avaa Jesse Ukkosen Instagram"
+                  className="ml-2 hover:scale-110 transition-transform duration-300"
+                >
+                  <Image
+                    src="/instagramLogo.png"
+                    alt="Jesse Ukkonen Instagram"
+                    width={26}
+                    height={26}
+                    className="rounded-md drop-shadow-[0_0_6px_rgba(255,200,0,0.4)] hover:drop-shadow-[0_0_8px_rgba(255,200,0,0.8)]"
+                    loading="lazy"
+                  />
+                </a>
+              </div>
+
               <p className="mb-4">
                 Jesse on arjen kommelluksista tarinoitaan ammentava
                 suorasanainen ja aavistuksen yksinkertainen savolaiskoomikko,
@@ -236,9 +257,28 @@ export default function StandUpPage() {
             </motion.div>
 
             <div className="md:w-1/2 text-left leading-relaxed">
-              <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
-                Kolmoset
-              </h2>
+              <div className="flex items-center gap-5 mb-4">
+                <h2 className="text-2xl font-semibold text-yellow-400">
+                  Kolmoset
+                </h2>
+
+                <a
+                  href="https://www.instagram.com/kolmoset_standup?igsh=eGVhNHF2eHlobnhh"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Avaa Kolmoset Instagram"
+                  className="hover:scale-110 transition-transform duration-300"
+                >
+                  <Image
+                    src="/instagramLogo.png"
+                    alt="Kolmoset Instagram"
+                    width={26}
+                    height={26}
+                    className="rounded-md drop-shadow-[0_0_6px_rgba(255,200,0,0.4)] hover:drop-shadow-[0_0_8px_rgba(255,200,0,0.8)]"
+                    loading="lazy"
+                  />
+                </a>
+              </div>
               <p className="mb-4">
                 Mitä saadaan, kun Savonlinnan poika lyöttäytyy yhteen
                 Siilinjärven kasvattien kanssa? Ainakin roppakaupalla

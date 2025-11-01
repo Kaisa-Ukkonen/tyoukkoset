@@ -215,51 +215,69 @@ export default function Tattoos() {
           </motion.section>
 
           {/* GALLERIA */}
-          <motion.section
-            id="gallery"
-            className="w-full max-w-6xl mx-auto py-20 px-6"
-            initial={{ opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl font-bold text-yellow-400 mb-10 text-center">
-              Galleria
-            </h2>
+<motion.section
+  id="gallery"
+  className="w-full max-w-6xl mx-auto py-20 px-6"
+  initial={{ opacity: 0, y: 60 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8 }}
+  viewport={{ once: true }}
+>
+  {/* --- OTSIKKO JA INSTAGRAM-LINKKI --- */}
+  <div className="flex items-center justify-center gap-6 mb-10">
+    <h2 className="text-3xl font-bold text-yellow-400">Galleria</h2>
 
-            {tattoos.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-                {tattoos.map((tattoo) => (
-                  <motion.div
-                    key={tattoo.id}
-                    className="relative overflow-hidden rounded-xl aspect-3/4"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6 }}
-                    viewport={{ once: true }}
-                  >
-                    <Image
-                      src={tattoo.imageUrl}
-                      alt={tattoo.title}
-                      fill
-                      className="object-cover object-center transition-transform duration-500"
-                      loading="lazy"
-                    />
+    <a
+      href="https://www.instagram.com/tattoos_by_ukkone?igsh=MTQwMmE4M3dubmZl"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Avaa Instagram-profiili"
+      className="hover:scale-110 transition-transform duration-300"
+    >
+      <Image
+        src="/instagramLogo.png"
+        alt="Instagram"
+        width={30}
+        height={30}
+        className="rounded-md drop-shadow-[0_0_6px_rgba(255,200,0,0.4)] hover:drop-shadow-[0_0_8px_rgba(255,200,0,0.8)]"
+        loading="lazy"
+      />
+    </a>
+  </div>
 
-                    {tattoo.title && (
-                      <div className="absolute bottom-3 w-full text-center text-yellow-300 font-semibold bg-black/40 py-1">
-                        {tattoo.title}
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 italic text-center">
-                Ei vielä tatuointikuvia tietokannassa.
-              </p>
-            )}
-          </motion.section>
+  {/* --- GALLERIA KUVA GRID --- */}
+  {tattoos.length > 0 ? (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+      {tattoos.map((tattoo) => (
+        <motion.div
+          key={tattoo.id}
+          className="relative overflow-hidden rounded-xl aspect-3/4"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <Image
+            src={tattoo.imageUrl}
+            alt={tattoo.title}
+            fill
+            className="object-cover object-center transition-transform duration-500"
+            loading="lazy"
+          />
+          {tattoo.title && (
+            <div className="absolute bottom-3 w-full text-center text-yellow-300 font-semibold bg-black/40 py-1">
+              {tattoo.title}
+            </div>
+          )}
+        </motion.div>
+      ))}
+    </div>
+  ) : (
+    <p className="text-gray-500 italic text-center">
+      Ei vielä tatuointikuvia tietokannassa.
+    </p>
+  )}
+</motion.section>
 
           {/* INFO */}
           <motion.section

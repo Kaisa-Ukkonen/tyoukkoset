@@ -469,7 +469,7 @@ export default function Home() {
             {/* Viesti */}
             <textarea
               name="message"
-              placeholder="Kerro mitä haluaisit... *"
+              placeholder="Mitä mielessä? *"
               required
               rows={5}
               className="bg-white/5 border border-yellow-600/30 text-white rounded-md px-4 py-2
