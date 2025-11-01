@@ -158,10 +158,9 @@ export default function Tattoos() {
       </header>
 
       {/* --- SISÄLTÖ --- */}
-      <main
-        className="relative flex flex-col justify-center items-center flex-1 text-center mt-12 sm:mt-28 z-10 px-4 
-  bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden"
-      >
+      <main className="relative w-full pt-20 sm:pt-28 z-10 
+                 bg-[url('/savutausta.webp')] bg-cover bg-center 
+                 bg-scroll md:bg-fixed overflow-hidden">
         {/* Tumma kerros taustan päällä, ettei tekstit huku */}
         <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
 
@@ -170,7 +169,7 @@ export default function Tattoos() {
           {/* ARTISTI */}
           <motion.section
             id="artist"
-            className="relative w-full max-w-5xl mx-auto mt-20 px-6 py-12 flex flex-col md:flex-row items-center gap-10 border-b border-yellow-700/40"
+            className="relative w-full max-w-5xl mx-auto mt-8 px-6 py-12 flex flex-col md:flex-row items-center gap-10 border-b border-yellow-700/40"
             initial={{ opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
