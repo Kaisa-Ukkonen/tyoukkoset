@@ -229,67 +229,24 @@ export default function Home() {
           </motion.div>
         </motion.div>
       </main>
-
-      {/* INFO-FOOTER */}
-      <section
-        id="yhteystiedot"
-        className="w-full bg-linear-to-b from-[#0a0a0a] via-[#111] to-[#1a1a1a]
-                  border-t border-yellow-600/30 py-10 text-gray-300 scroll-mt-32"
-      >
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-10 justify-center text-center md:text-left">
-          {/* YHTEYSTIEDOT */}
-          <div className="md:justify-self-end">
-            <h3 className="text-yellow-400 font-bold uppercase mb-3">
-              Yhteystiedot
-            </h3>
-            <p className="text-sm leading-relaxed">
-              Siilinjärvi <br />
-              Tmi TyöUkkoset <br />
-              Sähköposti:{" "}
-              <a
-                href="mailto:tyoukkoset@gmail.com"
-                className="text-yellow-400 hover:text-yellow-300 underline"
-              >
-                tyoukkoset@gmail.com
-              </a>{" "}
-              <br />
-              Puh: 044 218 6506 <br />
-              Y-tunnus: 3518481-5
-            </p>
-          </div>
-
-          {/* SÄÄNNÖT JA TIEDOT */}
-          <div className="md:justify-self-start">
-            <h3 className="text-yellow-400 font-bold uppercase mb-3">
-              Säännöt ja tiedot
-            </h3>
-            <p className="text-sm leading-relaxed">
-              Ikäraja tatuointeihin on <strong>18 vuotta</strong> <br />
-              Pidä henkilöllisyystodistus mukana. <br />
-              Maksutavat: käteinen ja kortti.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* YHTEYDENOTTOLOMAKE */}
-      <section
-        id="yhteydenotto"
-        className="relative w-full py-20 px-6 border-t border-yellow-700/40 text-gray-300 
-            bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden"
-      >
-        {/* Tumma overlay */}
-        <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
+<section
+  id="yhteydenotto"
+  className="relative w-full py-20 px-6 text-gray-300 
+             bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden"
+>
+  {/* Tumma overlay */}
+  <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
 
-        {/* Lomakekonteineri */}
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
-            Ota yhteyttä
-          </h2>
+  {/* Lomakekonteineri */}
+  <div className="relative z-10 max-w-3xl mx-auto border-t border-yellow-700/40 pt-16">
+    <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
+      Ota yhteyttä
+    </h2>
 
-          <form
-            onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
-              e.preventDefault();
+    <form
+      onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
 
               const form = e.currentTarget as HTMLFormElement & {
                 firstName: { value: string };
@@ -481,11 +438,55 @@ export default function Home() {
         </div>
       </section>
 
+      {/* INFO-FOOTER */}
+      <section
+        id="yhteystiedot"
+        className="w-full bg-linear-to-b from-[#0a0a0a] via-[#111] to-[#1a1a1a]
+                  border-t border-yellow-600/30 py-10 text-gray-300 scroll-mt-32"
+      >
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-10 justify-center text-center md:text-left">
+          {/* YHTEYSTIEDOT */}
+          <div className="md:justify-self-end">
+            <h3 className="text-yellow-400 font-bold uppercase mb-3">
+              Yhteystiedot
+            </h3>
+            <p className="text-sm leading-relaxed">
+              Siilinjärvi <br />
+              Tmi TyöUkkoset <br />
+              Sähköposti:{" "}
+              <a
+                href="mailto:tyoukkoset@gmail.com"
+                className="text-yellow-400 hover:text-yellow-300 underline"
+              >
+                tyoukkoset@gmail.com
+              </a>{" "}
+              <br />
+              Puh: 044 218 6506 <br />
+              Y-tunnus: 3518481-5
+            </p>
+          </div>
+
+          {/* SÄÄNNÖT JA TIEDOT */}
+          <div className="md:justify-self-start">
+            <h3 className="text-yellow-400 font-bold uppercase mb-3">
+              Säännöt ja tiedot
+            </h3>
+            <p className="text-sm leading-relaxed">
+              Ikäraja tatuointeihin on <strong>18 vuotta</strong> <br />
+              Pidä henkilöllisyystodistus mukana. <br />
+              Maksutavat: käteinen ja kortti.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      
+
       {/* FOOTER */}
       <footer
         id="footer"
         className="relative z-10 
-             bg-zinc-800/20 backdrop-blur-sm 
+             bg-zinc-800/25 backdrop-blur-sm 
              text-white p-6 text-center 
              border-t border-yellow-600/20 
              shadow-[0_-2px_15px_rgba(0,0,0,0.4)]"
