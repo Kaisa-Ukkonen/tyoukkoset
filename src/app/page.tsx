@@ -144,7 +144,7 @@ export default function Home() {
         {/* Esittelyteksti */}
         <motion.section
           className="relative z-10 self-stretch w-full 
-                    bg-[#141414]/30 backdrop-blur-md 
+                    bg-[#141414]/10 backdrop-blur-md 
                     shadow-[0_0_20px_rgba(0,0,0,0.4)] py-12 transition-all duration-500"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}

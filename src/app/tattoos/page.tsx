@@ -159,173 +159,182 @@ export default function Tattoos() {
       </header>
 
       {/* --- SISÄLTÖ --- */}
-      <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-12 sm:mt-28 z-10 px-4">
-        {/* ARTISTI */}
-        <motion.section
-          id="artist"
-          className="relative w-full max-w-5xl mx-auto mt-20 px-6 py-12 flex flex-col md:flex-row items-center gap-10 border-b border-yellow-700/40"
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <motion.div
-            className="w-full md:w-1/2 text-center md:text-left"
-            initial={{ opacity: 0, x: -80 }}
-            whileInView={{ opacity: 1, x: 0 }}
+      <main
+        className="relative flex flex-col justify-center items-center flex-1 text-center mt-12 sm:mt-28 z-10 px-4 
+  bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden"
+      >
+        {/* Tumma kerros taustan päällä, ettei tekstit huku */}
+        <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
+
+        {/* Sivun sisältö alkaa tästä */}
+        <div className="relative z-10 w-full">
+          {/* ARTISTI */}
+          <motion.section
+            id="artist"
+            className="relative w-full max-w-5xl mx-auto mt-20 px-6 py-12 flex flex-col md:flex-row items-center gap-10 border-b border-yellow-700/40"
+            initial={{ opacity: 0, y: 60 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-bold text-yellow-400 mb-4">
-              Jesse Ukkonen
-            </h2>
-            <p className="text-gray-300 leading-relaxed">
-              Jesse on Siilinjärveläinen tatuointiartisti ja stand up -koomikko,
-              joka yhdistää luovan ilmaisun ja rennon asenteen ainutlaatuisella
-              tavalla. Hänen tatuointityylinsä painottuu tarkkaan viivatyöhön,
-              kontrasteihin ja tarinallisuuteen – jokaisella tatuoinnilla on oma
-              merkityksensä.
-            </p>
-          </motion.div>
+            <motion.div
+              className="w-full md:w-1/2 text-center md:text-left"
+              initial={{ opacity: 0, x: -80 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl font-bold text-yellow-400 mb-4">
+                Jesse Ukkonen
+              </h2>
+              <p className="text-gray-300 leading-relaxed">
+                Jesse on Siilinjärveläinen tatuointiartisti ja stand up
+                -koomikko, joka yhdistää luovan ilmaisun ja rennon asenteen
+                ainutlaatuisella tavalla. Hänen tatuointityylinsä painottuu
+                tarkkaan viivatyöhön, kontrasteihin ja tarinallisuuteen –
+                jokaisella tatuoinnilla on oma merkityksensä.
+              </p>
+            </motion.div>
 
-          <motion.div
-            className="w-full md:w-1/2 flex justify-center"
-            initial={{ opacity: 0, x: 80 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            <motion.div
+              className="w-full md:w-1/2 flex justify-center"
+              initial={{ opacity: 0, x: 80 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <Image
+                src="/tattoo-icon.png"
+                alt="Jesse Ukkonen Tattoo Artist"
+                width={350}
+                height={350}
+                className="rounded-2xl shadow-[0_0_25px_rgba(255,215,0,0.3)] object-cover"
+              />
+            </motion.div>
+          </motion.section>
+
+          {/* GALLERIA */}
+          <motion.section
+            id="gallery"
+            className="w-full max-w-6xl mx-auto py-20 px-6"
+            initial={{ opacity: 0, y: 60 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <Image
-              src="/tattoo-icon.png"
-              alt="Jesse Ukkonen Tattoo Artist"
-              width={350}
-              height={350}
-              className="rounded-2xl shadow-[0_0_25px_rgba(255,215,0,0.3)] object-cover"
-            />
-          </motion.div>
-        </motion.section>
+            <h2 className="text-3xl font-bold text-yellow-400 mb-10 text-center">
+              Galleria
+            </h2>
 
-        {/* GALLERIA */}
-        <motion.section
-          id="gallery"
-          className="w-full max-w-6xl mx-auto py-20 px-6"
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="text-3xl font-bold text-yellow-400 mb-10 text-center">
-            Galleria
-          </h2>
+            {tattoos.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                {tattoos.map((tattoo) => (
+                  <motion.div
+                    key={tattoo.id}
+                    className="relative overflow-hidden rounded-xl aspect-[3/4]"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6 }}
+                    viewport={{ once: true }}
+                  >
+                    <Image
+                      src={tattoo.imageUrl}
+                      alt={tattoo.title}
+                      fill
+                      className="object-cover object-center transition-transform duration-500"
+                    />
 
-          {tattoos.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-              {tattoos.map((tattoo) => (
-                <motion.div
-                  key={tattoo.id}
-                  className="relative overflow-hidden rounded-xl aspect-[3/4]"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6 }}
-                  viewport={{ once: true }}
-                >
-                  <Image
-                    src={tattoo.imageUrl}
-                    alt={tattoo.title}
-                    fill
-                    className="object-cover object-center transition-transform duration-500"
-                  />
+                    {tattoo.title && (
+                      <div className="absolute bottom-3 w-full text-center text-yellow-300 font-semibold bg-black/40 py-1">
+                        {tattoo.title}
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 italic text-center">
+                Ei vielä tatuointikuvia tietokannassa.
+              </p>
+            )}
+          </motion.section>
 
-                  {tattoo.title && (
-                    <div className="absolute bottom-3 w-full text-center text-yellow-300 font-semibold bg-black/40 py-1">
-                      {tattoo.title}
-                    </div>
-                  )}
-                </motion.div>
-              ))}
+          {/* INFO */}
+          <motion.section
+            id="info"
+            className="w-full max-w-4xl mx-auto py-16 px-6 border-t border-yellow-700/40 text-gray-300"
+            initial={{ opacity: 0, y: 60 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
+              Uuden tatuoinnin hoito
+            </h2>
+
+            <div className="space-y-10">
+              {/* Ensimmäinen päivä */}
+              <div>
+                <h3 className="text-xl font-semibold text-yellow-300 mb-3">
+                  Ensimmäinen päivä
+                </h3>
+                <p className="leading-relaxed">
+                  Kun tatuointi on valmis, se peitetään suojakalvolla tai
+                  siteellä, joka pidetään paikallaan muutaman tunnin ajan. Tämän
+                  jälkeen tatuointi pestään varovasti haalealla vedellä ja
+                  miedolla, hajusteettomalla saippualla, jotta ylimääräinen
+                  muste, veri ja plasma poistuvat. Kuivaa iho kevyesti
+                  taputtelemalla ja levitä ohut kerros tatuoinnin hoitovoidetta.
+                  Vältä liiallista rasvan määrää, jotta iho pääsee hengittämään.
+                </p>
+              </div>
+
+              {/* Ensimmäiset viikot */}
+              <div>
+                <h3 className="text-xl font-semibold text-yellow-300 mb-3">
+                  Ensimmäiset viikot
+                </h3>
+                <p className="leading-relaxed">
+                  Tuore tatuointi voi olla arka, punoittava tai turvonnut.
+                  Puhdista tatuointi 1–2 kertaa päivässä ja käytä hoitovoidetta
+                  aina pesun jälkeen vähintään kahden viikon ajan. Voit rasvata
+                  useammin, jos iho tuntuu kuivalta tai kiristävältä. Jatka
+                  kosteutusta säännöllisesti koko ensimmäisen kuukauden ajan.
+                  Kelmua voi käyttää tarvittaessa, jos vaatteet hankaavat ihoa,
+                  mutta muista puhdistaa ja rasvata iho aina ennen sen
+                  laittamista.
+                </p>
+              </div>
+
+              {/* Vältä nämä */}
+              <div>
+                <h3 className="text-xl font-semibold text-yellow-300 mb-3">
+                  Vältä nämä
+                </h3>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>Älä koskettele tai raavi tatuointia likaisin käsin.</li>
+                  <li>Älä repi rupia — ne voivat viedä väriä mukanaan.</li>
+                  <li>
+                    Vältä saunomista, uimista ja auringonottoa vähintään 2
+                    viikkoa.
+                  </li>
+                  <li>Vältä myös auringonottoa ensimmäisen kuukauden ajan.</li>
+                </ul>
+              </div>
             </div>
-          ) : (
-            <p className="text-gray-500 italic text-center">
-              Ei vielä tatuointikuvia tietokannassa.
+
+            <p className="text-sm text-gray-500 mt-10 italic text-center">
+              Huolellinen jälkihoito varmistaa parhaan lopputuloksen ja värien
+              pysyvyyden.
             </p>
-          )}
-        </motion.section>
-
-        {/* INFO */}
-        <motion.section
-          id="info"
-          className="w-full max-w-4xl mx-auto py-16 px-6 border-t border-yellow-700/40 text-gray-300"
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
-            Uuden tatuoinnin hoito
-          </h2>
-
-          <div className="space-y-10">
-            {/* Ensimmäinen päivä */}
-            <div>
-              <h3 className="text-xl font-semibold text-yellow-300 mb-3">
-                Ensimmäinen päivä
-              </h3>
-              <p className="leading-relaxed">
-                Kun tatuointi on valmis, se peitetään suojakalvolla tai
-                siteellä, joka pidetään paikallaan muutaman tunnin ajan. Tämän
-                jälkeen tatuointi pestään varovasti haalealla vedellä ja
-                miedolla, hajusteettomalla saippualla, jotta ylimääräinen muste,
-                veri ja plasma poistuvat. Kuivaa iho kevyesti taputtelemalla ja
-                levitä ohut kerros tatuoinnin hoitovoidetta. Vältä liiallista
-                rasvan määrää, jotta iho pääsee hengittämään.
-              </p>
-            </div>
-
-            {/* Ensimmäiset viikot */}
-            <div>
-              <h3 className="text-xl font-semibold text-yellow-300 mb-3">
-                Ensimmäiset viikot
-              </h3>
-              <p className="leading-relaxed">
-                Tuore tatuointi voi olla arka, punoittava tai turvonnut.
-                Puhdista tatuointi 1–2 kertaa päivässä ja käytä hoitovoidetta
-                aina pesun jälkeen vähintään kahden viikon ajan. Voit rasvata
-                useammin, jos iho tuntuu kuivalta tai kiristävältä. Jatka
-                kosteutusta säännöllisesti koko ensimmäisen kuukauden ajan.
-                Kelmua voi käyttää tarvittaessa, jos vaatteet hankaavat ihoa,
-                mutta muista puhdistaa ja rasvata iho aina ennen sen
-                laittamista.
-              </p>
-            </div>
-
-            {/* Vältä nämä */}
-            <div>
-              <h3 className="text-xl font-semibold text-yellow-300 mb-3">
-                Vältä nämä
-              </h3>
-              <ul className="list-disc list-inside space-y-2">
-                <li>Älä koskettele tai raavi tatuointia likaisin käsin.</li>
-                <li>Älä repi rupia — ne voivat viedä väriä mukanaan.</li>
-                <li>
-                  Vältä saunomista, uimista ja auringonottoa vähintään 2
-                  viikkoa.
-                </li>
-                <li>Vältä myös auringonottoa ensimmäisen kuukauden ajan.</li>
-              </ul>
-            </div>
-          </div>
-
-          <p className="text-sm text-gray-500 mt-10 italic text-center">
-            Huolellinen jälkihoito varmistaa parhaan lopputuloksen ja värien
-            pysyvyyden.
-          </p>
-        </motion.section>
+          </motion.section>
+        </div>
       </main>
 
       {/* FOOTER */}
       <footer
         id="footer"
-        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-700"
+        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-600/30"
       >
         <div className="flex justify-center items-center gap-3">
           <p className="text-sm text-gray-400">

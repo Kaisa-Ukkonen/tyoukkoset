@@ -138,22 +138,23 @@ export default function StandUpPage() {
       </header>
 
       {/* --- SISÄLTÖ --- */}
-      <main className="relative flex flex-col justify-center items-center flex-1 text-center mt-44 sm:mt-52 z-10 px-4">
-        {/* Koomikkoesittely */}
-        <section className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-8 text-gray-300 mb-16">
-          {/* Tekstiosio animoitu ensin */}
-          {/* Koomikkoesittely – optimoitu versio */}
-          {/* Koomikkoesittely – kevyt ja sulava liike mobiilissa */}
+      <main className="relative w-full pt-36 sm:pt-44 z-10 bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden">
+        {/* Tumma suodatin taustan päällä */}
+        <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
+
+        {/* Varsinainen sisältö – tämä osa pysyy keskellä */}
+        <div className="relative z-10 flex flex-col items-center px-4">
+          {/* Koomikkoesittely */}
           <motion.section
             className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-8 text-gray-300 mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }} // kevyt ease-in-out
+            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
             viewport={{ once: true, amount: 0.3 }}
           >
             {/* Teksti */}
             <motion.div
-              className="md:w-1/2 text-center md:text-left leading-relaxed"
+              className="md:w-1/2 text-left leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: "easeOut" }}
@@ -185,7 +186,7 @@ export default function StandUpPage() {
               </p>
             </motion.div>
 
-            {/* Kuva – tulee kevyellä viiveellä */}
+            {/* Kuva */}
             <motion.div
               className="md:w-1/2 flex justify-center"
               initial={{ opacity: 0, y: 40 }}
@@ -208,130 +209,130 @@ export default function StandUpPage() {
               />
             </motion.div>
           </motion.section>
-        </section>
 
-        {/* Kolmoset-esittely */}
-        <motion.section
-          className="w-full max-w-5xl flex flex-col md:flex-row-reverse items-center justify-center gap-8 text-gray-300 mb-16"
-          initial={{ opacity: 0, y: 80 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
-        >
-          <motion.div
-            className="md:w-1/2 flex justify-center"
-            initial={{ opacity: 0, y: 100 }}
+          {/* Kolmoset-esittely */}
+          <motion.section
+            className="w-full max-w-5xl flex flex-col md:flex-row-reverse items-center justify-center gap-8 text-gray-300 mb-16"
+            initial={{ opacity: 0, y: 80 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.3 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <Image
-              src="/kolmoset-33.webp"
-              alt="Kolmoset stand up -ryhmä"
-              width={400}
-              height={400}
-              className="rounded-2xl shadow-lg shadow-yellow-700/40 hover:scale-105 transition-transform duration-500"
-            />
-          </motion.div>
+            <motion.div
+              className="md:w-1/2 flex justify-center"
+              initial={{ opacity: 0, y: 100 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
+              <Image
+                src="/kolmoset-33.webp"
+                alt="Kolmoset stand up -ryhmä"
+                width={400}
+                height={400}
+                className="rounded-2xl shadow-lg shadow-yellow-700/40 hover:scale-105 transition-transform duration-500"
+              />
+            </motion.div>
 
-          <div className="md:w-1/2 text-center md:text-left leading-relaxed">
-            <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
-              Kolmoset
-            </h2>
-            <p className="mb-4">
-              Mitä saadaan, kun Savonlinnan poika lyöttäytyy yhteen Siilinjärven
-              kasvattien kanssa? Ainakin roppakaupalla itseironialla höystettyä
-              huumoria, elämän kipupisteitä ja arkisia oivalluksia, jotka osuvat
-              suoraan nauruhermoon!
-            </p>
-            <p className="mb-4">
-              Kolmoset on kolmen koomikon muodostama stand up -ryhmä, jossa
-              Oliver, Jesse ja Miro käyvät läpi elämänsä kompastuksia aina
-              työttömyydestä teini-isyyteen ja opiskelun ihanuuksista
-              kolmenkympin kriisiin.
-            </p>
-            <p>
-              Tämä on show, jossa ei säästellä puujalkoja — nauretaan ennen
-              kaikkea itsellemme.{" "}
-              <span className="italic text-yellow-400">
-                Rehellinen, samaistuttava ja juuri sopivan sekaisin.
-              </span>
-            </p>
-          </div>
-        </motion.section>
+            <div className="md:w-1/2 text-left leading-relaxed">
+              <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
+                Kolmoset
+              </h2>
+              <p className="mb-4">
+                Mitä saadaan, kun Savonlinnan poika lyöttäytyy yhteen
+                Siilinjärven kasvattien kanssa? Ainakin roppakaupalla
+                itseironialla höystettyä huumoria, elämän kipupisteitä ja
+                arkisia oivalluksia, jotka osuvat suoraan nauruhermoon!
+              </p>
+              <p className="mb-4">
+                Kolmoset on kolmen koomikon muodostama stand up -ryhmä, jossa
+                Oliver, Jesse ja Miro käyvät läpi elämänsä kompastuksia aina
+                työttömyydestä teini-isyyteen ja opiskelun ihanuuksista
+                kolmenkympin kriisiin.
+              </p>
+              <p>
+                Tämä on show, jossa ei säästellä puujalkoja — nauretaan ennen
+                kaikkea itsellemme.{" "}
+                <span className="italic text-yellow-400">
+                  Rehellinen, samaistuttava ja juuri sopivan sekaisin.
+                </span>
+              </p>
+            </div>
+          </motion.section>
 
-        {/* Galleria */}
-        <motion.section
-          id="gallery"
-          className="w-full max-w-3xl py-10"
-          initial={{ opacity: 0, y: 80 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
-            Galleria
-          </h2>
-          <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg shadow-yellow-700/30">
-            <iframe
-              className="absolute inset-0 w-full h-full"
-              src="https://www.youtube.com/embed/Ue3obS6zFG4"
-              title="Stand Up -video"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            ></iframe>
-          </div>
-          <a
-            href="https://youtube.com/shorts/Ue3obS6zFG4?si=ipD2exaHBIatwkzJ"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block mt-6 px-6 py-3 bg-yellow-500/10 border border-yellow-500 text-yellow-400 rounded-full font-semibold hover:bg-yellow-500/20 transition-all duration-300"
+          {/* Galleria */}
+          <motion.section
+            id="gallery"
+            className="w-full max-w-3xl py-10"
+            initial={{ opacity: 0, y: 80 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            viewport={{ once: true }}
           >
-            Katso YouTubessa
-          </a>
-        </motion.section>
+            <h2 className="text-2xl font-semibold text-yellow-400 mb-4">
+              Galleria
+            </h2>
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg shadow-yellow-700/30">
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src="https://www.youtube.com/embed/Ue3obS6zFG4"
+                title="Stand Up -video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              ></iframe>
+            </div>
+            <a
+              href="https://youtube.com/shorts/Ue3obS6zFG4?si=ipD2exaHBIatwkzJ"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-6 px-6 py-3 bg-yellow-500/10 border border-yellow-500 text-yellow-400 rounded-full font-semibold hover:bg-yellow-500/20 transition-all duration-300"
+            >
+              Katso YouTubessa
+            </a>
+          </motion.section>
 
-        {/* Keikat */}
-        <motion.section
-          id="calendar"
-          className="w-full max-w-3xl py-10 border-t border-yellow-700 mt-10 text-left"
-          initial={{ opacity: 0, y: 80 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
-            Keikat
-          </h2>
-          <h3 className="text-xl font-semibold text-yellow-300 mb-4 text-center">
-            Marraskuu
-          </h3>
-          <ul className="space-y-3 text-gray-300 text-center">
-            <li>
-              <span className="text-yellow-400 font-bold">8.11.</span> –
-              Hankasalmi, Timpan baari
-            </li>
-            <li>
-              <span className="text-yellow-400 font-bold">12.11.</span> – Oulu,
-              Remakka
-            </li>
-            <li>
-              <span className="text-yellow-400 font-bold">20.11.</span> –
-              Kuopio, Haaska
-            </li>
-            <li>
-              <span className="text-yellow-400 font-bold">28.11.</span> –
-              Vantaa, Hupisipuli
-            </li>
-          </ul>
-        </motion.section>
+          {/* Keikat */}
+          <motion.section
+            id="calendar"
+            className="w-full max-w-3xl py-10 border-t border-yellow-600/30 mt-10 text-left"
+            initial={{ opacity: 0, y: 80 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
+              Keikat
+            </h2>
+            <h3 className="text-xl font-semibold text-yellow-300 mb-4 text-center">
+              Marraskuu
+            </h3>
+            <ul className="space-y-3 text-gray-300 text-center">
+              <li>
+                <span className="text-yellow-400 font-bold">8.11.</span> –
+                Hankasalmi, Timpan baari
+              </li>
+              <li>
+                <span className="text-yellow-400 font-bold">12.11.</span> –
+                Oulu, Remakka
+              </li>
+              <li>
+                <span className="text-yellow-400 font-bold">20.11.</span> –
+                Kuopio, Haaska
+              </li>
+              <li>
+                <span className="text-yellow-400 font-bold">28.11.</span> –
+                Vantaa, Hupisipuli
+              </li>
+            </ul>
+          </motion.section>
+        </div>
       </main>
 
       {/* FOOTER */}
       <footer
         id="footer"
-        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-700"
+        className="relative z-10 bg-black/80 text-white p-6 text-center border-t border-yellow-600/30"
       >
         <div className="flex justify-center items-center gap-3">
           <p className="text-sm text-gray-400">
