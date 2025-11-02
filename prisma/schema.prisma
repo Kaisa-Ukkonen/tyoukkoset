@@ -9,7 +9,7 @@ datasource db {
 
 model Tattoo {
   id          String   @id @default(cuid())
-  title       String
+  title       String?
   imageUrl    String
   style       String?
   description String?
