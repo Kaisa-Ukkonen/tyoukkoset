@@ -19,15 +19,11 @@ model Tattoo {
 }
 
 model StandupGig {
-  id          String   @id @default(cuid())
-  title       String
-  venue       String?
-  city        String?
-  date        DateTime
-  description String?
-  isPublic    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(uuid())
+  title     String
+  address   String
+  date      DateTime
+  isPublic  Boolean  @default(true)
 }
 
 model User {

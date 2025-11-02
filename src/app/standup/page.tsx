@@ -5,10 +5,34 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+type Gig = {
+  id: string;
+  title: string;
+  venue: string;
+  city: string;
+  address: string;
+  date: string;
+  isPublic: boolean;
+};
+
 export default function StandUpPage() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrollDirection, setScrollDirection] = useState("up");
+  const [gigs, setGigs] = useState<Gig[]>([]);
+
+  useEffect(() => {
+    const fetchGigs = async () => {
+      try {
+        const res = await fetch("/api/standup");
+        const data = await res.json();
+        setGigs(data);
+      } catch (err) {
+        console.error("Virhe keikkojen haussa:", err);
+      }
+    };
+    fetchGigs();
+  }, []);
 
   // Header shrink scroll
   useEffect(() => {
@@ -332,78 +356,75 @@ export default function StandUpPage() {
             </a>
           </motion.section>
 
-          {/* Keikat */}
-         {/* --- KEIKAT --- */}
-<motion.section
-  id="calendar"
-  className="w-full max-w-3xl py-10 border-t border-yellow-600/30 mt-10 text-left"
-  initial={{ opacity: 0, y: 80 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.8, delay: 0.2 }}
-  viewport={{ once: true, amount: 0.2 }}
->
-  <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
-    Keikat
-  </h2>
+          {/* --- KEIKAT --- */}
+          <motion.section
+            id="calendar"
+            className="w-full max-w-3xl py-10 border-t border-yellow-600/30 mt-10 text-left"
+            initial={{ opacity: 0, y: 80 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
+              Keikat
+            </h2>
 
-  <h3 className="text-xl font-semibold text-yellow-300 mb-4 text-center">
-    Marraskuu
-  </h3>
-
-  <ul className="space-y-5 text-gray-300 text-center">
-    <li>
-      <span className="text-yellow-400 font-bold">8.11.</span> – Hankasalmi, Timpan baari
-      <br />
-      <a
-        href="https://www.google.com/maps/dir/?api=1&destination=Kuuhankavedentie+23,+41500+Hankasalmi"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex items-center gap-1 transition-all duration-300 hover:-translate-y-0,5 hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
-      >
-        📍 Kuuhankavedentie 23, 41500 Hankasalmi
-      </a>
-    </li>
-
-    <li>
-      <span className="text-yellow-400 font-bold">12.11.</span> – Oulu, Remakka Stand Up
-      <br />
-      <a
-        href="https://www.google.com/maps/dir/?api=1&destination=Rommakkokatu+4+B+25,+90120+Oulu"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex items-center gap-1 transition-all duration-300 hover:-translate-y-0,5 hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
-      >
-        📍 Rommakkokatu 4 B 25, 90120 Oulu
-      </a>
-    </li>
-
-    <li>
-      <span className="text-yellow-400 font-bold">20.11.</span> – Kuopio, Haaska Stand Up
-      <br />
-      <a
-        href="https://www.google.com/maps/dir/?api=1&destination=Kauppakatu+25,+70100+Kuopio"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex items-center gap-1 transition-all duration-300 hover:-translate-y-0,5 hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
-      >
-        📍 Kauppakatu 25, 70100 Kuopio
-      </a>
-    </li>
-
-    <li>
-      <span className="text-yellow-400 font-bold">28.11.</span> – Vantaa, Hupisipuli Comedy Club
-      <br />
-      <a
-        href="https://www.google.com/maps/dir/?api=1&destination=Iskoskuja+3+b,+01600+Vantaa"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex items-center gap-1 transition-all duration-300 hover:-translate-y-0,5 hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
-      >
-        📍 Iskoskuja 3 b, 01600 Vantaa
-      </a>
-    </li>
-  </ul>
-</motion.section>
+            {gigs.length === 0 ? (
+              <p className="text-gray-400 text-center">Ei tulevia keikkoja.</p>
+            ) : (
+              <div className="space-y-10">
+                {Object.entries(
+                  gigs.reduce((acc: Record<string, Gig[]>, gig) => {
+                    const date = new Date(gig.date);
+                    const monthYear = date.toLocaleString("fi-FI", {
+                      month: "long",
+                      year: "numeric",
+                    });
+                    if (!acc[monthYear]) acc[monthYear] = [];
+                    acc[monthYear].push(gig);
+                    return acc;
+                  }, {})
+                ).map(([monthYear, monthGigs]) => (
+                  <div key={monthYear}>
+                    <h3 className="text-xl font-semibold text-white mb-4 text-center capitalize">
+                      {monthYear}
+                    </h3>
+                    <ul className="space-y-4 text-gray-200">
+                      {monthGigs
+                        .sort(
+                          (a, b) =>
+                            new Date(a.date).getTime() -
+                            new Date(b.date).getTime()
+                        )
+                        .map((gig) => (
+                          <li key={gig.id} className="text-center">
+                            <span className="text-yellow-400 font-bold">
+                              {new Date(gig.date).toLocaleDateString("fi-FI", {
+                                day: "numeric",
+                                month: "numeric",
+                                year: "numeric",
+                              })}
+                            </span>{" "}
+                            – {gig.title}
+                            <br />
+                            <a
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+                                gig.address
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex items-center gap-1 transition-all duration-300 hover:-translate-y-[2px] hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
+                            >
+                              📍 {gig.address}
+                            </a>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.section>
         </div>
       </main>
 
