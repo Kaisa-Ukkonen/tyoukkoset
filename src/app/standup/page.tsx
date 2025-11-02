@@ -333,39 +333,77 @@ export default function StandUpPage() {
           </motion.section>
 
           {/* Keikat */}
-          <motion.section
-            id="calendar"
-            className="w-full max-w-3xl py-10 border-t border-yellow-600/30 mt-10 text-left"
-            initial={{ opacity: 0, y: 80 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
-              Keikat
-            </h2>
-            <h3 className="text-xl font-semibold text-yellow-300 mb-4 text-center">
-              Marraskuu
-            </h3>
-            <ul className="space-y-3 text-gray-300 text-center">
-              <li>
-                <span className="text-yellow-400 font-bold">8.11.</span> –
-                Hankasalmi, Timpan baari
-              </li>
-              <li>
-                <span className="text-yellow-400 font-bold">12.11.</span> –
-                Oulu, Remakka
-              </li>
-              <li>
-                <span className="text-yellow-400 font-bold">20.11.</span> –
-                Kuopio, Haaska
-              </li>
-              <li>
-                <span className="text-yellow-400 font-bold">28.11.</span> –
-                Vantaa, Hupisipuli
-              </li>
-            </ul>
-          </motion.section>
+         {/* --- KEIKAT --- */}
+<motion.section
+  id="calendar"
+  className="w-full max-w-3xl py-10 border-t border-yellow-600/30 mt-10 text-left"
+  initial={{ opacity: 0, y: 80 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8, delay: 0.2 }}
+  viewport={{ once: true, amount: 0.2 }}
+>
+  <h2 className="text-2xl font-semibold text-yellow-400 mb-6 text-center">
+    Keikat
+  </h2>
+
+  <h3 className="text-xl font-semibold text-yellow-300 mb-4 text-center">
+    Marraskuu
+  </h3>
+
+  <ul className="space-y-5 text-gray-300 text-center">
+    <li>
+      <span className="text-yellow-400 font-bold">8.11.</span> – Hankasalmi, Timpan baari
+      <br />
+      <a
+        href="https://www.google.com/maps/dir/?api=1&destination=Kuuhankavedentie+23,+41500+Hankasalmi"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex items-center gap-1 transition-all duration-300 hover:-translate-y-0,5 hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
+      >
+        📍 Kuuhankavedentie 23, 41500 Hankasalmi
+      </a>
+    </li>
+
+    <li>
+      <span className="text-yellow-400 font-bold">12.11.</span> – Oulu, Remakka Stand Up
+      <br />
+      <a
+        href="https://www.google.com/maps/dir/?api=1&destination=Rommakkokatu+4+B+25,+90120+Oulu"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex items-center gap-1 transition-all duration-300 hover:-translate-y-0,5 hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
+      >
+        📍 Rommakkokatu 4 B 25, 90120 Oulu
+      </a>
+    </li>
+
+    <li>
+      <span className="text-yellow-400 font-bold">20.11.</span> – Kuopio, Haaska Stand Up
+      <br />
+      <a
+        href="https://www.google.com/maps/dir/?api=1&destination=Kauppakatu+25,+70100+Kuopio"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex items-center gap-1 transition-all duration-300 hover:-translate-y-0,5 hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
+      >
+        📍 Kauppakatu 25, 70100 Kuopio
+      </a>
+    </li>
+
+    <li>
+      <span className="text-yellow-400 font-bold">28.11.</span> – Vantaa, Hupisipuli Comedy Club
+      <br />
+      <a
+        href="https://www.google.com/maps/dir/?api=1&destination=Iskoskuja+3+b,+01600+Vantaa"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex items-center gap-1 transition-all duration-300 hover:-translate-y-0,5 hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
+      >
+        📍 Iskoskuja 3 b, 01600 Vantaa
+      </a>
+    </li>
+  </ul>
+</motion.section>
         </div>
       </main>
 
