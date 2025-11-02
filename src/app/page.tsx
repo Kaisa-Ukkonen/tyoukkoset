@@ -229,24 +229,31 @@ export default function Home() {
           </motion.div>
         </motion.div>
       </main>
+
       {/* YHTEYDENOTTOLOMAKE */}
-<section
-  id="yhteydenotto"
-  className="relative w-full py-20 px-6 text-gray-300 
-             bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden"
->
-  {/* Tumma overlay */}
-  <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
+      <section
+        id="yhteydenotto"
+        className="relative w-full py-20 px-6 text-gray-300 
+           bg-[url('/savutausta.webp')] bg-cover bg-center bg-fixed overflow-hidden"
+      >
+        {/* Tumma overlay */}
+        <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
 
-  {/* Lomakekonteineri */}
-  <div className="relative z-10 max-w-3xl mx-auto border-t border-yellow-700/40 pt-16">
-    <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
-      Ota yhteyttä
-    </h2>
+        {/* Lomakekonteineri */}
+        <motion.div
+          className="relative z-10 max-w-3xl mx-auto border-t border-yellow-700/40 pt-16"
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
+            Ota yhteyttä
+          </h2>
 
-    <form
-      onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+          <form
+            onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+              e.preventDefault();
 
               const form = e.currentTarget as HTMLFormElement & {
                 firstName: { value: string };
@@ -435,7 +442,7 @@ export default function Home() {
               Lähetä viesti
             </button>
           </form>
-        </div>
+        </motion.div>
       </section>
 
       {/* INFO-FOOTER */}
@@ -479,8 +486,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      
 
       {/* FOOTER */}
       <footer

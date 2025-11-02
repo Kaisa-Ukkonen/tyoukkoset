@@ -284,7 +284,7 @@ export default function Tattoos() {
             initial={{ opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.2 }}
           >
             <h2 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
               Uuden tatuoinnin hoito
