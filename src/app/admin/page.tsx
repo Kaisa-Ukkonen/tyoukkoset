@@ -7,7 +7,7 @@ export default function AdminDashboard() {
     { name: "Tatuoinnit", href: "/admin/tattoos", color: "border-yellow-500/50" },
     { name: "Stand Up", href: "/admin/standup", color: "border-yellow-500/50" },
     { name: "Kirjanpito", href: "/admin/bookkeeping", color: "border-yellow-500/50" },
-    { name: "Laskutus", href: "/admin/invoices", color: "border-yellow-500/50" },
+    
   ];
 
   return (

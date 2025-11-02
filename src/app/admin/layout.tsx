@@ -10,7 +10,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Tatuoinnit", path: "/admin/tattoos" },
     { name: "Stand Up", path: "/admin/standup" },
     { name: "Kirjanpito", path: "/admin/bookkeeping" },
-    { name: "Laskutus", path: "/admin/invoices" },
+    
   ];
 
   return (

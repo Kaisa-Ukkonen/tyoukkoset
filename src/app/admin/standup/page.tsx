@@ -9,6 +9,7 @@ type Gig = {
   city: string;
   address: string; // 🆕 lisätty
   date: string;
+  time: string;
 };
 
 export default function AdminStandupPage() {
@@ -17,6 +18,7 @@ export default function AdminStandupPage() {
     title: "",
     address: "",
     date: "",
+    time: "",
   });
   const [notification, setNotification] = useState<string | null>(null);
   const [editingGig, setEditingGig] = useState<Gig | null>(null);
@@ -24,6 +26,7 @@ export default function AdminStandupPage() {
     title: "",
     address: "",
     date: "",
+    time: "",
   });
 
   const startEditing = (gig: Gig) => {
@@ -32,6 +35,7 @@ export default function AdminStandupPage() {
       title: gig.title,
       address: gig.address,
       date: gig.date.split("T")[0],
+      time: gig.time || "",
     });
   };
 
@@ -44,7 +48,7 @@ export default function AdminStandupPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: editingGig.id, ...editForm }),
     });
-    
+
     if (res.ok) {
       const updated = await res.json();
       setGigs(gigs.map((g) => (g.id === updated.id ? updated : g)));
@@ -77,7 +81,7 @@ export default function AdminStandupPage() {
     if (res.ok) {
       const newGig = await res.json();
       setGigs([newGig, ...gigs]);
-      setForm({ title: "", address: "", date: "" });
+      setForm({ title: "", address: "", date: "", time: "" });
       setNotification("Keikka lisätty onnistuneesti!");
       setTimeout(() => setNotification(null), 4000);
     } else {
@@ -139,6 +143,13 @@ export default function AdminStandupPage() {
              focus:border-yellow-400 text-white placeholder-gray-400 outline-none transition"
           required
         />
+        <input
+          type="time"
+          value={form.time || ""}
+          onChange={(e) => setForm({ ...form, time: e.target.value })}
+          className="w-full p-3 bg-black/40 border border-yellow-700/40 rounded-md text-white"
+          placeholder="Kellonaika"
+        />
         <button
           type="submit"
           className="bg-yellow-500 text-black font-semibold px-6 py-2 rounded-md hover:bg-yellow-400 transition"
@@ -155,6 +166,7 @@ export default function AdminStandupPage() {
           className="bg-black/40 border border-yellow-700/30 rounded-lg p-4"
         >
           {editingGig?.id === gig.id ? (
+            // 🔹 MUOKKAUSTILA
             <form
               onSubmit={handleUpdate}
               className="bg-black/40 border border-yellow-700/40 rounded-lg p-4 space-y-4"
@@ -166,10 +178,11 @@ export default function AdminStandupPage() {
                   setEditForm({ ...editForm, title: e.target.value })
                 }
                 className="w-full p-3 bg-black/40 border border-yellow-600/40 rounded-md 
-         focus:border-yellow-400 text-white placeholder-gray-400 outline-none transition"
+             focus:border-yellow-400 text-white placeholder-gray-400 outline-none transition"
                 placeholder="Keikan nimi (esim. Haaska Stand Up)"
                 required
               />
+
               <input
                 type="text"
                 value={editForm.address}
@@ -177,10 +190,11 @@ export default function AdminStandupPage() {
                   setEditForm({ ...editForm, address: e.target.value })
                 }
                 className="w-full p-3 bg-black/40 border border-yellow-600/40 rounded-md 
-         focus:border-yellow-400 text-white placeholder-gray-400 outline-none transition"
+             focus:border-yellow-400 text-white placeholder-gray-400 outline-none transition"
                 placeholder="Paikka ja osoite (esim. Kuopio, Kauppakatu 25)"
                 required
               />
+
               <input
                 type="date"
                 value={editForm.date}
@@ -188,9 +202,26 @@ export default function AdminStandupPage() {
                   setEditForm({ ...editForm, date: e.target.value })
                 }
                 className="w-full p-3 bg-black/40 border border-yellow-600/40 rounded-md 
-         focus:border-yellow-400 text-white placeholder-gray-400 outline-none transition"
+             focus:border-yellow-400 text-white placeholder-gray-400 outline-none transition"
                 required
               />
+
+              {/* 🔹 Kellonaikakenttä */}
+              <div className="relative">
+                <input
+                  type="time"
+                  value={editForm.time || ""}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, time: e.target.value })
+                  }
+                  className="w-full p-3 bg-black/40 border border-yellow-600/40 rounded-md 
+               focus:border-yellow-400 text-white placeholder-gray-400 outline-none transition pr-10"
+                />
+                <span className="absolute right-3 top-3 text-yellow-500 pointer-events-none">
+                  🕒
+                </span>
+              </div>
+
               <div className="flex justify-center gap-3">
                 <button
                   type="submit"
@@ -208,6 +239,7 @@ export default function AdminStandupPage() {
               </div>
             </form>
           ) : (
+            // 🔹 NORMAALITILA
             <>
               <h2 className="text-lg text-white font-semibold mb-2">
                 {gig.title}
@@ -215,7 +247,9 @@ export default function AdminStandupPage() {
               <p className="text-gray-200">{gig.address}</p>
               <p className="text-sm text-gray-400">
                 {new Date(gig.date).toLocaleDateString("fi-FI")}
+                {gig.time ? ` klo ${gig.time}` : ""}
               </p>
+
               <div className="flex justify-center gap-2 mt-3">
                 <button
                   onClick={() => startEditing(gig)}

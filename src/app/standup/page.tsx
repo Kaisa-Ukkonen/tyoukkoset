@@ -13,6 +13,7 @@ type Gig = {
   address: string;
   date: string;
   isPublic: boolean;
+  time: string;
 };
 
 export default function StandUpPage() {
@@ -398,15 +399,19 @@ export default function StandUpPage() {
                         )
                         .map((gig) => (
                           <li key={gig.id} className="text-center">
+                            {/* 🔹 Päivämäärä ja kellonaika */}
                             <span className="text-yellow-400 font-bold">
                               {new Date(gig.date).toLocaleDateString("fi-FI", {
                                 day: "numeric",
                                 month: "numeric",
                                 year: "numeric",
                               })}
+                              {gig.time ? ` klo ${gig.time}` : ""}{" "}
+                              {/* ← uusi lisäys */}
                             </span>{" "}
                             – {gig.title}
                             <br />
+                            {/* 🔹 Osoite Google Maps -linkkinä */}
                             <a
                               href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
                                 gig.address

@@ -24,6 +24,7 @@ model StandupGig {
   address   String
   date      DateTime
   isPublic  Boolean  @default(true)
+  time      String?
 }
 
 model User {
