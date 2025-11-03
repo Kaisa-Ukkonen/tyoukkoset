@@ -14,7 +14,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { title, address, date, time } = body; // ✅ lisätty time
+    const { title, placeDetails, address, date, time } = body; // ✅ lisätty time
 
     if (!title || !address || !date) {
       return NextResponse.json({ error: "Puuttuvia kenttiä" }, { status: 400 });
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
     const newGig = await prisma.standupGig.create({
       data: {
         title,
+        placeDetails,
         address,
         date: new Date(date),
         time: time || null, // ✅ lisätty time kenttä (vapaaehtoinen)
@@ -50,13 +51,14 @@ export async function DELETE(req: Request) {
 
 // 🔹 Päivitä keikka
 export async function PUT(req: Request) {
-  const { id, title, address, date, time } = await req.json(); // ✅ lisätty time
+  const { id, title, placeDetails, address, date, time } = await req.json(); // ✅ lisätty time
   if (!id) return NextResponse.json({ error: "Missing ID" }, { status: 400 });
 
   const updatedGig = await prisma.standupGig.update({
     where: { id },
     data: {
       title,
+      placeDetails,
       address,
       date: new Date(date),
       time: time || null, // ✅ lisätty time kenttä

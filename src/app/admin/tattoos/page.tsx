@@ -113,7 +113,7 @@ export default function AdminTattoosPage() {
 
       <form
         onSubmit={handleUpload}
-        className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 mb-10 text-center"
+        className="bg-black/25 backdrop-blur-sm border border-yellow-700/40 rounded-xl p-6 mb-10 text-center shadow-[0_0_15px_rgba(0,0,0,0.4)] transition-all duration-300"
       >
         <h2 className="text-xl font-semibold mb-4 text-yellow-300">
           Lisää uusi tatuointikuva
@@ -155,22 +155,23 @@ export default function AdminTattoosPage() {
       </form>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {tattoos.map((tat) => (
+        {tattoos.map((tattoo) => (
           <div
-            key={tat.id}
-            className="bg-black/40 border border-yellow-700/30 rounded-lg p-4 flex flex-col items-center text-center"
+            key={tattoo.id}
+            className="bg-black/25 backdrop-blur-sm border border-yellow-700/30 rounded-lg p-4 flex flex-col items-center text-center shadow-[0_0_12px_rgba(0,0,0,0.4)] transition-all duration-300 hover:bg-black/40 hover:border-yellow-400"
           >
             <div className="relative w-full aspect-square overflow-hidden rounded-lg mb-3">
               <Image
-                src={tat.imageUrl}
+                src={tattoo.imageUrl}
                 alt="Tatuointi"
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-500"
+                loading="lazy"
               />
             </div>
 
             <button
-              onClick={() => handleDelete(tat.id)}
+              onClick={() => handleDelete(tattoo.id)}
               className="mt-2 bg-red-600 hover:bg-red-500 text-white font-semibold px-4 py-2 rounded-md transition-all duration-300"
             >
               Poista

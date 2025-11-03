@@ -21,6 +21,7 @@ model Tattoo {
 model StandupGig {
   id        String   @id @default(uuid())
   title     String
+  placeDetails String?
   address   String
   date      DateTime
   isPublic  Boolean  @default(true)
