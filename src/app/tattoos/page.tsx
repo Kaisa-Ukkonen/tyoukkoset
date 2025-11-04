@@ -257,7 +257,7 @@ export default function Tattoos() {
                   >
                     <Image
                       src={tattoo.imageUrl}
-                      alt={tattoo.title}
+                      alt={tattoo.title || "Tatuointi"}
                       fill
                       className="object-cover object-center transition-transform duration-500"
                       loading="lazy"

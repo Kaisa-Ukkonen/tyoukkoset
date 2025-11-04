@@ -19,13 +19,13 @@ model Tattoo {
 }
 
 model StandupGig {
-  id        String   @id @default(uuid())
-  title     String
+  id           String   @id @default(uuid())
+  title        String
   placeDetails String?
-  address   String
-  date      DateTime
-  isPublic  Boolean  @default(true)
-  time      String?
+  address      String
+  date         DateTime
+  isPublic     Boolean  @default(true)
+  time         String?
 }
 
 model User {
@@ -42,3 +42,40 @@ enum Role {
   ADMIN
 }
 
+//Kirjanpito
+model Account {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique  // ✅ Tee tästä uniikki
+  type        String
+  description String?
+  createdAt   DateTime  @default(now())
+
+  entries     BookkeepingEntry[]
+}
+
+model BookkeepingEntry {
+  id            Int      @id @default(autoincrement())
+  date          DateTime // Maksupäivä
+  description   String? // Kuvaus, esim. "Mikrofonin osto"
+  type          String // "tulo" tai "meno"
+  amount        Float // Bruttosumma (sis. alv)
+  vatRate       Float // ALV-prosentti (esim. 24, 14, 10, 0)
+  vatAmount     Float // ALV euroina
+  paymentMethod String? // "SumUp", "Käteinen", "Yrityskortti", "Yrittäjän maksu"
+  receiptNumber String? // Esim. kuitti- tai laskunumero
+  createdAt     DateTime @default(now())
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id])
+
+  receipt Receipt?
+}
+
+model Receipt {
+  id         Int      @id @default(autoincrement())
+  fileUrl    String // Polku tiedostoon, esim. "/receipts/2025-11-03_tosite_001.pdf"
+  uploadedAt DateTime @default(now())
+
+  entryId Int              @unique
+  entry   BookkeepingEntry @relation(fields: [entryId], references: [id])
+}

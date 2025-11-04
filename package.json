@@ -13,6 +13,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.23.24",
+    "lucide-react": "^0.552.0",
     "mysql2": "^3.15.3",
     "next": "16.0.0",
     "nodemailer": "^7.0.10",
@@ -32,6 +33,10 @@
     "postcss": "^8.5.6",
     "prisma": "^6.18.0",
     "tailwindcss": "^4.1.15",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }
