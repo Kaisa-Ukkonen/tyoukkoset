@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import { MoreVertical } from "lucide-react";
 
 type Product = {
   id: number;
@@ -11,6 +12,7 @@ type Product = {
   minutes?: number;
   price: number;
   vatRate: number;
+  vatIncluded: boolean;
   description?: string;
 };
 
@@ -25,6 +27,12 @@ export default function ProductList({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  useEffect(() => {
+    const handleClickOutside = () => setOpenMenuId(null);
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, []);
 
   // 🔹 Hae tuotteet
   const fetchProducts = async () => {
@@ -114,10 +122,12 @@ export default function ProductList({
               <th className="py-2 px-3">Tuotekoodi</th>
               <th className="py-2 px-3">Kategoria</th>
               <th className="py-2 px-3">Kesto</th>
-              <th className="py-2 px-3 text-right">Hinta (€)</th>
+              <th className="py-2 px-3 text-right">
+                Kokonaishinta (sis.ALV) (€)
+              </th>
               <th className="py-2 px-3 text-right">Veroton hinta (€)</th>
               <th className="py-2 px-3 text-right">ALV-osuus (€)</th>
-              <th className="py-2 px-3 text-right">ALV (%)</th>
+              <th className="py-2 px-3 text-right">ALV-kanta (%)</th>
               <th className="py-2 px-3">Kuvaus</th>
               <th className="py-2 px-3 text-center">Toiminnot</th>
             </tr>
@@ -263,40 +273,78 @@ export default function ProductList({
                     </td>
                     {/* 🔹 Lasketaan hinnat */}
                     {(() => {
-                      const veroton = p.price * (100 / (100 + p.vatRate));
-                      const vero = p.price - veroton;
+                      // 🔹 Lasketaan veroton, vero ja kokonaishinta loogisesti riippuen ALV:n sisältymisestä
+                      const veroton = p.vatIncluded
+                        ? p.price / (1 + p.vatRate / 100) // jos hinta sisältää ALV:n
+                        : p.price; // jos ei sisällä
+
+                      const vero = p.vatIncluded
+                        ? p.price - veroton
+                        : veroton * (p.vatRate / 100);
+
+                      const kokonaishinta = p.vatIncluded
+                        ? p.price // jos hinta sisältää ALV:n
+                        : veroton + vero; // jos ei sisällä
+
                       return (
                         <>
                           <td className="py-2 px-3 text-right">
-                            {p.price.toFixed(2)}
+                            {kokonaishinta.toFixed(2)} €
                           </td>
                           <td className="py-2 px-3 text-right text-gray-300">
-                            {veroton.toFixed(2)}
+                            {veroton.toFixed(3)} €
                           </td>
                           <td className="py-2 px-3 text-right text-gray-300">
-                            {vero.toFixed(2)}
+                            {vero.toFixed(3)} €
                           </td>
-                          <td className="py-2 px-3 text-right">{p.vatRate}</td>
+                          <td className="py-2 px-3 text-right">
+                            {p.vatRate} %
+                          </td>
                         </>
                       );
                     })()}
                     <td className="py-2 px-3 text-gray-400">
                       {p.description || "-"}
                     </td>
-                    <td className="py-2 px-3 text-center space-x-2">
-                      <button
-                        onClick={() => handleEdit(p)}
-                        className="bg-yellow-600 hover:bg-yellow-500 text-black font-semibold px-3 py-1 rounded-md transition"
-                      >
-                        Muokkaa
-                      </button>
-                      <button
-                        onClick={() => setDeleteId(p.id)} // 🔹 avaa modalin
-                        className="bg-red-600 hover:bg-red-500 text-white font-semibold px-3 py-1 rounded-md transition"
-                      >
-                        Poista
-                      </button>
-                    </td>
+                    <td className="py-2 px-3 text-center relative">
+  {/* Kolmen pisteen nappi */}
+  <button
+    onClick={(e) => {
+      e.stopPropagation(); // estää valikon sulkeutumisen
+      setOpenMenuId(openMenuId === p.id ? null : p.id);
+    }}
+    className="text-yellow-400 hover:text-yellow-200 transition"
+  >
+    <MoreVertical className="inline w-5 h-5" />
+  </button>
+
+  {/* Pieni valikko */}
+  {openMenuId === p.id && (
+    <div
+      onClick={(e) => e.stopPropagation()} // estää sulkeutumisen kun klikataan valikkoa
+      className="absolute right-0 mt-2 bg-black border border-yellow-700/40 rounded-md shadow-lg z-10 w-28"
+    >
+      <button
+        onClick={() => {
+          handleEdit(p);
+          setOpenMenuId(null);
+        }}
+        className="block w-full text-left px-3 py-1 text-sm text-yellow-300 hover:bg-yellow-700/20"
+      >
+        Muokkaa
+      </button>
+      <button
+        onClick={() => {
+          setDeleteId(p.id);
+          setOpenMenuId(null);
+        }}
+        className="block w-full text-left px-3 py-1 text-sm text-red-400 hover:bg-red-700/20"
+      >
+        Poista
+      </button>
+    </div>
+  )}
+</td>
                   </>
                 )}
               </tr>

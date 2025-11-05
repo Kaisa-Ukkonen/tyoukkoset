@@ -22,6 +22,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
     minutes: "",
     price: "",
     vatRate: "25.5",
+    vatIncluded: true,
     description: "",
   });
 
@@ -45,6 +46,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
           minutes: parseInt(form.minutes || "0"),
           price: parseFloat(form.price),
           vatRate: parseFloat(form.vatRate),
+          vatIncluded: form.vatIncluded,
           description: form.description,
         }),
       });
@@ -59,6 +61,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
           minutes: "",
           price: "",
           vatRate: "25.5",
+          vatIncluded: true,
           description: "",
         });
         onSuccess();
@@ -141,7 +144,23 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
             />
           </div>
         </div>
-
+        {/* 🔹 ALV sisältyy hintaan -valinta */}
+        <div className="flex items-center gap-3 col-span-2 md:col-span-1">
+          <label className="text-gray-300">ALV sisältyy hintaan</label>
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, vatIncluded: !form.vatIncluded })}
+            className={`w-12 h-6 rounded-full transition-colors duration-300 ${
+              form.vatIncluded ? "bg-yellow-500" : "bg-gray-600"
+            } relative`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform duration-300 ${
+                form.vatIncluded ? "translate-x-6" : "translate-x-0"
+              }`}
+            />
+          </button>
+        </div>
         {/* 🔸 Hinta ja ALV */}
         <input
           type="number"
