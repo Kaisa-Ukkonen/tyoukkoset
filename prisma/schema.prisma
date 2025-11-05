@@ -44,13 +44,13 @@ enum Role {
 
 //Kirjanpito
 model Account {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique  // ✅ Tee tästä uniikki
+  id          Int      @id @default(autoincrement())
+  name        String   @unique // ✅ Tee tästä uniikki
   type        String
   description String?
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime @default(now())
 
-  entries     BookkeepingEntry[]
+  entries BookkeepingEntry[]
 }
 
 model BookkeepingEntry {
@@ -78,4 +78,21 @@ model Receipt {
 
   entryId Int              @unique
   entry   BookkeepingEntry @relation(fields: [entryId], references: [id])
+}
+
+//Tuotteet
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  code        String? // Tuotekoodi
+  category    String // Tatuointi / Stand Up
+  hours       Int?
+  minutes     Int?
+  price       Float
+  vatIncluded Boolean  @default(false)
+  vatRate     Float // esim. 25.5
+  vatHandling String   @default("Kotimaan verollinen myynti")
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

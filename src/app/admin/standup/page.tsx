@@ -6,6 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { registerLocale } from "react-datepicker";
 import { fi } from "date-fns/locale";
 registerLocale("fi", fi);
+import ConfirmModal from "@/components/common/ConfirmModal";
 
 type Gig = {
   id: string;
@@ -22,6 +23,7 @@ export default function AdminStandupPage() {
   const [gigs, setGigs] = useState<Gig[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
   const [editingGig, setEditingGig] = useState<Gig | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // 🔹 Lomakkeiden tilat
   const [form, setForm] = useState({
@@ -149,13 +151,19 @@ export default function AdminStandupPage() {
   };
 
   // 🔹 Poista keikka
-  const handleDelete = async (id: string) => {
-    const res = await fetch(`/api/standup?id=${id}`, { method: "DELETE" });
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    const res = await fetch(`/api/standup?id=${deleteId}`, {
+      method: "DELETE",
+    });
     if (res.ok) {
-      setGigs(gigs.filter((g) => g.id !== id));
+      setGigs(gigs.filter((g) => g.id !== deleteId));
       setNotification("Keikka poistettu.");
-      setTimeout(() => setNotification(null), 4000);
+    } else {
+      setNotification("Virhe poistossa.");
     }
+    setDeleteId(null);
+    setTimeout(() => setNotification(null), 4000);
   };
 
   return (
@@ -255,9 +263,9 @@ export default function AdminStandupPage() {
         >
           {editingGig?.id === gig.id ? (
             <form
-  onSubmit={handleUpdate}
-  className="bg-black/20 backdrop-blur-sm border border-yellow-700/40 rounded-xl p-6 mb-10 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.4)] transition-all duration-300"
->
+              onSubmit={handleUpdate}
+              className="bg-black/20 backdrop-blur-sm border border-yellow-700/40 rounded-xl p-6 mb-10 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.4)] transition-all duration-300"
+            >
               <input
                 type="text"
                 value={editForm.title}
@@ -367,7 +375,7 @@ export default function AdminStandupPage() {
                   Muokkaa
                 </button>
                 <button
-                  onClick={() => handleDelete(gig.id)}
+                  onClick={() => setDeleteId(gig.id)}
                   className="bg-red-600 hover:bg-red-500 text-white font-semibold px-4 py-1 rounded-md transition"
                 >
                   Poista
@@ -377,6 +385,12 @@ export default function AdminStandupPage() {
           )}
         </div>
       ))}
+      <ConfirmModal
+        show={deleteId !== null}
+        message="Haluatko varmasti poistaa tämän keikan?"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }

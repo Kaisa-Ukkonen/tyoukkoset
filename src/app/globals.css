@@ -197,3 +197,20 @@ textarea:focus {
 .react-datepicker-popper {
   z-index: 9999 !important;
 }
+/* --- Tumma dropdown-ulkoasu kaikille select-elementeille --- */
+select {
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #f5f5f5;
+}
+
+select option {
+  background-color: #0b0b0b !important; /* täysin tumma tausta */
+  color: #f5f5f5 !important;            /* valkoinen teksti */
+}
+
+select option:hover,
+select option:checked,
+select:focus option:checked {
+  background-color: #1a1a1a !important; /* hover/valittu hieman vaaleampi */
+  color: #facc15 !important;            /* keltainen teksti valitulle */
+}

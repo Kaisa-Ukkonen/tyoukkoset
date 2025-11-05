@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import ConfirmModal from "@/components/common/ConfirmModal";
 
 type Tattoo = {
   id: string;
@@ -14,6 +15,7 @@ export default function AdminTattoosPage() {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // 🪄 ref tiedostokentälle
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -73,11 +75,21 @@ export default function AdminTattoosPage() {
   };
 
   // 🔹 Poisto
-  const handleDelete = async (id: string) => {
+  // 🔹 Avaa vahvistus
+  const handleDelete = (id: string) => {
+    setDeleteId(id);
+  };
+
+  // 🔹 Vahvista poisto
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+
     try {
-      const res = await fetch(`/api/tattoos?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/tattoos?id=${deleteId}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
-        setTattoos(tattoos.filter((t) => t.id !== id));
+        setTattoos(tattoos.filter((t) => t.id !== deleteId));
         setNotification("Kuva poistettu onnistuneesti.");
         setIsError(false);
       } else {
@@ -89,6 +101,7 @@ export default function AdminTattoosPage() {
       setNotification("Yhteysvirhe — poisto epäonnistui.");
       setIsError(true);
     } finally {
+      setDeleteId(null);
       setTimeout(() => setNotification(null), 4000);
     }
   };
@@ -179,6 +192,12 @@ export default function AdminTattoosPage() {
           </div>
         ))}
       </div>
+      <ConfirmModal
+        show={deleteId !== null}
+        message="Haluatko varmasti poistaa tämän tatuointikuvan?"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }
