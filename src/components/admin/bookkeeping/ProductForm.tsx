@@ -8,20 +8,23 @@ type Product = {
   category: string;
   hours?: number;
   minutes?: number;
+  quantity?: number;
   price: number;
   vatRate: number;
+  vatIncluded: boolean;
   description?: string;
 };
 
 export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<Product>({
     name: "",
     code: "",
-    category: "Tatuointi",
-    hours: "",
-    minutes: "",
-    price: "",
-    vatRate: "25.5",
+    category: "",
+    hours: 0,
+    minutes: 0,
+    quantity: 0,
+    price: 0,
+    vatRate: 25.5,
     vatIncluded: true,
     description: "",
   });
@@ -39,15 +42,12 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name,
-          code: form.code,
-          category: form.category,
-          hours: parseInt(form.hours || "0"),
-          minutes: parseInt(form.minutes || "0"),
-          price: parseFloat(form.price),
-          vatRate: parseFloat(form.vatRate),
-          vatIncluded: form.vatIncluded,
-          description: form.description,
+          ...form,
+          hours: parseInt(form.hours?.toString() || "0"),
+          minutes: parseInt(form.minutes?.toString() || "0"),
+          quantity: parseInt(form.quantity?.toString() || "0"),
+          price: parseFloat(form.price.toString()),
+          vatRate: parseFloat(form.vatRate.toString()),
         }),
       });
 
@@ -56,11 +56,12 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
         setForm({
           name: "",
           code: "",
-          category: "Tatuointi",
-          hours: "",
-          minutes: "",
-          price: "",
-          vatRate: "25.5",
+          category: "",
+          hours: 0,
+          minutes: 0,
+          quantity: 0,
+          price: 0,
+          vatRate: 25.5,
           vatIncluded: true,
           description: "",
         });
@@ -88,7 +89,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
       {message && <p className="text-center text-gray-300">{message}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* 🔸 Tuotteen nimi ja koodi */}
+        {/* Nimi ja tuotekoodi */}
         <input
           type="text"
           placeholder="Tuotteen nimi"
@@ -105,51 +106,66 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
           className="bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white"
         />
 
-        {/* 🔸 Kategoria */}
+        {/* Kategoria */}
         <select
           value={form.category}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
-          className="bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:border-yellow-400 focus:outline-none"
+          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white"
         >
-          <option value="Tatuointi">Tatuointi</option>
-          <option value="Stand Up">Stand Up</option>
-          <option value="Huoltotyö">Huoltotyö</option>
+          <option value="">Valitse tyyppi</option>
+          <option value="Palvelu">Palvelu</option>
+          <option value="Tuote">Tuote</option>
         </select>
 
-        {/* 🔹 Kesto: tunnit ja minuutit */}
-        <div className="flex space-x-3 col-span-2 md:col-span-2">
-          <div className="w-1/2">
-            <label className="block text-sm text-gray-300 mb-1"></label>
+        {/* Kesto tai varasto */}
+        {form.category === "Palvelu" && (
+          <div className="flex space-x-3 col-span-2 md:col-span-2">
             <input
               type="number"
               min="0"
-              value={form.hours}
-              onChange={(e) => setForm({ ...form, hours: e.target.value })}
+              value={form.hours || ""}
+              onChange={(e) =>
+                setForm({ ...form, hours: parseInt(e.target.value) || 0 })
+              }
               placeholder="Tunnit"
               className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:border-yellow-400 focus:outline-none"
             />
-          </div>
-
-          <div className="w-1/2">
-            <label className="block text-sm text-gray-300 mb-1"></label>
             <input
               type="number"
               min="0"
               max="59"
               step="5"
-              value={form.minutes}
-              onChange={(e) => setForm({ ...form, minutes: e.target.value })}
+              value={form.minutes || ""}
+              onChange={(e) =>
+                setForm({ ...form, minutes: parseInt(e.target.value) || 0 })
+              }
               placeholder="Minuutit"
               className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:border-yellow-400 focus:outline-none"
             />
           </div>
-        </div>
-        {/* 🔹 ALV sisältyy hintaan -valinta */}
+        )}
+
+        {form.category === "Tuote" && (
+          <input
+            type="number"
+            min="0"
+            value={form.quantity || ""}
+            onChange={(e) =>
+              setForm({ ...form, quantity: parseInt(e.target.value) || 0 })
+            }
+            placeholder="Varasto (kpl)"
+            className="col-span-2 bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:border-yellow-400 focus:outline-none"
+          />
+        )}
+
+        {/* ALV sisältyy hintaan */}
         <div className="flex items-center gap-3 col-span-2 md:col-span-1">
           <label className="text-gray-300">ALV sisältyy hintaan</label>
           <button
             type="button"
-            onClick={() => setForm({ ...form, vatIncluded: !form.vatIncluded })}
+            onClick={() =>
+              setForm({ ...form, vatIncluded: !form.vatIncluded })
+            }
             className={`w-12 h-6 rounded-full transition-colors duration-300 ${
               form.vatIncluded ? "bg-yellow-500" : "bg-gray-600"
             } relative`}
@@ -161,21 +177,29 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
             />
           </button>
         </div>
-        {/* 🔸 Hinta ja ALV */}
-        <input
-          type="number"
-          min="0" // 🔸 Estää negatiiviset luvut
-          step="0.01" // 🔸 Sallii desimaalit kuten 0.95 tai 12.50
-          placeholder="Yksikön hinta €"
-          value={form.price}
-          onChange={(e) => setForm({ ...form, price: e.target.value })}
-          className="bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white"
-          required
-        />
+
+        {/* Hinta ja ALV */}
+       <input
+  type="number"
+  min="0"
+  step="0.01"
+  placeholder="Yksikön hinta €"
+  value={form.price === 0 ? "" : form.price}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      price: parseFloat(e.target.value) || 0,
+    })
+  }
+  className="bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white"
+  required
+/>
 
         <select
           value={form.vatRate}
-          onChange={(e) => setForm({ ...form, vatRate: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, vatRate: parseFloat(e.target.value) })
+          }
           className="bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white"
         >
           <option value="25.5">25.5 %</option>
@@ -185,7 +209,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
         </select>
       </div>
 
-      {/* 🔸 Kuvaus */}
+      {/* Kuvaus */}
       <textarea
         placeholder="Kuvaus"
         value={form.description}
@@ -193,7 +217,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
         className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white"
       />
 
-      {/* 🔸 Tallenna */}
+      {/* Tallenna */}
       <div className="flex justify-center">
         <button
           disabled={loading}
