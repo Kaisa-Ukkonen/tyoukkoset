@@ -22,21 +22,23 @@ export default function ProductsPage() {
       </h1>
 
       {/* 🔹 Yläpalkki: haku ja uusi tuote */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="🔍 Hae tuotteita..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 bg-black/40 border border-yellow-700/40 rounded-md px-4 py-2 text-white placeholder-gray-400 focus:border-yellow-400 outline-none"
-        />
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-5 py-2 rounded-md transition-all"
-        >
-          {showForm ? "Sulje lomake" : "+ Uusi tuote"}
-        </button>
-      </div>
+      <div className="flex justify-center mb-6">
+  <div className="flex w-[700px] max-w-full">
+    <input
+      type="text"
+      placeholder="🔍 Hae tuotteita..."
+      className="flex-1 bg-black/40 border border-yellow-700/40 rounded-l-md px-4 py-2 text-yellow-100 focus:border-yellow-400 outline-none"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+    <button
+      onClick={() => setShowForm(!showForm)}
+      className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-6 rounded-r-md transition-all"
+    >
+      {showForm ? "Sulje lomake" : "Lisää tuote"}
+    </button>
+  </div>
+</div>
 
       {/* 🔹 Näytetään lomake kun showForm = true */}
       <AnimatePresence>

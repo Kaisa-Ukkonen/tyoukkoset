@@ -2,6 +2,7 @@
 
 
 import { useState, useEffect } from "react";
+import DatePickerField from "@/components/common/DatePickerField";
 
 type Entry = {
   id: number;
@@ -145,13 +146,16 @@ export default function BookkeepingForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm text-gray-300 mb-1">Päivämäärä</label>
-          <input
-            type="date"
-            value={form.date}
-            onChange={(e) => setForm({ ...form, date: e.target.value })}
-            className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
-            required
-          />
+          <DatePickerField
+  
+  selected={form.date ? new Date(form.date) : null}
+  onChange={(date) =>
+    setForm({
+      ...form,
+      date: date ? date.toISOString().split("T")[0] : "",
+    })
+  }
+/>
         </div>
 
         <div>

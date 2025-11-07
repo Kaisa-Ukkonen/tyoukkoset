@@ -7,6 +7,7 @@ import { registerLocale } from "react-datepicker";
 import { fi } from "date-fns/locale";
 registerLocale("fi", fi);
 import ConfirmModal from "@/components/common/ConfirmModal";
+import DatePickerField from "@/components/common/DatePickerField";
 
 type Gig = {
   id: string;
@@ -33,12 +34,18 @@ export default function AdminStandupPage() {
     date: null as Date | null,
     time: null as Date | null,
   });
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<{
+    title: string;
+    placeDetails: string;
+    address: string;
+    date: Date | null;
+    time: Date | null;
+  }>({
     title: "",
     placeDetails: "",
     address: "",
-    date: null as Date | null,
-    time: null as Date | null,
+    date: null,
+    time: null,
   });
 
   // 🔹 Hae keikat
@@ -215,16 +222,10 @@ export default function AdminStandupPage() {
         {/* 🔹 Päivämäärä ja kellonaika */}
         <div className="flex flex-col sm:flex-row gap-1 justify-start text-left">
           <div className="sm:w-[32%]">
-            <DatePicker
+            <DatePickerField
+
               selected={form.date}
               onChange={(date) => setForm({ ...form, date })}
-              dateFormat="dd.MM.yyyy"
-              placeholderText="Valitse päivä"
-              locale="fi"
-              className="w-full p-3 bg-black/40 border border-yellow-600/40 rounded-md 
-        text-white placeholder-gray-400 outline-none focus:border-yellow-400 transition"
-              popperClassName="z-[9999]"
-              portalId="root-portal"
             />
           </div>
 
@@ -304,16 +305,10 @@ export default function AdminStandupPage() {
               {/* 🔹 Päivämäärä ja kellonaika */}
               <div className="flex flex-col sm:flex-row gap-1 justify-start text-left">
                 <div className="sm:w-[32%]">
-                  <DatePicker
-                    selected={form.date}
-                    onChange={(date) => setForm({ ...form, date })}
-                    dateFormat="dd.MM.yyyy"
-                    placeholderText="Valitse päivä"
-                    locale="fi"
-                    className="w-full p-3 bg-black/40 border border-yellow-600/40 rounded-md 
-                              text-white placeholder-gray-400 outline-none focus:border-yellow-400 transition"
-                    popperClassName="z-[9999]"
-                    portalId="root-portal"
+                  <DatePickerField
+                    label="Päivämäärä"
+                    selected={editForm.date}
+                    onChange={(date) => setEditForm({ ...editForm, date })}
                   />
                 </div>
 

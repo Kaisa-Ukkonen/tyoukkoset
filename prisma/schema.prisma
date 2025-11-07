@@ -97,3 +97,27 @@ model Product {
   updatedAt   DateTime @updatedAt
   quantity    Int?     @default(0)
 }
+
+//Kontaktit
+model Contact {
+  id            Int      @id @default(autoincrement())
+  name          String
+  type          String
+  customerCode  String?      // esim. asiakastunnus
+  enableBilling Boolean  @default(false)
+  notes         String?
+  altNames      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+//Keikkamatkat
+model Trip {
+  id           Int      @id @default(autoincrement())
+  date         DateTime
+  startAddress String
+  endAddress   String
+  kilometers   Int
+  allowance    String   // "full", "half", "none"
+  createdAt    DateTime @default(now())
+}
