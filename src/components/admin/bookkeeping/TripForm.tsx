@@ -39,7 +39,7 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 mb-10 space-y-4"
+  className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto"
     >
       <div>
         <label className="block text-yellow-300 font-semibold">Päiväraha</label>

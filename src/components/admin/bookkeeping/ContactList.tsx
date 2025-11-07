@@ -41,7 +41,7 @@ export default function ContactList({
   );
 
   return (
-    <div className="bg-black/40 border border-yellow-700/40 rounded-xl p-4 mt-6">
+    <div className="max-w-4xl mx-auto mt-10 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
       {filtered.length === 0 ? (
         <p className="text-gray-400 italic">Ei kontakteja haulla.</p>
       ) : (

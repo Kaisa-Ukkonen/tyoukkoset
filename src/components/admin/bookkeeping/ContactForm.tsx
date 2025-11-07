@@ -1,5 +1,7 @@
 "use client";
+
 import { useState } from "react";
+import CustomSelect from "@/components/common/CustomSelect";
 
 type Contact = {
   id?: number;
@@ -50,37 +52,47 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="bg-black/50 border border-yellow-700/40 rounded-xl p-6 space-y-4"
-    >
+  onSubmit={handleSubmit}
+  className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto"
+>
+      <h2 className="text-center text-yellow-400 text-lg font-semibold">
+        Lisää uusi kontakti
+      </h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 🔹 Nimi */}
         <input
           type="text"
           placeholder="Nimi"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
-          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white"
+          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white 
+                     focus:outline-none focus:border-yellow-400"
         />
 
-        <select
+        {/* 🔹 CustomSelect: tyyppi */}
+        <CustomSelect
+          label="Tyyppi"
           value={form.type}
-          onChange={(e) => setForm({ ...form, type: e.target.value })}
-          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white"
-        >
-          <option value="">Valitse tyyppi</option>
-          <option value="Yksityishenkilö">Yksityishenkilö</option>
-          <option value="Yritys">Yritys</option>
-        </select>
+          onChange={(value) => setForm({ ...form, type: value })}
+          options={[
+            { value: "Yksityishenkilö", label: "Yksityishenkilö" },
+            { value: "Yritys", label: "Yritys" },
+          ]}
+        />
 
+        {/* 🔹 Asiakastunnus */}
         <input
           type="text"
           placeholder="Asiakastunnus"
           value={form.customerCode}
           onChange={(e) => setForm({ ...form, customerCode: e.target.value })}
-          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white"
+          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
+                     focus:outline-none focus:border-yellow-400"
         />
 
+        {/* 🔹 Laskutus-valinta */}
         <label className="flex items-center gap-2 text-gray-300">
           <input
             type="checkbox"
@@ -93,28 +105,37 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
           Aktivoi laskutus
         </label>
 
+        {/* 🔹 Muistiinpanot */}
         <textarea
           placeholder="Muistiinpanot"
           value={form.notes}
           onChange={(e) => setForm({ ...form, notes: e.target.value })}
-          className="col-span-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white"
+          className="col-span-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 
+                     text-white focus:outline-none focus:border-yellow-400"
+          rows={3}
         />
 
+        {/* 🔹 Vaihtoehtoiset nimet */}
         <textarea
           placeholder="Vaihtoehtoiset nimet"
           value={form.altNames}
           onChange={(e) => setForm({ ...form, altNames: e.target.value })}
-          className="col-span-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white"
+          className="col-span-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 
+                     text-white focus:outline-none focus:border-yellow-400"
+          rows={3}
         />
       </div>
 
-      {message && <p className="text-center text-yellow-400">{message}</p>}
+      {message && (
+        <p className="text-center text-yellow-400 font-medium">{message}</p>
+      )}
 
-      <div className="flex justify-center gap-3">
+      <div className="flex justify-center">
         <button
           type="submit"
           disabled={loading}
-          className="bg-yellow-600 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-md transition"
+          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
+                     px-8 py-2 rounded-md transition disabled:opacity-50"
         >
           {loading ? "Tallennetaan..." : "Tallenna"}
         </button>

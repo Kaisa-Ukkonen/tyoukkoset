@@ -21,7 +21,8 @@ export default function ContactsPage() {
       </h1>
 
       {/* 🔹 Yläpalkki: haku ja uusi kontakti */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+      <div className="flex justify-center mb-6">
+  <div className="flex w-[700px] max-w-full">
         <input
           type="text"
           placeholder="🔍 Hae kontakteja..."
@@ -35,6 +36,7 @@ export default function ContactsPage() {
         >
           {showForm ? "Sulje lomake" : "+ Uusi kontakti"}
         </button>
+      </div>
       </div>
 
       {/* 🔹 Näytetään lomake kun showForm = true */}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import BookkeepingForm from "@/components/admin/bookkeeping/BookkeepingForm";
 import BookkeepingList from "@/components/admin/bookkeeping/BookkeepingList";
 
@@ -15,8 +16,10 @@ type Entry = {
   account: { name: string };
 };
 
-export default function EventsPage() {
+export default function BookkeepingEventsPage() {
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
   // 🔹 Hakee tapahtumat tietokannasta
   const fetchEntries = async () => {
@@ -29,22 +32,35 @@ export default function EventsPage() {
     }
   };
 
-  // 🔹 Suorita haku kerran sivun latautuessa
- useEffect(() => {
-  const load = async () => {
-    await fetchEntries();
+  useEffect(() => {
+  const loadEntries = async () => {
+    try {
+      await fetchEntries(); // tämä tekee setEntries turvallisesti
+    } catch (err) {
+      console.error("Virhe tapahtumien haussa:", err);
+    }
   };
-  load();
+
+  // Käynnistetään erikseen asynkronisesti
+  loadEntries();
 }, []);
 
-  // 🔹 Lomake kutsuu tätä, kun uusi tapahtuma on tallennettu
- const handleNewEntry = (newEntry: Entry) => {
-  setEntries((prev) =>
-    [...prev, newEntry].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    )
+  // 🔹 Päivitä listaa uuden tapahtuman lisäyksessä
+  const handleNewEntry = (newEntry: Entry) => {
+    setEntries((prev) =>
+      [...prev, newEntry].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      )
+    );
+  };
+
+  // 🔹 Suodatus hakusanan mukaan
+  const filteredEntries = entries.filter(
+    (e) =>
+      e.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      e.account?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      e.paymentMethod?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-};
 
   return (
     <main className="text-white p-8">
@@ -52,12 +68,47 @@ export default function EventsPage() {
         Kirjanpidon tapahtumat
       </h1>
 
-      {/* Lomake */}
-      <BookkeepingForm onSuccess={handleNewEntry} />
+      {/* 🔍 Hakukenttä ja lisää-nappi */}
+      <div className="flex justify-center mb-6">
+        <div className="flex w-[700px] max-w-full">
+          <input
+            type="text"
+            placeholder="🔍 Hae tapahtumia..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 bg-black/40 border border-yellow-700/40 rounded-l-md px-4 py-2 text-yellow-100 focus:border-yellow-400 outline-none"
+          />
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-6 rounded-r-md transition-all"
+          >
+            {showForm ? "Sulje lomake" : "+ Lisää tapahtuma"}
+          </button>
+        </div>
+      </div>
 
-      {/* Lista */}
+      {/* 🧾 Lomake avautuu vain tarvittaessa */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            <BookkeepingForm
+              onSuccess={(newEntry) => {
+                handleNewEntry(newEntry);
+                setShowForm(false); // 🔹 suljetaan lomake
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 📋 Lista */}
       <div className="mt-10">
-        <BookkeepingList entries={entries} />
+        <BookkeepingList entries={filteredEntries} />
       </div>
     </main>
   );

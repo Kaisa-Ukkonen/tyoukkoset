@@ -1,8 +1,8 @@
 "use client";
 
-
 import { useState, useEffect } from "react";
 import DatePickerField from "@/components/common/DatePickerField";
+import CustomSelect from "@/components/common/CustomSelect";
 
 type Entry = {
   id: number;
@@ -20,7 +20,6 @@ export default function BookkeepingForm({
 }: {
   onSuccess?: (entry: Entry) => void;
 }) {
-
   type Account = {
     id: number;
     name: string;
@@ -42,7 +41,7 @@ export default function BookkeepingForm({
     type: "meno",
     account: "",
     amount: "",
-    vatRate: "24",
+    vatRate: "25.5",
     paymentMethod: "",
     receipt: null as File | null,
   });
@@ -62,7 +61,7 @@ export default function BookkeepingForm({
   }, []);
 
   // 🔹 Lähetys
- const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setNotification(null);
@@ -91,8 +90,7 @@ export default function BookkeepingForm({
           message: "Kirjanpitotapahtuma tallennettu onnistuneesti!",
         });
 
-        // 🟢 Lähetetään uusi rivi parent-komponentille
-       if (onSuccess) onSuccess(result.data || result);
+        if (onSuccess) onSuccess(result.data || result);
 
         setForm({
           date: "",
@@ -100,7 +98,7 @@ export default function BookkeepingForm({
           type: "meno",
           account: "",
           amount: "",
-          vatRate: "24",
+          vatRate: "25.5",
           paymentMethod: "",
           receipt: null,
         });
@@ -144,66 +142,60 @@ export default function BookkeepingForm({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Päivämäärä */}
         <div>
           <label className="block text-sm text-gray-300 mb-1">Päivämäärä</label>
           <DatePickerField
-  
-  selected={form.date ? new Date(form.date) : null}
-  onChange={(date) =>
-    setForm({
-      ...form,
-      date: date ? date.toISOString().split("T")[0] : "",
-    })
-  }
-/>
-        </div>
-
-        <div>
-          <label className="block text-sm text-gray-300 mb-1">Tyyppi</label>
-          <select
-            value={form.type}
-            onChange={(e) => setForm({ ...form, type: e.target.value })}
-            className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
-          >
-            <option value="tulo">Tulo</option>
-            <option value="meno">Meno</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm text-gray-300 mb-1">Tili</label>
-          <select
-            value={form.account}
-            onChange={(e) => setForm({ ...form, account: e.target.value })}
-            className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
-            required
-          >
-            <option value="">Valitse tili</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.name}>
-                {acc.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm text-gray-300 mb-1">Maksutapa</label>
-          <select
-            value={form.paymentMethod}
-            onChange={(e) =>
-              setForm({ ...form, paymentMethod: e.target.value })
+            selected={form.date ? new Date(form.date) : null}
+            onChange={(date) =>
+              setForm({
+                ...form,
+                date: date ? date.toISOString().split("T")[0] : "",
+              })
             }
-            className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
-          >
-            <option value="">Valitse</option>
-            <option value="SumUp">SumUp</option>
-            <option value="Käteinen">Käteinen</option>
-            <option value="Yrityskortti">Yrityskortti</option>
-            <option value="Yrittäjän maksu">Yrittäjän maksu</option>
-          </select>
+          />
         </div>
 
+        {/* Tyyppi */}
+        <CustomSelect
+          label="Tyyppi"
+          value={form.type}
+          onChange={(val) => setForm({ ...form, type: val })}
+          options={[
+            { value: "tulo", label: "Tulo" },
+            { value: "meno", label: "Meno" },
+          ]}
+        />
+
+        {/* Tili */}
+        <CustomSelect
+          label="Tili"
+          value={form.account}
+          onChange={(val) => setForm({ ...form, account: val })}
+          options={[
+            { value: "", label: "Valitse tili" },
+            ...accounts.map((acc) => ({
+              value: acc.name,
+              label: acc.name,
+            })),
+          ]}
+        />
+
+        {/* Maksutapa */}
+        <CustomSelect
+          label="Maksutapa"
+          value={form.paymentMethod}
+          onChange={(val) => setForm({ ...form, paymentMethod: val })}
+          options={[
+            { value: "", label: "Valitse" },
+            { value: "SumUp", label: "SumUp" },
+            { value: "Käteinen", label: "Käteinen" },
+            { value: "Yrityskortti", label: "Yrityskortti" },
+            { value: "Yrittäjän maksu", label: "Yrittäjän maksu" },
+          ]}
+        />
+
+        {/* Summa */}
         <div>
           <label className="block text-sm text-gray-300 mb-1">Summa (€)</label>
           <input
@@ -216,17 +208,21 @@ export default function BookkeepingForm({
           />
         </div>
 
-        <div>
-          <label className="block text-sm text-gray-300 mb-1">ALV (%)</label>
-          <input
-            type="number"
-            value={form.vatRate}
-            onChange={(e) => setForm({ ...form, vatRate: e.target.value })}
-            className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
-          />
-        </div>
+        {/* ALV */}
+        <CustomSelect
+          label="ALV (%)"
+          value={form.vatRate}
+          onChange={(val) => setForm({ ...form, vatRate: val })}
+          options={[
+            { value: "25.5", label: "25.5 %" },
+            { value: "14", label: "14 %" },
+            { value: "10", label: "10 %" },
+            { value: "0", label: "0 %" },
+          ]}
+        />
       </div>
 
+      {/* Kuvaus */}
       <div>
         <label className="block text-sm text-gray-300 mb-1">Kuvaus</label>
         <textarea
@@ -237,6 +233,7 @@ export default function BookkeepingForm({
         />
       </div>
 
+      {/* Tosite */}
       <div>
         <label className="block text-sm text-gray-300 mb-1">
           Tosite (valinnainen)
@@ -251,6 +248,7 @@ export default function BookkeepingForm({
         />
       </div>
 
+      {/* Lähetysnappi */}
       <div className="flex justify-center">
         <button
           type="submit"

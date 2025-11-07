@@ -21,7 +21,8 @@ export default function TripsPage() {
       </h1>
 
       {/* 🔹 Yläpalkki: haku ja uusi matka */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+       <div className="flex justify-center mb-6">
+  <div className="flex w-[700px] max-w-full">
         <input
           type="text"
           placeholder="🔍 Hae matkoja..."
@@ -36,6 +37,8 @@ export default function TripsPage() {
           {showForm ? "Sulje lomake" : "+ Keikkamatka"}
         </button>
       </div>
+    </div>
+
 
       {/* 🔹 Näytetään lomake */}
       <AnimatePresence>
@@ -55,5 +58,6 @@ export default function TripsPage() {
       {/* 🔹 Matkalista */}
       <TripList refreshKey={refreshKey} searchTerm={searchTerm} />
     </div>
+    
   );
 }

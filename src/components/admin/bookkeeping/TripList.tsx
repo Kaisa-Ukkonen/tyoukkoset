@@ -118,7 +118,7 @@ export default function TripList({
   );
 
   return (
-    <div className="border-t border-yellow-800/40 mt-4 pt-4 space-y-3 relative">
+    <div className="max-w-4xl mx-auto mt-10 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
       {notification && (
         <div className="bg-yellow-900/40 border border-yellow-600/40 text-yellow-300 rounded-md p-2 text-center font-semibold mb-4">
           {notification}
