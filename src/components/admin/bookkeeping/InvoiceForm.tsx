@@ -89,21 +89,33 @@ export default function InvoiceForm({
       vatRate: 24,
     }
   );
+  // ✅ Kun tuotteet on ladattu ja muokataan laskua
   useEffect(() => {
-  if (editData) {
-    const timer = setTimeout(() => {
-      setForm({
-        ...editData,
-        lines: editData.lines.map((line: InvoiceLineData) => ({
-          ...line,
-          description: line.description || line.product?.name || "",
-        })),
-      });
-    }, 0);
+    if (editData && products.length > 0) {
+      const timer = setTimeout(() => {
+        setForm((prev) => ({
+          ...prev,
+          lines: editData.lines.map((line) => {
+            const product = products.find((p) => p.id === line.productId);
+            return {
+              ...line,
+              productId: line.productId ?? product?.id ?? null,
+              description: line.description || product?.name || "",
+              unitPrice: line.unitPrice ?? product?.price ?? 0,
+              vatRate: line.vatRate ?? product?.vatRate ?? 24,
+              total:
+                line.total ??
+                (product
+                  ? product.price * (1 + (product.vatRate ?? 24) / 100)
+                  : 0),
+            };
+          }),
+        }));
+      }, 0);
 
-    return () => clearTimeout(timer);
-  }
-}, [editData]);
+      return () => clearTimeout(timer);
+    }
+  }, [editData, products]);
 
   // 🔹 Hae kontaktit ja tuotteet
   useEffect(() => {
@@ -142,10 +154,14 @@ export default function InvoiceForm({
     const lines = [...form.lines];
     lines[index] = { ...lines[index], ...updated };
 
-    // Laske rivin kokonaishinta ja päivitys yhteenvetoon
-    const net = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
+    // 🔹 Jos halutaan että hinta sisältää ALV:n
+    const net = lines.reduce(
+      (sum, l) => sum + (l.unitPrice / (1 + l.vatRate / 100)) * l.quantity,
+      0
+    );
     const vat = lines.reduce(
-      (sum, l) => sum + l.unitPrice * l.quantity * (l.vatRate / 100),
+      (sum, l) =>
+        sum + (l.unitPrice - l.unitPrice / (1 + l.vatRate / 100)) * l.quantity,
       0
     );
     const total = net + vat;
@@ -158,6 +174,20 @@ export default function InvoiceForm({
       totalAmount: total,
     });
   };
+
+
+  useEffect(() => {
+    if (!form.date || !form.paymentTerm) return;
+
+    const calculatedDueDate = new Date(form.date);
+    calculatedDueDate.setDate(calculatedDueDate.getDate() + form.paymentTerm);
+
+    if (form.dueDate.getTime() !== calculatedDueDate.getTime()) {
+      queueMicrotask(() => {
+        setForm((prev) => ({ ...prev, dueDate: calculatedDueDate }));
+      });
+    }
+}, [form.date, form.paymentTerm, form.dueDate]);
 
   // 🔹 Lähetä lomake
   const handleSubmit = async (e: React.FormEvent) => {
@@ -257,13 +287,7 @@ export default function InvoiceForm({
               <div className="sm:col-span-2">
                 <CustomSelect
                   label="Tuote"
-                  value={
-                    line.productId
-                      ? String(line.productId)
-                      : products
-                          .find((p) => p.name === line.description)
-                          ?.id.toString() || ""
-                  }
+                  value={line.productId ? String(line.productId) : ""}
                   onChange={(value) => {
                     const product = products.find(
                       (p) => String(p.id) === value
