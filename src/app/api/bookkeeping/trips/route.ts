@@ -23,7 +23,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    const { date, startAddress, endAddress, kilometers, allowance } = data;
+    const { date, startAddress, endAddress, kilometers, allowance, notes } = data;
 
     const trip = await prisma.trip.create({
       data: {
@@ -32,6 +32,7 @@ export async function POST(req: Request) {
         endAddress,
         kilometers: Number(kilometers),
         allowance,
+        notes,
       },
     });
 
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const data = await req.json();
-    const { id, date, startAddress, endAddress, kilometers, allowance } = data;
+    const { id, date, startAddress, endAddress, kilometers, allowance, notes } = data;
 
     if (!id) {
       return NextResponse.json({ error: "Matkan ID puuttuu" }, { status: 400 });
@@ -63,6 +64,7 @@ export async function PUT(req: Request) {
         endAddress,
         kilometers: Number(kilometers),
         allowance,
+        notes,
       },
     });
 

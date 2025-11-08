@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import DatePickerField from "@/components/common/DatePickerField";
-
+import CustomSelect from "@/components/common/CustomSelect";
 
 export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
   const [form, setForm] = useState({
@@ -10,6 +10,7 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
     startAddress: "",
     endAddress: "",
     kilometers: "",
+    notes: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -30,6 +31,7 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
         startAddress: "",
         endAddress: "",
         kilometers: "",
+        notes: "",
       });
       onSuccess();
     }
@@ -39,20 +41,20 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <form
       onSubmit={handleSubmit}
-  className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto"
+      className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto"
     >
       <div>
         <label className="block text-yellow-300 font-semibold">Päiväraha</label>
-        <select
+        <CustomSelect
           value={form.allowance}
-          onChange={(e) => setForm({ ...form, allowance: e.target.value })}
-          className="w-full p-3 bg-black/40 border border-yellow-700/40 rounded-lg text-yellow-100"
-        >
-          <option value="">Valitse päiväraha</option>
-          <option value="full">Kokopäiväraha 53€ (yli 10h)</option>
-          <option value="half">Osapäiväraha 24€ (yli 6h)</option>
-          <option value="none">Ei päivärahaa</option>
-        </select>
+          onChange={(val) => setForm({ ...form, allowance: val })}
+          options={[
+            { value: "", label: "Valitse..." },
+            { value: "full", label: "Kokopäiväraha 53€" },
+            { value: "half", label: "Osapäiväraha 24€" },
+            { value: "none", label: "Ei päivärahaa" },
+          ]}
+        />
       </div>
 
       <div>
@@ -127,10 +129,26 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
+      {/* 🟡 UUSI LISÄTIETOKENTTÄ */}
+      <div>
+        <label className="block text-yellow-300 font-semibold mt-4">
+          Lisätiedot
+        </label>
+        <textarea
+          value={form.notes}
+          onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          placeholder="Lisätietoja matkasta..."
+          rows={3}
+          className="w-full p-3 bg-black/40 border border-yellow-700/40 rounded-lg text-yellow-100 focus:border-yellow-400 outline-none"
+        />
+      </div>
+
       <button
         type="submit"
         disabled={loading}
-        className="w-full mt-6 py-3 bg-yellow-600 hover:bg-yellow-500 text-black font-semibold rounded-lg disabled:opacity-50"
+        className="bg-yellow-600 hover:bg-yellow-500 text-black font-semibold 
+             px-6 py-2 rounded-md shadow-md transition 
+             flex items-center justify-center gap-2 mx-auto"
       >
         {loading ? "Tallennetaan..." : "💾 Tallenna matka"}
       </button>

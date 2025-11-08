@@ -1,7 +1,13 @@
 "use client";
 
 import { Fragment } from "react";
-import { Listbox, Transition } from "@headlessui/react";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOptions,
+  ListboxOption,
+  Transition,
+} from "@headlessui/react";
 import { Check, ChevronDown } from "lucide-react";
 
 type Option = {
@@ -29,21 +35,25 @@ export default function CustomSelect({
       {label && (
         <label className="block text-sm text-gray-300 mb-1">{label}</label>
       )}
+
       <Listbox value={value} onChange={onChange}>
         <div className="relative mt-1">
           {/* --- Suljettu tila --- */}
-          <Listbox.Button
-            className={`relative w-full cursor-pointer rounded-md bg-black/40 border border-[rgba(255,215,0,0.4)] 
-py-2 pl-3 pr-10 text-left text-white shadow-sm focus:outline-none 
-focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15] sm:text-sm transition-colors`}
+          <ListboxButton
+            className="relative w-full cursor-pointer rounded-md bg-black/40 border border-[rgba(255,215,0,0.4)] 
+            py-2 pl-3 pr-10 text-left text-white shadow-sm focus:outline-none 
+            focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15] sm:text-sm transition-colors"
           >
             <span className="block truncate">
               {selected ? selected.label : "Valitse..."}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <ChevronDown className="h-5 w-5 text-yellow-400" aria-hidden="true" />
+              <ChevronDown
+                className="h-5 w-5 text-yellow-400"
+                aria-hidden="true"
+              />
             </span>
-          </Listbox.Button>
+          </ListboxButton>
 
           {/* --- Avattu dropdown --- */}
           <Transition
@@ -52,13 +62,14 @@ focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15] sm:text-sm transition-c
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options
-  className="ListboxOptions absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-black/90 
-  py-1 text-base ring-1 ring-[#facc15]/40 border border-[#facc15]/40 focus:outline-none sm:text-sm 
-  shadow-[0_0_10px_rgba(250,204,21,0.2)] scrollbar-thin"
->
+            <ListboxOptions
+              className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md 
+                        bg-black/95 backdrop-blur-sm 
+                        py-1 text-base ring-1 ring-[#facc15]/40 border border-[#facc15]/40 
+                        focus:outline-none sm:text-sm shadow-[0_0_10px_rgba(250,204,21,0.2)] scrollbar-thin"
+            >
               {options.map((option) => (
-                <Listbox.Option
+                <ListboxOption
                   key={option.value}
                   value={option.value}
                   className={({ active }) =>
@@ -78,16 +89,16 @@ focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15] sm:text-sm transition-c
                       >
                         {option.label}
                       </span>
-                      {selected ? (
+                      {selected && (
                         <span className="absolute inset-y-0 left-2 flex items-center text-yellow-400">
                           <Check className="h-4 w-4" />
                         </span>
-                      ) : null}
+                      )}
                     </>
                   )}
-                </Listbox.Option>
+                </ListboxOption>
               ))}
-            </Listbox.Options>
+            </ListboxOptions>
           </Transition>
         </div>
       </Listbox>

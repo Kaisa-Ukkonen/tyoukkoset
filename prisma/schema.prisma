@@ -96,6 +96,7 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   quantity    Int?     @default(0)
+  invoiceLines  InvoiceLine[]
 }
 
 //Kontaktit
@@ -109,6 +110,7 @@ model Contact {
   altNames      String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  invoices   Invoice[]    // yhteys laskuihin
 }
 
 //Keikkamatkat
@@ -120,4 +122,46 @@ model Trip {
   kilometers   Int
   allowance    String   // "full", "half", "none"
   createdAt    DateTime @default(now())
+  notes        String?
+}
+model Invoice {
+  id              Int             @id @default(autoincrement())
+  invoiceNumber   String          @unique
+  date            DateTime        @default(now())
+  dueDate         DateTime
+  paymentTerm     Int             @default(14)
+  referenceNumber String?
+
+  customerId      Int?
+  customer        Contact?        @relation(fields: [customerId], references: [id])
+  customCustomer  String?
+
+  status          String          @default("DRAFT")
+  notes           String?
+
+  netAmount       Float           @default(0)
+  vatAmount       Float           @default(0)
+  totalAmount     Float           @default(0)
+  vatRate         Float?
+
+  lines           InvoiceLine[]
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model InvoiceLine {
+  id          Int       @id @default(autoincrement())
+  invoiceId   Int
+  invoice     Invoice   @relation(fields: [invoiceId], references: [id])
+
+  // Tuote/palvelu
+  productId   Int?
+  product     Product?  @relation(fields: [productId], references: [id])
+
+  description String
+  quantity    Float      @default(1)
+  unitPrice   Float      @default(0)
+  vatRate     Float      @default(24)
+  total       Float      @default(0)
 }
