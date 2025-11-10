@@ -124,6 +124,8 @@ model Trip {
   createdAt    DateTime @default(now())
   notes        String?
 }
+
+// Lasku
 model Invoice {
   id              Int             @id @default(autoincrement())
   invoiceNumber   String          @unique

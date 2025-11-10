@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Tämä sallii PDFKitin käyttää omia tiedostojaan (kuten Helvetica.afm)
+  serverExternalPackages: ["pdfkit"],
 };
 
 export default nextConfig;

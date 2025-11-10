@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import React from "react";
 import ConfirmModal from "@/components/common/ConfirmModal";
-import type { InvoiceSummary } from "@/app/admin/bookkeeping/invoices/page";
-import { Edit3, Trash2 } from "lucide-react";
+
+import { Trash2 } from "lucide-react";
 
 type Invoice = {
   id: number;
@@ -19,15 +19,20 @@ type Invoice = {
 
 export default function InvoiceList({
   refreshKey,
-  searchTerm = "",   // lisää oletusarvo
-  onEdit,
+  searchTerm = "", // lisää oletusarvo
 }: {
   refreshKey: number;
   searchTerm?: string;
-  onEdit?: (invoice: InvoiceSummary) => void;
 }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+  const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(
+    null
+  );
+
+  const toggleExpand = (id: number) => {
+    setExpandedInvoiceId(expandedInvoiceId === id ? null : id);
+  };
 
   // 🔹 Hae laskut API:sta
   useEffect(() => {
@@ -77,64 +82,159 @@ export default function InvoiceList({
             <th className="px-4 py-3">Eräpäivä</th>
             <th className="px-4 py-3 text-right">Summa (€)</th>
             <th className="px-4 py-3">Tila</th>
-            <th className="px-4 py-3 text-center">Toiminnot</th>
           </tr>
         </thead>
+
         <tbody>
           {filtered.length > 0 ? (
             filtered.map((invoice) => (
-              <tr
-                key={invoice.id}
-                className="border-t border-yellow-700/10 hover:bg-yellow-700/10 transition-colors"
-              >
-                <td className="px-4 py-2">{invoice.invoiceNumber}</td>
-                <td className="px-4 py-2">
-                  {invoice.customCustomer || invoice.customer?.name || "—"}
-                </td>
-                <td className="px-4 py-2">
-                  {new Date(invoice.date).toLocaleDateString("fi-FI")}
-                </td>
-                <td className="px-4 py-2">
-                  {new Date(invoice.dueDate).toLocaleDateString("fi-FI")}
-                </td>
-                <td className="px-4 py-2 text-right">
-                  {invoice.totalAmount.toFixed(2)} €
-                </td>
-                <td className="px-4 py-2">
-                  <span
-                    className={`${
-                      invoice.status === "PAID"
-                        ? "text-green-400"
+              <React.Fragment key={invoice.id}>
+                {/* 🔹 Laskun perusrivi */}
+                <tr
+                  onClick={() => toggleExpand(invoice.id)}
+                  className={`border-t border-yellow-700/10 hover:bg-yellow-700/10 transition-colors cursor-pointer ${
+                    expandedInvoiceId === invoice.id ? "bg-yellow-700/20" : ""
+                  }`}
+                >
+                  <td className="px-4 py-2">{invoice.invoiceNumber}</td>
+                  <td className="px-4 py-2">
+                    {invoice.customCustomer || invoice.customer?.name || "—"}
+                  </td>
+                  <td className="px-4 py-2">
+                    {new Date(invoice.date).toLocaleDateString("fi-FI")}
+                  </td>
+                  <td className="px-4 py-2">
+                    {new Date(invoice.dueDate).toLocaleDateString("fi-FI")}
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    {invoice.totalAmount.toFixed(2)} €
+                  </td>
+                  <td className="px-4 py-2">
+                    <span
+                      className={`${
+                        invoice.status === "PAID"
+                          ? "text-green-400"
+                          : invoice.status === "SENT"
+                          ? "text-yellow-400"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {invoice.status === "DRAFT"
+                        ? "Luonnos"
                         : invoice.status === "SENT"
-                        ? "text-yellow-400"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {invoice.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2 text-center">
-                  <div className="flex justify-center gap-3">
-                    <button
-                      onClick={() => onEdit?.(invoice)}
-                      className="text-yellow-400 hover:text-yellow-300"
+                        ? "Lähetetty"
+                        : invoice.status === "PAID"
+                        ? "Maksettu"
+                        : invoice.status}
+                    </span>
+                  </td>
+                </tr>
+
+                {/* 🔽 Laajennettava näkymä (avautuu klikatessa) */}
+                {expandedInvoiceId === invoice.id && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="bg-black/50 border-t border-yellow-700/40 p-4"
                     >
-                      <Edit3 size={18} />
-                    </button>
-                    <button
-                      onClick={() => setConfirmDelete(invoice.id)}
-                      className="text-red-500 hover:text-red-400"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                      <div className="text-gray-300 text-sm space-y-2">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p>
+                              <span className="text-yellow-400">
+                                Laskun numero:
+                              </span>{" "}
+                              {invoice.invoiceNumber}
+                            </p>
+                            <p>
+                              <span className="text-yellow-400">Asiakas:</span>{" "}
+                              {invoice.customCustomer ||
+                                invoice.customer?.name ||
+                                "—"}
+                            </p>
+                            <p>
+                              <span className="text-yellow-400">
+                                Laskun päivä:
+                              </span>{" "}
+                              {new Date(invoice.date).toLocaleDateString(
+                                "fi-FI"
+                              )}
+                            </p>
+                            <p>
+                              <span className="text-yellow-400">Eräpäivä:</span>{" "}
+                              {new Date(invoice.dueDate).toLocaleDateString(
+                                "fi-FI"
+                              )}
+                            </p>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setExpandedInvoiceId(null);
+                            }}
+                            className="text-blue-400 hover:text-blue-300 text-sm"
+                          >
+                            Sulje ×
+                          </button>
+                        </div>
+
+                        <hr className="border-yellow-700/40 my-3" />
+
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">
+                            Summa (sis. ALV):
+                          </span>
+                          <span className="text-yellow-300 font-semibold">
+                            {invoice.totalAmount.toFixed(2)} €
+                          </span>
+                        </div>
+                        {/* 🔹 Näytä PDF-lasku */}
+                        <a
+                          href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-yellow-400 hover:text-yellow-300"
+                        >
+                          📄 Näytä PDF-lasku
+                        </a>
+
+                        {/* 🔹 Painikkeet */}
+                        {invoice.status === "DRAFT" && (
+                          <div className="pt-4 flex justify-end gap-4">
+                            {/* 🟡 Hyväksy lasku */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                alert(
+                                  "Tässä voisi olla 'Hyväksy lasku' -toiminto"
+                                );
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-500 rounded-md text-black font-semibold transition"
+                            >
+                              ✅ Hyväksy lasku
+                            </button>
+
+                            {/* 🔴 Poista lasku */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setConfirmDelete(invoice.id);
+                              }}
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))
           ) : (
             <tr>
               <td
-                colSpan={7}
+                colSpan={6}
                 className="px-4 py-6 text-center text-gray-400 italic"
               >
                 Ei laskuja hakuehdoilla.

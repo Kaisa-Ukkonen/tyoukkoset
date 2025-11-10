@@ -27,22 +27,8 @@ type InvoiceLine = {
   total: number;
 };
 
-export type InvoiceLineData = {
-  id?: number;
-  productId?: number | null;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  vatRate: number;
-  total: number;
-
-  // ✅ Tämä lisätään
-  product?: {
-    id: number;
-    name: string;
-    price: number;
-    vatRate: number;
-  } | null;
+export type InvoiceLineData = InvoiceLine & {
+  product?: Product | null;
 };
 
 export type InvoiceFormData = {
@@ -54,7 +40,7 @@ export type InvoiceFormData = {
   customerId: number | null;
   customCustomer: string;
   notes: string;
-  lines: InvoiceLineData[]; // ✅ tämä kertoo mitä "lines" sisältää
+  lines: InvoiceLineData[];
   netAmount: number;
   vatAmount: number;
   totalAmount: number;
@@ -64,58 +50,26 @@ export type InvoiceFormData = {
 export default function InvoiceForm({
   onSaved,
   onCancel,
-  editData,
 }: {
   onSaved: () => void;
   onCancel: () => void;
-  editData?: InvoiceFormData | null;
 }) {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [form, setForm] = useState<InvoiceFormData>(
-    editData ?? {
-      id: undefined,
-      invoiceNumber: "",
-      date: new Date(),
-      dueDate: new Date(),
-      paymentTerm: 14,
-      customerId: null,
-      customCustomer: "",
-      notes: "",
-      lines: [], // ✅ tyhjä taulukko oikealla tyypillä
-      netAmount: 0,
-      vatAmount: 0,
-      totalAmount: 0,
-      vatRate: 24,
-    }
-  );
-  // ✅ Kun tuotteet on ladattu ja muokataan laskua
-  useEffect(() => {
-    if (editData && products.length > 0) {
-      const timer = setTimeout(() => {
-        setForm((prev) => ({
-          ...prev,
-          lines: editData.lines.map((line) => {
-            const product = products.find((p) => p.id === line.productId);
-            return {
-              ...line,
-              productId: line.productId ?? product?.id ?? null,
-              description: line.description || product?.name || "",
-              unitPrice: line.unitPrice ?? product?.price ?? 0,
-              vatRate: line.vatRate ?? product?.vatRate ?? 24,
-              total:
-                line.total ??
-                (product
-                  ? product.price * (1 + (product.vatRate ?? 24) / 100)
-                  : 0),
-            };
-          }),
-        }));
-      }, 0);
-
-      return () => clearTimeout(timer);
-    }
-  }, [editData, products]);
+  const [form, setForm] = useState<InvoiceFormData>({
+    invoiceNumber: "",
+    date: new Date(),
+    dueDate: new Date(),
+    paymentTerm: 14,
+    customerId: null,
+    customCustomer: "",
+    notes: "",
+    lines: [],
+    netAmount: 0,
+    vatAmount: 0,
+    totalAmount: 0,
+    vatRate: 24,
+  });
 
   // 🔹 Hae kontaktit ja tuotteet
   useEffect(() => {
@@ -149,12 +103,11 @@ export default function InvoiceForm({
     });
   };
 
-  // 🔹 Päivitä laskurivin tiedot
+  // 🔹 Päivitä laskurivin tiedot ja summat
   const updateLine = (index: number, updated: Partial<InvoiceLine>) => {
     const lines = [...form.lines];
     lines[index] = { ...lines[index], ...updated };
 
-    // 🔹 Jos halutaan että hinta sisältää ALV:n
     const net = lines.reduce(
       (sum, l) => sum + (l.unitPrice / (1 + l.vatRate / 100)) * l.quantity,
       0
@@ -175,19 +128,18 @@ export default function InvoiceForm({
     });
   };
 
-
+  // 🔹 Päivitä eräpäivä automaattisesti maksuehdon mukaan
   useEffect(() => {
     if (!form.date || !form.paymentTerm) return;
-
     const calculatedDueDate = new Date(form.date);
     calculatedDueDate.setDate(calculatedDueDate.getDate() + form.paymentTerm);
 
     if (form.dueDate.getTime() !== calculatedDueDate.getTime()) {
-      queueMicrotask(() => {
-        setForm((prev) => ({ ...prev, dueDate: calculatedDueDate }));
-      });
+      queueMicrotask(() =>
+        setForm((prev) => ({ ...prev, dueDate: calculatedDueDate }))
+      );
     }
-}, [form.date, form.paymentTerm, form.dueDate]);
+  }, [form.date, form.paymentTerm, form.dueDate]);
 
   // 🔹 Lähetä lomake
   const handleSubmit = async (e: React.FormEvent) => {
@@ -196,7 +148,7 @@ export default function InvoiceForm({
     const response = await fetch("/api/bookkeeping/invoices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form), // ✅ Tämä sisältää myös id:n
+      body: JSON.stringify(form),
     });
 
     if (response.ok) {
@@ -211,9 +163,7 @@ export default function InvoiceForm({
       onSubmit={handleSubmit}
       className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 mb-10 space-y-6"
     >
-      <h2 className="text-xl text-yellow-400 font-semibold">
-        {editData ? "Muokkaa laskua" : "Uusi lasku"}
-      </h2>
+      <h2 className="text-xl text-yellow-400 font-semibold">Uusi lasku</h2>
 
       {/* 🔹 Laskun perustiedot */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -269,9 +219,7 @@ export default function InvoiceForm({
               setForm({ ...form, customerId: null, customCustomer: value });
             }
           }}
-          options={[
-            ...contacts.map((c) => ({ value: String(c.id), label: c.name })),
-          ]}
+          options={contacts.map((c) => ({ value: String(c.id), label: c.name }))}
         />
       </div>
 
