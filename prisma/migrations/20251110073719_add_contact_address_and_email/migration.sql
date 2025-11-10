@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `Contact` ADD COLUMN `address` VARCHAR(191) NULL,
+    ADD COLUMN `city` VARCHAR(191) NULL,
+    ADD COLUMN `email` VARCHAR(191) NULL,
+    ADD COLUMN `zip` VARCHAR(191) NULL;

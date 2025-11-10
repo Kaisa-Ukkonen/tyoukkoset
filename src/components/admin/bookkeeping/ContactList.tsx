@@ -10,6 +10,11 @@ type Contact = {
   enableBilling?: boolean;
   notes?: string;
   altNames?: string;
+  // ✅ Uudet kentät
+  email?: string | null;
+  address?: string | null;
+  zip?: string | null;
+  city?: string | null;
 };
 
 export default function ContactList({
@@ -20,8 +25,8 @@ export default function ContactList({
   searchTerm: string;
 }) {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [expandedId, setExpandedId] = useState<number | null>(null); // 🔹 Uusi tila
-  const [tab, setTab] = useState<"info" | "events">("info"); // 🔹 Tiedot / Tapahtumat -välilehdet
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [tab, setTab] = useState<"info" | "events">("info");
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -128,6 +133,33 @@ export default function ContactList({
                               </span>{" "}
                               {c.customerCode || "-"}
                             </p>
+
+                            {/* ✅ Uudet kentät */}
+                            {c.email && (
+                              <p>
+                                <span className="text-yellow-400">
+                                  Sähköposti:
+                                </span>{" "}
+                                {c.email}
+                              </p>
+                            )}
+                            {c.address && (
+                              <p>
+                                <span className="text-yellow-400">
+                                  Osoite:
+                                </span>{" "}
+                                {c.address}
+                              </p>
+                            )}
+                            {(c.zip || c.city) && (
+                              <p>
+                                <span className="text-yellow-400">
+                                  Postiosoite:
+                                </span>{" "}
+                                {c.zip || ""} {c.city || ""}
+                              </p>
+                            )}
+
                             <p>
                               <span className="text-yellow-400">
                                 Laskutus aktivoitu:

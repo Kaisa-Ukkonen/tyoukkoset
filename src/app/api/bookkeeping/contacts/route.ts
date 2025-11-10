@@ -8,7 +8,23 @@ export async function GET() {
   try {
     const contacts = await prisma.contact.findMany({
       orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        customerCode: true,
+        enableBilling: true,
+        email: true,     // ✅ lisätty
+        address: true,   // ✅ lisätty
+        zip: true,       // ✅ lisätty
+        city: true,      // ✅ lisätty
+        notes: true,
+        altNames: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
+
     return NextResponse.json(contacts);
   } catch (err) {
     console.error("Virhe kontaktien haussa:", err);
@@ -32,6 +48,10 @@ export async function POST(req: Request) {
         enableBilling: data.enableBilling || false,
         notes: data.notes || null,
         altNames: data.altNames || null,
+        email: data.email || null,     // ✅ lisätty
+        address: data.address || null, // ✅ lisätty
+        zip: data.zip || null,         // ✅ lisätty
+        city: data.city || null,       // ✅ lisätty
       },
     });
 

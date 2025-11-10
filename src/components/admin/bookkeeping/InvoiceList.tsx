@@ -3,8 +3,16 @@
 import { useEffect, useState } from "react";
 import React from "react";
 import ConfirmModal from "@/components/common/ConfirmModal";
-
 import { Trash2 } from "lucide-react";
+
+type InvoiceLine = {
+  id: number;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  vatRate: number;
+  product?: { name: string } | null;
+};
 
 type Invoice = {
   id: number;
@@ -13,13 +21,14 @@ type Invoice = {
   dueDate: string;
   totalAmount: number;
   status: string;
+  lines?: InvoiceLine[]; // ✅ tämä varmistaa näkyvyyden
   customer?: { name: string } | null;
   customCustomer?: string | null;
 };
 
 export default function InvoiceList({
   refreshKey,
-  searchTerm = "", // lisää oletusarvo
+  searchTerm = "",
 }: {
   refreshKey: number;
   searchTerm?: string;
@@ -40,6 +49,7 @@ export default function InvoiceList({
       try {
         const res = await fetch("/api/bookkeeping/invoices");
         const data = await res.json();
+        console.log("🔥 Haetut laskut:", data); // ✅ näet konsolista lines
         setInvoices(data);
       } catch (err) {
         console.error("Virhe haettaessa laskuja:", err);
@@ -130,14 +140,15 @@ export default function InvoiceList({
                   </td>
                 </tr>
 
-                {/* 🔽 Laajennettava näkymä (avautuu klikatessa) */}
+                {/* 🔽 Laajennettava näkymä */}
                 {expandedInvoiceId === invoice.id && (
                   <tr>
                     <td
                       colSpan={6}
                       className="bg-black/50 border-t border-yellow-700/40 p-4"
                     >
-                      <div className="text-gray-300 text-sm space-y-2">
+                      <div className="text-gray-300 text-sm space-y-3">
+                        {/* Laskun perustiedot */}
                         <div className="flex justify-between items-start">
                           <div>
                             <p>
@@ -167,6 +178,7 @@ export default function InvoiceList({
                               )}
                             </p>
                           </div>
+
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -180,15 +192,60 @@ export default function InvoiceList({
 
                         <hr className="border-yellow-700/40 my-3" />
 
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">
-                            Summa (sis. ALV):
-                          </span>
-                          <span className="text-yellow-300 font-semibold">
-                            {invoice.totalAmount.toFixed(2)} €
-                          </span>
-                        </div>
-                        {/* 🔹 Näytä PDF-lasku */}
+                        {/* 🔹 Laskurivit */}
+                        {invoice.lines && invoice.lines.length > 0 ? (
+                          <div className="mt-2">
+                            <table className="w-full text-sm text-gray-300 border-collapse">
+                              <thead>
+                                <tr className="border-b border-yellow-700/40 text-yellow-400 text-left">
+                                  <th className="py-1 px-2">Tuote</th>
+                                  <th className="py-1 px-2">Määrä</th>
+                                  <th className="py-1 px-2">A-hinta</th>
+                                  <th className="py-1 px-2">ALV %</th>
+                                  <th className="py-1 px-2 text-right">
+                                    Yhteensä
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {invoice.lines.map((line) => (
+                                  <tr
+                                    key={line.id}
+                                    className="border-b border-yellow-700/20"
+                                  >
+                                    <td className="py-1 px-2">
+                                      {line.product?.name ||
+                                        line.description ||
+                                        "-"}
+                                    </td>
+                                    <td className="py-1 px-2">
+                                      {line.quantity}
+                                    </td>
+                                    <td className="py-1 px-2">
+                                      {line.unitPrice.toFixed(2)} €
+                                    </td>
+                                    <td className="py-1 px-2">
+                                      {line.vatRate.toFixed(1)}%
+                                    </td>
+                                    <td className="py-1 px-2 text-right">
+                                      {(
+                                        line.quantity *
+                                        line.unitPrice *
+                                        (1 + line.vatRate / 100)
+                                      ).toFixed(2)} €
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : (
+                          <p className="text-gray-400 italic">
+                            Ei laskurivejä.
+                          </p>
+                        )}
+
+
                         <a
                           href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
                           target="_blank"
@@ -197,8 +254,7 @@ export default function InvoiceList({
                         >
                           📄 Näytä PDF-lasku
                         </a>
-
-                        {/* 🔹 Painikkeet */}
+                        {/* 🔹 Toimintopainikkeet (vain luonnoksille) */}
                         {invoice.status === "DRAFT" && (
                           <div className="pt-4 flex justify-end gap-4">
                             {/* 🟡 Hyväksy lasku */}
@@ -220,6 +276,7 @@ export default function InvoiceList({
                                 e.stopPropagation();
                                 setConfirmDelete(invoice.id);
                               }}
+                              className="text-red-500 hover:text-red-400"
                             >
                               <Trash2 size={18} />
                             </button>
@@ -244,7 +301,6 @@ export default function InvoiceList({
         </tbody>
       </table>
 
-      {/* 🔹 Poistovahvistus */}
       <ConfirmModal
         show={!!confirmDelete}
         message="Haluatko varmasti poistaa tämän laskun?"

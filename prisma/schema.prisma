@@ -106,11 +106,15 @@ model Contact {
   type          String
   customerCode  String?      // esim. asiakastunnus
   enableBilling Boolean  @default(false)
+  email         String?      // 🔹 sähköpostiosoite laskutusta varten
+  address       String?      // 🔹 katuosoite
+  zip           String?      // 🔹 postinumero
+  city          String?      // 🔹 postitoimipaikka
   notes         String?
   altNames      String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  invoices   Invoice[]    // yhteys laskuihin
+  invoices      Invoice[]
 }
 
 //Keikkamatkat

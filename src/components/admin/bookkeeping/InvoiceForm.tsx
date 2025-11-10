@@ -15,6 +15,7 @@ type Product = {
   name: string;
   price: number;
   vatRate: number;
+  netPrice?: number; // ✅ lisätty kenttä (veroton hinta)
 };
 
 type InvoiceLine = {
@@ -105,29 +106,31 @@ export default function InvoiceForm({
 
   // 🔹 Päivitä laskurivin tiedot ja summat
   const updateLine = (index: number, updated: Partial<InvoiceLine>) => {
-    const lines = [...form.lines];
-    lines[index] = { ...lines[index], ...updated };
+    setForm((prev) => {
+      const lines = [...prev.lines];
+      lines[index] = { ...lines[index], ...updated };
 
-    const net = lines.reduce(
-      (sum, l) => sum + (l.unitPrice / (1 + l.vatRate / 100)) * l.quantity,
-      0
-    );
-    const vat = lines.reduce(
-      (sum, l) =>
-        sum + (l.unitPrice - l.unitPrice / (1 + l.vatRate / 100)) * l.quantity,
-      0
-    );
-    const total = net + vat;
+      const net = lines.reduce(
+        (sum, l) => sum + (l.unitPrice / (1 + l.vatRate / 100)) * l.quantity,
+        0
+      );
+      const vat = lines.reduce(
+        (sum, l) =>
+          sum +
+          (l.unitPrice - l.unitPrice / (1 + l.vatRate / 100)) * l.quantity,
+        0
+      );
+      const total = net + vat;
 
-    setForm({
-      ...form,
-      lines,
-      netAmount: net,
-      vatAmount: vat,
-      totalAmount: total,
+      return {
+        ...prev,
+        lines,
+        netAmount: net,
+        vatAmount: vat,
+        totalAmount: total,
+      };
     });
   };
-
   // 🔹 Päivitä eräpäivä automaattisesti maksuehdon mukaan
   useEffect(() => {
     if (!form.date || !form.paymentTerm) return;
@@ -145,16 +148,31 @@ export default function InvoiceForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // ✅ Muodosta lähetettävä lasku selkeästi backendin odottamaan muotoon
+    const payload = {
+      ...form,
+      lines: form.lines.map((line) => ({
+        productId: line.productId || null,
+        description: line.description,
+        quantity: line.quantity,
+        unitPrice: line.unitPrice,
+        vatRate: line.vatRate,
+        total: line.unitPrice * line.quantity, // laske varmuuden vuoksi backendille
+      })),
+    };
+
+    console.log("📤 Lähetettävä lasku:", payload);
+
     const response = await fetch("/api/bookkeeping/invoices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
 
     if (response.ok) {
       onSaved();
     } else {
-      console.error("Virhe tallennettaessa laskua");
+      console.error("❌ Virhe tallennettaessa laskua");
     }
   };
 
@@ -219,7 +237,10 @@ export default function InvoiceForm({
               setForm({ ...form, customerId: null, customCustomer: value });
             }
           }}
-          options={contacts.map((c) => ({ value: String(c.id), label: c.name }))}
+          options={contacts.map((c) => ({
+            value: String(c.id),
+            label: c.name,
+          }))}
         />
       </div>
 
@@ -240,17 +261,45 @@ export default function InvoiceForm({
                     const product = products.find(
                       (p) => String(p.id) === value
                     );
-                    if (product) {
-                      updateLine(index, {
+                    if (!product) return;
+
+                    // ✅ Käytetään ensisijaisesti tuotteen verotonta hintaa
+                    // Jos sitä ei ole, lasketaan se kokonaishinnasta ja ALV:sta
+                    const netPrice =
+                      product.netPrice ??
+                      product.price / (1 + product.vatRate / 100);
+
+                    setForm((prev) => {
+                      const newLines = [...prev.lines];
+                      newLines[index] = {
+                        ...newLines[index],
                         productId: product.id,
                         description: product.name,
-                        unitPrice: product.price,
+                        unitPrice: netPrice, // 🔹 nyt veroton hinta
                         vatRate: product.vatRate,
-                        total:
-                          product.price +
-                          product.price * (product.vatRate / 100),
-                      });
-                    }
+                        total: netPrice * (1 + product.vatRate / 100), // ALV lisätään vain näyttöön
+                      };
+
+                      // 🔹 Päivitä summat automaattisesti
+                      const net = newLines.reduce(
+                        (sum, l) => sum + l.unitPrice * l.quantity,
+                        0
+                      );
+                      const vat = newLines.reduce(
+                        (sum, l) =>
+                          sum + l.unitPrice * (l.vatRate / 100) * l.quantity,
+                        0
+                      );
+                      const total = net + vat;
+
+                      return {
+                        ...prev,
+                        lines: newLines,
+                        netAmount: net,
+                        vatAmount: vat,
+                        totalAmount: total,
+                      };
+                    });
                   }}
                   options={products.map((p) => ({
                     value: String(p.id),

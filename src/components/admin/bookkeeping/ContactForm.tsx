@@ -9,6 +9,10 @@ type Contact = {
   type: string;
   customerCode?: string;
   enableBilling: boolean;
+  email?: string;
+  address?: string;
+  zip?: string;
+  city?: string;
   notes?: string;
   altNames?: string;
 };
@@ -19,6 +23,10 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
     type: "",
     customerCode: "",
     enableBilling: false,
+    email: "",
+    address: "",
+    zip: "",
+    city: "",
     notes: "",
     altNames: "",
   });
@@ -39,7 +47,7 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
         setMessage("Kontakti tallennettu!");
         setTimeout(() => {
           onSuccess();
-        }, 500);
+        }, 800);
       } else {
         setMessage("Virhe tallennuksessa.");
       }
@@ -71,7 +79,7 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
                      focus:outline-none focus:border-yellow-400"
         />
 
-        {/* 🔹 CustomSelect: tyyppi */}
+        {/* 🔹 Tyyppi */}
         <CustomSelect
           value={form.type}
           onChange={(value) => setForm({ ...form, type: value })}
@@ -81,10 +89,48 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
           ]}
         />
 
+        {/* 🔹 Sähköposti */}
+        <input
+          type="email"
+          placeholder="Sähköposti (esim. asiakas@email.com)"
+          value={form.email || ""}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          className="col-span-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
+                     focus:outline-none focus:border-yellow-400"
+        />
+
+        {/* 🔹 Osoitetiedot */}
+        <input
+          type="text"
+          placeholder="Katuosoite"
+          value={form.address || ""}
+          onChange={(e) => setForm({ ...form, address: e.target.value })}
+          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
+                     focus:outline-none focus:border-yellow-400"
+        />
+
+        <input
+          type="text"
+          placeholder="Postinumero"
+          value={form.zip || ""}
+          onChange={(e) => setForm({ ...form, zip: e.target.value })}
+          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
+                     focus:outline-none focus:border-yellow-400"
+        />
+
+        <input
+          type="text"
+          placeholder="Kaupunki"
+          value={form.city || ""}
+          onChange={(e) => setForm({ ...form, city: e.target.value })}
+          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
+                     focus:outline-none focus:border-yellow-400"
+        />
+
         {/* 🔹 Asiakastunnus */}
         <input
           type="text"
-          placeholder="Asiakastunnus"
+          placeholder="Asiakastunnus / Y-tunnus"
           value={form.customerCode}
           onChange={(e) => setForm({ ...form, customerCode: e.target.value })}
           className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
