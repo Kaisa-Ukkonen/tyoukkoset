@@ -38,7 +38,7 @@ export async function GET(
   const doc = new PDFDocument({ margin: 50 });
   const buffers: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => buffers.push(chunk));
-  doc.on("end", () => {});
+  doc.on("end", () => { });
 
   // 🔹 Logo
   const logoPath = path.join(process.cwd(), "public/keltainenlogo.png");
@@ -149,68 +149,106 @@ export async function GET(
   doc.text(`ALV: ${vatSum.toFixed(2)} €`, 400);
   doc.text(`Yhteensä: ${totalSum.toFixed(2)} €`, 400);
 
- // 🔹 LUONNOS-vesileima
-doc.fontSize(60).fillColor("red").opacity(0.3);
-doc.text("LUONNOS", 150, 400, { angle: 45 });
+  // 🔹 LUONNOS-vesileima
+  doc.fontSize(60).fillColor("red").opacity(0.3);
+  doc.text("LUONNOS", 150, 400, { angle: 45 });
 
-// ✅ Palautetaan asetukset normaaleiksi
-doc.opacity(1).fillColor("black");
+  // ✅ Palautetaan asetukset normaaleiksi
+  doc.opacity(1).fillColor("black");
 
   // =====================================================
-  // 🔹 Maksutiedot taulukkomuodossa
-  // =====================================================
-  doc.moveDown(3);
-  const startX = 50;
-  const startY = doc.y + 10;
-  const tableWidth = 500;
-  const col1Width = 200;
-  const col2Width = 150;
-  const rowHeight = 38;
+// 🔹 Maksutiedot taulukkomuodossa
+// =====================================================
+doc.opacity(1);
+doc.moveDown(3);
 
-  // Kehys ja viivat
-  doc.save();
-  doc.lineWidth(0.5).strokeColor("black");
-  doc.rect(startX, startY, tableWidth, rowHeight * 2).stroke();
-  doc.moveTo(startX + col1Width, startY).lineTo(startX + col1Width, startY + rowHeight * 2).stroke();
-  doc.moveTo(startX + col1Width + col2Width, startY).lineTo(startX + col1Width + col2Width, startY + rowHeight * 2).stroke();
-  doc.moveTo(startX, startY + rowHeight).lineTo(startX + tableWidth, startY + rowHeight).stroke();
-  doc.restore();
+const startX = 50;
+let startY = doc.y + 40; 
+const tableWidth = 500;
+const col1Width = 200;
+const col2Width = 150;
+const rowHeight = 38;
 
-  // Maksutiedot
-  const iban = "FI12 7997 7997 1234 56";
-  const bic = "HOLVFIHH";
-  const recipient = "Tmi TyöUkkoset";
-  const dueDate = new Date(invoice.dueDate).toLocaleDateString("fi-FI");
-  const total = `${totalSum.toFixed(2)} €`; // ✅ Käytetään oikeaa kokonaissummaa
-  const refNumber = invoice.referenceNumber || invoice.invoiceNumber.toString();
+// 🔹 Varmistetaan, että taulukko + virtuaaliviivakoodi mahtuvat samalle sivulle
+const spaceNeeded = rowHeight * 2 + 80; // taulukko + väli + virtuaaliviivakoodi
+if (startY + spaceNeeded > 760) {
+  startY = 700 - spaceNeeded; // nostetaan vähän ylemmäs
+}
 
-  const textOptions = { continued: false, lineBreak: false };
+// 🔹 Piirretään taulukon reunat ja viivat
+doc.save();
+doc.lineWidth(0.5).strokeColor("black");
+doc.rect(startX, startY, tableWidth, rowHeight * 2).stroke();
 
-  // ---------- Rivi 1 ----------
-  doc.font("Times-Bold").fontSize(10);
-  doc.text("Vastaanottajan tilinumero", startX + 5, startY + 6, textOptions);
-  doc.text("BIC", startX + col1Width + 5, startY + 6, textOptions);
-  doc.text("Eräpäivä", startX + col1Width + col2Width + 5, startY + 6, textOptions);
+// pystylinjat
+doc.moveTo(startX + col1Width, startY)
+  .lineTo(startX + col1Width, startY + rowHeight * 2)
+  .stroke();
+doc.moveTo(startX + col1Width + col2Width, startY)
+  .lineTo(startX + col1Width + col2Width, startY + rowHeight * 2)
+  .stroke();
 
-  doc.font("Times-Roman").fontSize(10);
-  doc.text(iban, startX + 5, startY + 20, textOptions);
-  doc.text(bic, startX + col1Width + 5, startY + 20, textOptions);
-  doc.text(dueDate, startX + col1Width + col2Width + 5, startY + 20, textOptions);
+// vaakaviiva keskelle
+doc.moveTo(startX, startY + rowHeight)
+  .lineTo(startX + tableWidth, startY + rowHeight)
+  .stroke();
+doc.restore();
 
-  // ---------- Rivi 2 ----------
-  doc.font("Times-Bold").fontSize(10);
-  doc.text("Maksun vastaanottaja", startX + 5, startY + rowHeight + 6, textOptions);
-  doc.text("Viitenumero", startX + col1Width + 5, startY + rowHeight + 6, textOptions);
-  doc.text("Maksettava EUR", startX + col1Width + col2Width + 5, startY + rowHeight + 6, textOptions);
+// 🔹 Maksutiedot
+const iban = "FI12 7997 7997 1234 56";
+const bic = "HOLVFIHH";
+const recipient = "Tmi TyöUkkoset";
+const dueDate = new Date(invoice.dueDate).toLocaleDateString("fi-FI");
+const totalText = `${totalSum.toFixed(2)} €`;
+const refNumber = invoice.referenceNumber || invoice.invoiceNumber.toString();
 
-  doc.font("Times-Roman").fontSize(10);
-  doc.text(recipient, startX + 5, startY + rowHeight + 20, textOptions);
-  doc.text(refNumber, startX + col1Width + 5, startY + rowHeight + 20, textOptions);
+// 🔹 Tekstin tulostus
+const textOptions = { continued: false, lineBreak: false };
 
-  // ✅ Lihavoidaan maksettava summa
-  doc.font("Times-Bold");
-  doc.text(total, startX + col1Width + col2Width + 5, startY + rowHeight + 20, textOptions);
-  doc.font("Times-Roman");
+// ---------- Rivi 1 ----------
+doc.font("Times-Bold").fontSize(10).fillColor("black");
+doc.text("Vastaanottajan tilinumero", startX + 5, startY + 6, textOptions);
+doc.text("BIC", startX + col1Width + 5, startY + 6, textOptions);
+doc.text("Eräpäivä", startX + col1Width + col2Width + 5, startY + 6, textOptions);
+
+doc.font("Times-Roman").fontSize(10);
+doc.text(iban, startX + 5, startY + 20, textOptions);
+doc.text(bic, startX + col1Width + 5, startY + 20, textOptions);
+doc.text(dueDate, startX + col1Width + col2Width + 5, startY + 20, textOptions);
+
+// ---------- Rivi 2 ----------
+doc.font("Times-Bold");
+doc.text("Maksun vastaanottaja", startX + 5, startY + rowHeight + 6, textOptions);
+doc.text("Viitenumero", startX + col1Width + 5, startY + rowHeight + 6, textOptions);
+doc.text("Maksettava EUR", startX + col1Width + col2Width + 5, startY + rowHeight + 6, textOptions);
+
+doc.font("Times-Roman");
+doc.text(recipient, startX + 5, startY + rowHeight + 20, textOptions);
+doc.text(refNumber, startX + col1Width + 5, startY + rowHeight + 20, textOptions);
+doc.text(totalText, startX + col1Width + col2Width + 5, startY + rowHeight + 20, textOptions);
+
+// =====================================================
+// 🔹 Virtuaaliviivakoodi (heti taulukon alle, samalle sivulle)
+// =====================================================
+const ibanDigits = "1279977997123456"; // FI12 ilman FI
+const reference = refNumber.replace(/\D/g, "");
+const amountCents = Math.round(totalSum * 100).toString().padStart(8, "0");
+const due = new Date(invoice.dueDate);
+const dueDateFormatted = `${due.getFullYear().toString().slice(2)}${(due.getMonth() + 1)
+  .toString()
+  .padStart(2, "0")}${due.getDate().toString().padStart(2, "0")}`;
+
+const virtualCode = `500${ibanDigits.padEnd(16, "0")}${reference.padStart(
+  23,
+  "0"
+)}${dueDateFormatted}${amountCents}`;
+
+const virtualY = startY + rowHeight * 2 + 25;
+doc.font("Times-Bold").fontSize(10).fillColor("black");
+doc.text("Virtuaaliviivakoodi:", startX, virtualY);
+doc.font("Courier").fontSize(10);
+doc.text(virtualCode, startX, virtualY + 15);
+
 
   // =====================================================
   // 🔹 PDF:n palautus
