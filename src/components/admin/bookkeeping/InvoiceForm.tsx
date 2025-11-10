@@ -323,13 +323,15 @@ export default function InvoiceForm({
               </div>
 
               <div>
-                <label className="text-gray-300 text-sm">Hinta (€)</label>
+                <label className="text-gray-300 text-sm">A-hinta</label>
                 <input
                   type="number"
-                  value={line.unitPrice}
+                  step="0.01"
+                  value={Number(line.unitPrice).toFixed(2)}
                   onChange={(e) =>
                     updateLine(index, {
-                      unitPrice: parseFloat(e.target.value) || 0,
+                      unitPrice:
+                        parseFloat(Number(e.target.value).toFixed(2)) || 0,
                     })
                   }
                   className="w-full bg-black/40 border border-yellow-700/40 rounded-md p-2 text-white"
@@ -350,8 +352,19 @@ export default function InvoiceForm({
                 />
               </div>
 
-              <div className="text-right font-semibold text-yellow-300">
-                {(line.unitPrice * line.quantity).toFixed(2)} €
+              {/* 🔹 Rivin yhteissumma (sis. ALV) */}
+              <div className="flex flex-col items-end justify-center text-right">
+                <label className="text-xs text-yellow-500 uppercase tracking-wide mb-1">
+                  Yhteensä (sis. ALV)
+                </label>
+                <div className="border border-yellow-600/60 rounded-md px-3 py-1 text-yellow-300 font-semibold min-w-[110px] text-right">
+                  {(
+                    line.unitPrice *
+                    line.quantity *
+                    (1 + line.vatRate / 100)
+                  ).toFixed(2)}{" "}
+                  €
+                </div>
               </div>
 
               <button

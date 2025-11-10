@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import React from "react";
+import ConfirmModal from "@/components/common/ConfirmModal";
+import { Trash2 } from "lucide-react";
 
 type Contact = {
   id: number;
@@ -27,6 +29,8 @@ export default function ContactList({
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [tab, setTab] = useState<"info" | "events">("info");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -44,6 +48,31 @@ export default function ContactList({
   const filtered = contacts.filter((c) =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDeleteContact = async () => {
+    if (!contactToDelete) return;
+
+    try {
+      const res = await fetch(`/api/bookkeeping/contacts`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: contactToDelete }),
+      });
+
+      if (res.ok) {
+        setContacts((prev) => prev.filter((c) => c.id !== contactToDelete));
+        setExpandedId(null);
+      } else {
+        alert("Virhe poistettaessa kontaktia.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Virhe yhteydessä palvelimeen.");
+    } finally {
+      setShowConfirm(false);
+      setContactToDelete(null);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto mt-10 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
@@ -109,6 +138,19 @@ export default function ContactList({
                           >
                             Tapahtumat
                           </button>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setContactToDelete(c.id);
+                              setShowConfirm(true);
+                            }}
+                            className="ml-auto text-red-500 hover:text-red-400 transition-colors"
+                            title="Poista kontakti"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -145,9 +187,7 @@ export default function ContactList({
                             )}
                             {c.address && (
                               <p>
-                                <span className="text-yellow-400">
-                                  Osoite:
-                                </span>{" "}
+                                <span className="text-yellow-400">Osoite:</span>{" "}
                                 {c.address}
                               </p>
                             )}
@@ -193,6 +233,16 @@ export default function ContactList({
           </tbody>
         </table>
       )}
+      {/* 🔹 Siirrä tämä TÄNNE, taulukon ulkopuolelle */}
+      <ConfirmModal
+        show={showConfirm}
+        message="Haluatko varmasti poistaa tämän kontaktin?"
+        onConfirm={handleDeleteContact}
+        onCancel={() => {
+          setShowConfirm(false);
+          setContactToDelete(null);
+        }}
+      />
     </div>
   );
 }

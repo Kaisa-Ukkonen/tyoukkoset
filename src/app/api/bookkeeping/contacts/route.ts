@@ -3,7 +3,9 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// ======================================================
 // 🔹 HAE kaikki kontaktit
+// ======================================================
 export async function GET() {
   try {
     const contacts = await prisma.contact.findMany({
@@ -14,10 +16,10 @@ export async function GET() {
         type: true,
         customerCode: true,
         enableBilling: true,
-        email: true,     // ✅ lisätty
-        address: true,   // ✅ lisätty
-        zip: true,       // ✅ lisätty
-        city: true,      // ✅ lisätty
+        email: true,
+        address: true,
+        zip: true,
+        city: true,
         notes: true,
         altNames: true,
         createdAt: true,
@@ -35,7 +37,9 @@ export async function GET() {
   }
 }
 
+// ======================================================
 // 🔹 LISÄÄ uusi kontakti
+// ======================================================
 export async function POST(req: Request) {
   try {
     const data = await req.json();
@@ -48,10 +52,10 @@ export async function POST(req: Request) {
         enableBilling: data.enableBilling || false,
         notes: data.notes || null,
         altNames: data.altNames || null,
-        email: data.email || null,     // ✅ lisätty
-        address: data.address || null, // ✅ lisätty
-        zip: data.zip || null,         // ✅ lisätty
-        city: data.city || null,       // ✅ lisätty
+        email: data.email || null,
+        address: data.address || null,
+        zip: data.zip || null,
+        city: data.city || null,
       },
     });
 
@@ -60,6 +64,31 @@ export async function POST(req: Request) {
     console.error("Virhe kontaktin tallennuksessa:", err);
     return NextResponse.json(
       { error: "Virhe kontaktin tallennuksessa" },
+      { status: 500 }
+    );
+  }
+}
+
+// ======================================================
+// 🔹 POISTA kontakti
+// ======================================================
+export async function DELETE(req: Request) {
+  try {
+    const { id } = await req.json();
+
+    if (!id) {
+      return NextResponse.json({ error: "Puuttuva ID" }, { status: 400 });
+    }
+
+    await prisma.contact.delete({
+      where: { id: Number(id) },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Virhe poistettaessa kontaktia:", error);
+    return NextResponse.json(
+      { error: "Virhe poistettaessa kontaktia" },
       { status: 500 }
     );
   }

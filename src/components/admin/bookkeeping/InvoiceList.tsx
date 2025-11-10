@@ -201,41 +201,60 @@ export default function InvoiceList({
                                   <th className="py-1 px-2">Tuote</th>
                                   <th className="py-1 px-2">Määrä</th>
                                   <th className="py-1 px-2">A-hinta</th>
-                                  <th className="py-1 px-2">ALV %</th>
+                                  <th className="py-1 px-2">ALV-osuus</th>
+                                  <th className="py-1 px-2">ALV-Kanta</th>
                                   <th className="py-1 px-2 text-right">
                                     Yhteensä
                                   </th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {invoice.lines.map((line) => (
-                                  <tr
-                                    key={line.id}
-                                    className="border-b border-yellow-700/20"
-                                  >
-                                    <td className="py-1 px-2">
-                                      {line.product?.name ||
-                                        line.description ||
-                                        "-"}
-                                    </td>
-                                    <td className="py-1 px-2">
-                                      {line.quantity}
-                                    </td>
-                                    <td className="py-1 px-2">
-                                      {line.unitPrice.toFixed(2)} €
-                                    </td>
-                                    <td className="py-1 px-2">
-                                      {line.vatRate.toFixed(1)}%
-                                    </td>
-                                    <td className="py-1 px-2 text-right">
-                                      {(
-                                        line.quantity *
-                                        line.unitPrice *
-                                        (1 + line.vatRate / 100)
-                                      ).toFixed(2)} €
-                                    </td>
-                                  </tr>
-                                ))}
+                                {invoice.lines.map((line) => {
+                                  // 🔹 Lasketaan ALV-osuus (määrä huomioiden)
+                                  const vatAmount =
+                                    (line.unitPrice *
+                                      line.quantity *
+                                      line.vatRate) /
+                                    100;
+
+                                  // 🔹 Lasketaan rivin verollinen yhteissumma
+                                  const total =
+                                    line.quantity *
+                                    line.unitPrice *
+                                    (1 + line.vatRate / 100);
+
+                                  return (
+                                    <tr
+                                      key={line.id}
+                                      className="border-b border-yellow-700/20"
+                                    >
+                                      <td className="py-1 px-2">
+                                        {line.product?.name ||
+                                          line.description ||
+                                          "-"}
+                                      </td>
+                                      <td className="py-1 px-2">
+                                        {line.quantity}
+                                      </td>
+                                      {/* 🔹 A-hinta (veroton) */}
+                                      <td className="py-1 px-2">
+                                        {line.unitPrice.toFixed(2)} €
+                                      </td>
+                                      {/* 🔹 ALV-osuus */}
+                                      <td className="py-1 px-2">
+                                        {vatAmount.toFixed(2)} €
+                                      </td>
+                                      {/* 🔹 ALV % */}
+                                      <td className="py-1 px-2">
+                                        {line.vatRate.toFixed(1)}%
+                                      </td>
+                                      {/* 🔹 Yhteensä (sis. ALV) */}
+                                      <td className="py-1 px-2 text-right">
+                                        {total.toFixed(2)} €
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
@@ -244,7 +263,6 @@ export default function InvoiceList({
                             Ei laskurivejä.
                           </p>
                         )}
-
 
                         <a
                           href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
