@@ -14,10 +14,7 @@ export async function GET(
   const invoiceId = Number(id);
 
   if (Number.isNaN(invoiceId)) {
-    return NextResponse.json(
-      { error: "Virheellinen laskun ID" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Virheellinen laskun ID" }, { status: 400 });
   }
 
   const invoice = await prisma.invoice.findUnique({
@@ -26,10 +23,7 @@ export async function GET(
   });
 
   if (!invoice) {
-    return NextResponse.json(
-      { error: "Laskua ei löytynyt" },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "Laskua ei löytynyt" }, { status: 404 });
   }
 
   // =====================================================
@@ -38,31 +32,26 @@ export async function GET(
   const doc = new PDFDocument({ margin: 50 });
   const buffers: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => buffers.push(chunk));
-  doc.on("end", () => { });
 
   // 🔹 Logo
   const logoPath = path.join(process.cwd(), "public/keltainenlogo.png");
   if (fs.existsSync(logoPath)) doc.image(logoPath, 50, 40, { width: 90 });
 
-  // 🔹 Otsikko “LASKU”
-  doc
-    .font("Times-Bold")
-    .fontSize(16)
-    .fillColor("black")
-    .text("LASKU", 350, 90);
+  // 🔹 Otsikko
+  doc.font("Times-Bold").fontSize(16).fillColor("black").text("LASKU", 350, 90);
 
   // =====================================================
   // 🔹 Laskuttajan tiedot
   // =====================================================
   const leftTop = 130;
-  doc.font("Times-Bold").fontSize(12).fillColor("black").text("Laskuttaja:", 50, leftTop);
+  doc.font("Times-Bold").fontSize(12).text("Laskuttaja:", 50, leftTop);
   doc.font("Times-Roman").fontSize(10);
   doc.text("Tmi TyöUkkoset", 50, leftTop + 15);
+  doc.text("Jesse Kalervo Ukkonen");
   doc.text("Kassarapolku 4");
   doc.text("71800 Siilinjärvi");
   doc.text("tyoukkoset@gmail.com");
   doc.text("Y-tunnus: 3518481-5");
-  doc.moveDown(1.5);
 
   // =====================================================
   // 🔹 Asiakkaan tiedot
@@ -80,7 +69,7 @@ export async function GET(
   doc.text(customerName, 50, y);
   if (customerAddress) doc.text(customerAddress, 50);
   if (customerZipCity) doc.text(customerZipCity, 50);
-  if (customerEmail) doc.text(`Sähköposti: ${customerEmail}`, 50);
+  if (customerEmail) doc.text(customerEmail, 50);
   if (customer?.customerCode) doc.text(`Y-tunnus: ${customer.customerCode}`, 50);
 
   // =====================================================
@@ -90,12 +79,14 @@ export async function GET(
   const infoY = 130;
   doc.font("Times-Bold").fontSize(12).text("Laskun tiedot:", rightX, infoY);
   doc.font("Times-Roman").fontSize(10);
-  doc.text(`Laskun numero: ${invoice.invoiceNumber}`, rightX, infoY + 15);
+  doc.text(`Laskun numero: ${invoice.invoiceNumber ?? "—"}`, rightX, infoY + 15);
   doc.text(`Laskun päiväys: ${new Date(invoice.date).toLocaleDateString("fi-FI")}`);
   doc.text(`Eräpäivä: ${new Date(invoice.dueDate).toLocaleDateString("fi-FI")}`);
   doc.text(`Maksuehto: ${invoice.paymentTerm} päivää`);
   doc.text("Viivästyskorko: 7,0 %");
-  doc.text("Maksuviite: XXXXXXXX");
+  if (invoice.status === "DRAFT") {
+    doc.text(`Tila: ${invoice.status}`);
+  }
 
   // =====================================================
   // 🔹 Tuoterivit
@@ -110,19 +101,16 @@ export async function GET(
   doc.text("ALV-osuus", 360, productsStartY);
   doc.text("ALV %", 440, productsStartY);
   doc.text("Yhteensä", 510, productsStartY);
-
   doc.moveTo(50, productsStartY + 12).lineTo(580, productsStartY + 12).stroke();
 
   let currentY = productsStartY + 20;
-
   invoice.lines.forEach((line) => {
-    const unitPrice = line.unitPrice;
-    const vatAmount = (unitPrice * line.quantity * line.vatRate) / 100;
-    const total = line.quantity * unitPrice * (1 + line.vatRate / 100);
+    const vatAmount = (line.unitPrice * line.quantity * line.vatRate) / 100;
+    const total = line.quantity * line.unitPrice * (1 + line.vatRate / 100);
 
     doc.text(line.description || "-", 50, currentY);
     doc.text(`${line.quantity}`, 230, currentY);
-    doc.text(`${unitPrice.toFixed(2)} €`, 290, currentY);
+    doc.text(`${line.unitPrice.toFixed(2)} €`, 290, currentY);
     doc.text(`${vatAmount.toFixed(2)} €`, 370, currentY);
     doc.text(`${line.vatRate.toFixed(1)} %`, 450, currentY);
     doc.text(`${total.toFixed(2)} €`, 520, currentY);
@@ -130,135 +118,133 @@ export async function GET(
   });
 
   // =====================================================
-  // 🔹 Summat (riveistä laskettuna)
+  // 🔹 Summat
   // =====================================================
-  const netSum = invoice.lines.reduce(
-    (sum, line) => sum + line.quantity * line.unitPrice,
-    0
-  );
-  const vatSum = invoice.lines.reduce(
-    (sum, line) =>
-      sum + (line.quantity * line.unitPrice * line.vatRate) / 100,
-    0
-  );
+  const netSum = invoice.lines.reduce((s, l) => s + l.quantity * l.unitPrice, 0);
+  const vatSum = invoice.lines.reduce((s, l) => s + (l.quantity * l.unitPrice * l.vatRate) / 100, 0);
   const totalSum = netSum + vatSum;
-
   doc.moveDown(2);
   doc.fontSize(10);
   doc.text(`Veroton summa: ${netSum.toFixed(2)} €`, 400);
   doc.text(`ALV: ${vatSum.toFixed(2)} €`, 400);
   doc.text(`Yhteensä: ${totalSum.toFixed(2)} €`, 400);
 
-  // 🔹 LUONNOS-vesileima
-  doc.fontSize(60).fillColor("red").opacity(0.3);
-  doc.text("LUONNOS", 150, 400, { angle: 45 });
+  // =====================================================
+  // 🔹 Jos lasku on LUONNOS → ei maksutietoja, vain vesileima
+  // =====================================================
+  if (invoice.status === "DRAFT") {
+    doc.fontSize(60).fillColor("red").opacity(0.3);
+    doc.text("LUONNOS", 150, 400, { angle: 45 });
+    doc.opacity(1).fillColor("black");
 
-  // ✅ Palautetaan asetukset normaaleiksi
-  doc.opacity(1).fillColor("black");
+    // Lopetetaan tähän – ei viitenumeroita tai virtuaaliviivakoodeja
+    doc.end();
+
+    const pdfBuffer = await new Promise<Buffer>((resolve) => {
+      const bufs: Buffer[] = [];
+      doc.on("data", (chunk: Buffer) => bufs.push(chunk));
+      doc.on("end", () => resolve(Buffer.concat(bufs)));
+    });
+
+    const uint8 = new Uint8Array(pdfBuffer);
+
+    return new NextResponse(uint8, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `inline; filename="luonnos.pdf"`,
+      },
+    });
+  }
 
   // =====================================================
-// 🔹 Maksutiedot taulukkomuodossa
-// =====================================================
-doc.opacity(1);
-doc.moveDown(3);
+  // 🔹 Maksutiedot ja virtuaaliviivakoodi (vain hyväksytyille)
+  // =====================================================
+  const startX = 50;
+  let startY = doc.y + 40;
+  const tableWidth = 500;
+  const col1Width = 200;
+  const col2Width = 150;
+  const rowHeight = 38;
 
-const startX = 50;
-let startY = doc.y + 40; 
-const tableWidth = 500;
-const col1Width = 200;
-const col2Width = 150;
-const rowHeight = 38;
+  const spaceNeeded = rowHeight * 2 + 80;
+  if (startY + spaceNeeded > 760) startY = 700 - spaceNeeded;
 
-// 🔹 Varmistetaan, että taulukko + virtuaaliviivakoodi mahtuvat samalle sivulle
-const spaceNeeded = rowHeight * 2 + 80; // taulukko + väli + virtuaaliviivakoodi
-if (startY + spaceNeeded > 760) {
-  startY = 700 - spaceNeeded; // nostetaan vähän ylemmäs
-}
+  doc.lineWidth(0.5).strokeColor("black");
+  doc.rect(startX, startY, tableWidth, rowHeight * 2).stroke();
+  doc.moveTo(startX + col1Width, startY).lineTo(startX + col1Width, startY + rowHeight * 2).stroke();
+  doc.moveTo(startX + col1Width + col2Width, startY).lineTo(startX + col1Width + col2Width, startY + rowHeight * 2).stroke();
+  doc.moveTo(startX, startY + rowHeight).lineTo(startX + tableWidth, startY + rowHeight).stroke();
 
-// 🔹 Piirretään taulukon reunat ja viivat
-doc.save();
-doc.lineWidth(0.5).strokeColor("black");
-doc.rect(startX, startY, tableWidth, rowHeight * 2).stroke();
+  const iban = "FI49 1078 3500 8152 11";
+  const bic = "NDEAFIHH";
+  const recipient = "Jesse Kalervo Ukkonen";
+  const dueDate = new Date(invoice.dueDate).toLocaleDateString("fi-FI");
+  const totalText = `${totalSum.toFixed(2)} €`;
+  const refNumber = invoice.referenceNumber || invoice.invoiceNumber?.toString() || "";
 
-// pystylinjat
-doc.moveTo(startX + col1Width, startY)
-  .lineTo(startX + col1Width, startY + rowHeight * 2)
-  .stroke();
-doc.moveTo(startX + col1Width + col2Width, startY)
-  .lineTo(startX + col1Width + col2Width, startY + rowHeight * 2)
-  .stroke();
+  doc.font("Times-Bold").fontSize(10);
+  doc.text("Vastaanottajan tilinumero", startX + 5, startY + 6);
+  doc.text("BIC", startX + col1Width + 5, startY + 6);
+  doc.text("Eräpäivä", startX + col1Width + col2Width + 5, startY + 6);
+  doc.font("Times-Roman").fontSize(10);
+  doc.text(iban, startX + 5, startY + 20);
+  doc.text(bic, startX + col1Width + 5, startY + 20);
+  doc.text(dueDate, startX + col1Width + col2Width + 5, startY + 20);
 
-// vaakaviiva keskelle
-doc.moveTo(startX, startY + rowHeight)
-  .lineTo(startX + tableWidth, startY + rowHeight)
-  .stroke();
-doc.restore();
+  doc.font("Times-Bold");
+  doc.text("Maksun vastaanottaja", startX + 5, startY + rowHeight + 6);
+  doc.text("Viitenumero", startX + col1Width + 5, startY + rowHeight + 6);
+  doc.text("Maksettava EUR", startX + col1Width + col2Width + 5, startY + rowHeight + 6);
 
-// 🔹 Maksutiedot
-const iban = "FI12 7997 7997 1234 56";
-const bic = "HOLVFIHH";
-const recipient = "Tmi TyöUkkoset";
-const dueDate = new Date(invoice.dueDate).toLocaleDateString("fi-FI");
-const totalText = `${totalSum.toFixed(2)} €`;
-const refNumber = invoice.referenceNumber || invoice.invoiceNumber.toString();
-
-// 🔹 Tekstin tulostus
-const textOptions = { continued: false, lineBreak: false };
-
-// ---------- Rivi 1 ----------
-doc.font("Times-Bold").fontSize(10).fillColor("black");
-doc.text("Vastaanottajan tilinumero", startX + 5, startY + 6, textOptions);
-doc.text("BIC", startX + col1Width + 5, startY + 6, textOptions);
-doc.text("Eräpäivä", startX + col1Width + col2Width + 5, startY + 6, textOptions);
-
-doc.font("Times-Roman").fontSize(10);
-doc.text(iban, startX + 5, startY + 20, textOptions);
-doc.text(bic, startX + col1Width + 5, startY + 20, textOptions);
-doc.text(dueDate, startX + col1Width + col2Width + 5, startY + 20, textOptions);
-
-// ---------- Rivi 2 ----------
-doc.font("Times-Bold");
-doc.text("Maksun vastaanottaja", startX + 5, startY + rowHeight + 6, textOptions);
-doc.text("Viitenumero", startX + col1Width + 5, startY + rowHeight + 6, textOptions);
-doc.text("Maksettava EUR", startX + col1Width + col2Width + 5, startY + rowHeight + 6, textOptions);
-
-doc.font("Times-Roman");
-doc.text(recipient, startX + 5, startY + rowHeight + 20, textOptions);
-doc.text(refNumber, startX + col1Width + 5, startY + rowHeight + 20, textOptions);
-doc.text(totalText, startX + col1Width + col2Width + 5, startY + rowHeight + 20, textOptions);
-
-// =====================================================
-// 🔹 Virtuaaliviivakoodi (heti taulukon alle, samalle sivulle)
-// =====================================================
-const ibanDigits = "1279977997123456"; // FI12 ilman FI
-const reference = refNumber.replace(/\D/g, "");
-const amountCents = Math.round(totalSum * 100).toString().padStart(8, "0");
-const due = new Date(invoice.dueDate);
-const dueDateFormatted = `${due.getFullYear().toString().slice(2)}${(due.getMonth() + 1)
-  .toString()
-  .padStart(2, "0")}${due.getDate().toString().padStart(2, "0")}`;
-
-const virtualCode = `500${ibanDigits.padEnd(16, "0")}${reference.padStart(
-  23,
-  "0"
-)}${dueDateFormatted}${amountCents}`;
-
-const virtualY = startY + rowHeight * 2 + 25;
-doc.font("Times-Bold").fontSize(10).fillColor("black");
-doc.text("Virtuaaliviivakoodi:", startX, virtualY);
-doc.font("Courier").fontSize(10);
-doc.text(virtualCode, startX, virtualY + 15);
-
+  doc.font("Times-Roman");
+  doc.text(recipient, startX + 5, startY + rowHeight + 20);
+  doc.text(refNumber, startX + col1Width + 5, startY + rowHeight + 20);
+  doc.text(totalText, startX + col1Width + col2Width + 5, startY + rowHeight + 20);
 
   // =====================================================
-  // 🔹 PDF:n palautus
+  // 🔹 Virtuaaliviivakoodi (versio 4, kotimainen viite, 54 numeroa)
+  // =====================================================
+
+  const ibanForCode = "FI4910783500815211";
+  const bban = ibanForCode.slice(2); // 16 numeroa ilman FI
+
+  // Summa sentteinä (8 numeroa)
+  const amount = Math.round(totalSum * 100).toString().padStart(8, "0");
+
+  // Kotimainen viite (vain numerot, 20 merkkiä, nollilla vasemmalta)
+  const baseRef = (invoice.referenceNumber || invoice.invoiceNumber?.toString() || "0").replace(/\D/g, "") || "0";
+  const refPadded = baseRef.padStart(23, "0");
+
+
+  // Eräpäivä VVKKPP
+  const due = new Date(invoice.dueDate);
+  const dueDateForCode = `${due.getFullYear().toString().slice(2)}${(due.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}${due.getDate().toString().padStart(2, "0")}`;
+
+  // Lopullinen koodi
+  const virtualCode = `4${bban}${amount}${refPadded}${dueDateForCode}`;
+
+  // Tarkistuslogiikka
+  if (virtualCode.length !== 54) {
+    console.warn(`⚠️ Virtuaaliviivakoodin pituus ${virtualCode.length}, odotettu 54`);
+  }
+
+  // Tulostus PDF:ään
+  const virtualY = startY + rowHeight * 2 + 25;
+  doc.font("Times-Bold").fontSize(10).fillColor("black");
+  doc.text("Virtuaaliviivakoodi:", startX, virtualY);
+  doc.font("Courier").fontSize(10);
+  doc.text(virtualCode, startX, virtualY + 15);
+  // =====================================================
+  // 🔹 Palautus
   // =====================================================
   doc.end();
 
   const pdfBuffer = await new Promise<Buffer>((resolve) => {
-    const buffers: Buffer[] = [];
-    doc.on("data", (chunk: Buffer) => buffers.push(chunk));
-    doc.on("end", () => resolve(Buffer.concat(buffers)));
+    const bufs: Buffer[] = [];
+    doc.on("data", (chunk: Buffer) => bufs.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(bufs)));
   });
 
   const uint8 = new Uint8Array(pdfBuffer);

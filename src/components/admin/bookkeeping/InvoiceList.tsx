@@ -35,9 +35,21 @@ export default function InvoiceList({
 }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+
   const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(
     null
   );
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const toggleExpand = (id: number) => {
     setExpandedInvoiceId(expandedInvoiceId === id ? null : id);
@@ -61,7 +73,10 @@ export default function InvoiceList({
   // 🔹 Suodata hakusanalla
   const filtered = invoices.filter(
     (inv) =>
-      inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inv.invoiceNumber
+        ?.toString()
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       inv.customCustomer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inv.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -275,13 +290,57 @@ export default function InvoiceList({
                         {/* 🔹 Toimintopainikkeet (vain luonnoksille) */}
                         {invoice.status === "DRAFT" && (
                           <div className="pt-4 flex justify-end gap-4">
+                            {/* 🟢 Ilmoitusboksi */}
+                            {notification && (
+                              <div
+                                className={`mb-2 text-center py-2 px-4 rounded-md font-medium transition-all duration-500 ${
+                                  notification.type === "success"
+                                    ? "bg-yellow-700/40 border border-yellow-600 text-yellow-300"
+                                    : "bg-red-700/40 border border-red-600 text-red-300"
+                                }`}
+                              >
+                                {notification.message}
+                              </div>
+                            )}
                             {/* 🟡 Hyväksy lasku */}
                             <button
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
-                                alert(
-                                  "Tässä voisi olla 'Hyväksy lasku' -toiminto"
-                                );
+
+                                try {
+                                  const res = await fetch(
+                                    `/api/bookkeeping/invoices/${invoice.id}/approve`,
+                                    { method: "POST" }
+                                  );
+                                  const data = await res.json();
+
+                                  if (res.ok) {
+                                    setNotification({
+                                      type: "success",
+                                      message:
+                                        "✅ Lasku hyväksytty onnistuneesti!",
+                                    });
+                                    // Päivitetään näkymä pienen viiveen jälkeen
+                                    setTimeout(
+                                      () => window.location.reload(),
+                                      1500
+                                    );
+                                  } else {
+                                    setNotification({
+                                      type: "error",
+                                      message: `❌ Virhe: ${
+                                        data.error || data.message
+                                      }`,
+                                    });
+                                  }
+                                } catch (err) {
+                                  console.error(err);
+                                  setNotification({
+                                    type: "error",
+                                    message:
+                                      "⚠️ Palvelinvirhe laskun hyväksynnässä.",
+                                  });
+                                }
                               }}
                               className="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-500 rounded-md text-black font-semibold transition"
                             >

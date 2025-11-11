@@ -132,18 +132,18 @@ model Trip {
 // Lasku
 model Invoice {
   id              Int             @id @default(autoincrement())
-  invoiceNumber   String          @unique
+  invoiceNumber   Int?            @unique // 🔹 Ei pakollinen – luodaan hyväksynnässä
+  referenceNumber String?         // 🔹 Luodaan hyväksynnässä (viitenumero)
+  status          String          @default("DRAFT") // DRAFT / APPROVED
+
   date            DateTime        @default(now())
   dueDate         DateTime
   paymentTerm     Int             @default(14)
-  referenceNumber String?
+  notes           String?
 
   customerId      Int?
   customer        Contact?        @relation(fields: [customerId], references: [id])
   customCustomer  String?
-
-  status          String          @default("DRAFT")
-  notes           String?
 
   netAmount       Float           @default(0)
   vatAmount       Float           @default(0)
@@ -154,6 +154,12 @@ model Invoice {
 
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
+}
+
+model InvoiceCounter {
+  id        Int      @id @default(1)
+  current   Int      @default(100) // 🔹 Alkaa laskunumerosta 101
+  updatedAt DateTime @updatedAt
 }
 
 model InvoiceLine {

@@ -34,7 +34,7 @@ export type InvoiceLineData = InvoiceLine & {
 
 export type InvoiceFormData = {
   id?: number;
-  invoiceNumber: string;
+  
   date: Date;
   dueDate: Date;
   paymentTerm: number;
@@ -58,7 +58,7 @@ export default function InvoiceForm({
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState<InvoiceFormData>({
-    invoiceNumber: "",
+    
     date: new Date(),
     dueDate: new Date(),
     paymentTerm: 14,
@@ -162,11 +162,13 @@ export default function InvoiceForm({
     };
 
     console.log("📤 Lähetettävä lasku:", payload);
+    
 
     const response = await fetch("/api/bookkeeping/invoices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      
     });
 
     if (response.ok) {
@@ -183,19 +185,10 @@ export default function InvoiceForm({
     >
       <h2 className="text-xl text-yellow-400 font-semibold">Uusi lasku</h2>
 
+
       {/* 🔹 Laskun perustiedot */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="text-gray-300 text-sm">Laskun numero</label>
-          <input
-            type="text"
-            value={form.invoiceNumber}
-            onChange={(e) =>
-              setForm({ ...form, invoiceNumber: e.target.value })
-            }
-            className="w-full bg-black/40 border border-yellow-700/40 rounded-md p-2 text-white"
-          />
-        </div>
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
 
         <DatePickerField
           label="Laskun päivämäärä"
