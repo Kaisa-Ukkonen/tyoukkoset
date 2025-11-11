@@ -22,21 +22,24 @@ export default function ContactsPage() {
 
       {/* 🔹 Yläpalkki: haku ja uusi kontakti */}
       <div className="flex justify-center mb-6">
-  <div className="flex w-[700px] max-w-full">
-        <input
-          type="text"
-          placeholder="🔍 Hae kontakteja..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 bg-black/40 border border-yellow-700/40 rounded-md px-4 py-2 text-white placeholder-gray-400 focus:border-yellow-400 outline-none"
-        />
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-5 py-2 rounded-md transition-all"
-        >
-          {showForm ? "Sulje lomake" : "+ Uusi kontakti"}
-        </button>
-      </div>
+        <div className="flex w-[700px] max-w-full gap-2">
+          {/* Hakukenttä */}
+          <input
+            type="text"
+            placeholder="🔍 Hae kontakteja..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 bg-black/40 border border-yellow-700/40 rounded-md px-4 py-2 text-white placeholder-gray-400 focus:border-yellow-400 outline-none"
+          />
+
+          {/* Lisää / Sulje lomake */}
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-5 py-2 rounded-md transition-all"
+          >
+            {showForm ? "Sulje lomake" : "+ Uusi kontakti"}
+          </button>
+        </div>
       </div>
 
       {/* 🔹 Näytetään lomake kun showForm = true */}

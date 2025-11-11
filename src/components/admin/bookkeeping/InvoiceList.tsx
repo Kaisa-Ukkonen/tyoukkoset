@@ -35,7 +35,6 @@ export default function InvoiceList({
 }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
-
   const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(
     null
   );
@@ -61,8 +60,15 @@ export default function InvoiceList({
       try {
         const res = await fetch("/api/bookkeeping/invoices");
         const data = await res.json();
-        console.log("🔥 Haetut laskut:", data); // ✅ näet konsolista lines
-        setInvoices(data);
+
+        console.log("🔥 Haetut laskut:", data);
+
+        if (res.ok && Array.isArray(data)) {
+          setInvoices(data);
+        } else {
+          console.error("Virheellinen vastaus laskuista:", data);
+          setInvoices([]);
+        }
       } catch (err) {
         console.error("Virhe haettaessa laskuja:", err);
       }
@@ -96,8 +102,8 @@ export default function InvoiceList({
     }
   };
 
-  return (
-    <div className="mt-6 overflow-x-auto border border-yellow-700/30 rounded-xl bg-black/30">
+ return (
+  <div className="mt-6 mx-auto max-w-3xl overflow-x-auto border border-yellow-700/30 rounded-xl bg-black/30 shadow-[0_0_15px_rgba(0,0,0,0.4)]">
       <table className="w-full text-sm text-left text-gray-300">
         <thead className="bg-yellow-700/10 text-yellow-300 uppercase text-xs">
           <tr>
@@ -141,6 +147,8 @@ export default function InvoiceList({
                           ? "text-green-400"
                           : invoice.status === "SENT"
                           ? "text-yellow-400"
+                          : invoice.status === "APPROVED"
+                          ? "text-yellow-400"
                           : "text-gray-400"
                       }`}
                     >
@@ -150,6 +158,8 @@ export default function InvoiceList({
                         ? "Lähetetty"
                         : invoice.status === "PAID"
                         ? "Maksettu"
+                        : invoice.status === "APPROVED"
+                        ? "Hyväksytty"
                         : invoice.status}
                     </span>
                   </td>

@@ -3,6 +3,7 @@ import { fi } from "date-fns/locale";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+
 type DatePickerFieldProps = {
   selected: Date | null;
   onChange: (date: Date | null) => void;
@@ -18,29 +19,42 @@ export default function DatePickerField({
   label,
   className = "",
 }: DatePickerFieldProps) {
+  // 🔹 Päätellään labelin tila suoraan valinnan mukaan, ilman useEffectiä
+  const hasValue = !!selected;
+
   return (
-    <div className={`flex flex-col text-left ${className}`}>
+    <div className={`relative w-full ${className}`}>
+      {/* 🔹 Päivämääräkenttä (yhtenäinen tyyli CustomInputFieldin kanssa) */}
+      <DatePicker
+        selected={selected}
+        onChange={onChange}
+        dateFormat="dd.MM.yyyy"
+        placeholderText={placeholder}
+        locale={fi}
+        className="peer w-full bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-white 
+                   placeholder-transparent focus:border-yellow-400 focus:outline-none transition-all cursor-pointer"
+        calendarClassName="bg-[#111] border border-yellow-600/50 text-yellow-100 rounded-md shadow-lg"
+        dayClassName={() =>
+          'hover:bg-yellow-600/40 rounded-full transition text-center'
+        }
+        popperClassName="z-[9999]"
+        portalId="root-portal"
+      />
+
+      {/* 🔹 Liukuva otsikko */}
       {label && (
-        <label className="block text-yellow-300 font-semibold mb-1">{label}</label>
+        <label
+          className={`absolute left-3 text-sm bg-black/60 px-1 transition-all
+            ${
+              hasValue
+                ? "-top-2 text-xs text-yellow-400"
+                : "top-2.5 text-gray-500"
+            }
+            peer-focus:-top-2 peer-focus:text-xs peer-focus:text-yellow-400`}
+        >
+          {label}
+        </label>
       )}
-      <div className="relative inline-block w-full sm:w-[260px]">
-        <DatePicker
-          selected={selected}
-          onChange={onChange}
-          dateFormat="dd.MM.yyyy"
-          placeholderText={placeholder}
-          locale={fi}
-          className="w-full p-2.5 bg-black/40 border border-yellow-600/40 rounded-md 
-                     text-white placeholder-gray-400 outline-none focus:border-yellow-400 
-                     focus:ring-1 focus:ring-yellow-400 transition text-left cursor-pointer"
-          calendarClassName="bg-[#111] border border-yellow-600/50 text-yellow-100 rounded-md shadow-lg"
-          dayClassName={() =>
-            "hover:bg-yellow-600/40 rounded-full transition text-center"
-          }
-          popperClassName="z-[9999]"
-          portalId="root-portal"
-        />
-      </div>
     </div>
   );
 }

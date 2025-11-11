@@ -2,7 +2,9 @@
 import { useEffect, useState } from "react";
 import React from "react";
 import ConfirmModal from "@/components/common/ConfirmModal";
-import { Trash2 } from "lucide-react";
+
+import { Edit, Trash2 } from "lucide-react";
+import CustomInputField from "@/components/common/CustomInputField";
 
 type Contact = {
   id: number;
@@ -12,7 +14,6 @@ type Contact = {
   enableBilling?: boolean;
   notes?: string;
   altNames?: string;
-  // ✅ Uudet kentät
   email?: string | null;
   address?: string | null;
   zip?: string | null;
@@ -31,6 +32,8 @@ export default function ContactList({
   const [tab, setTab] = useState<"info" | "events">("info");
   const [showConfirm, setShowConfirm] = useState(false);
   const [contactToDelete, setContactToDelete] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<Contact | null>(null);
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -45,9 +48,21 @@ export default function ContactList({
     fetchContacts();
   }, [refreshKey]);
 
-  const filtered = contacts.filter((c) =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = contacts.filter((c) => {
+    const term = searchTerm.toLowerCase();
+
+    // 🔹 Ehdot
+    const matchesName = c.name.toLowerCase().includes(term);
+    const matchesType =
+      term === "yritys"
+        ? c.type === "Yritys"
+        : term === "yksityishenkilö"
+        ? c.type === "Yksityishenkilö"
+        : c.type.toLowerCase().includes(term);
+
+    // 🔹 Näytä, jos osuu joko nimeen TAI tyyppiin
+    return matchesName || matchesType;
+  });
 
   const handleDeleteContact = async () => {
     if (!contactToDelete) return;
@@ -76,6 +91,7 @@ export default function ContactList({
 
   return (
     <div className="max-w-4xl mx-auto mt-10 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
+      
       {filtered.length === 0 ? (
         <p className="text-gray-400 italic">Ei kontakteja haulla.</p>
       ) : (
@@ -84,8 +100,7 @@ export default function ContactList({
             <tr className="border-b border-yellow-700/40 text-yellow-400 text-left">
               <th className="py-2 px-3">Nimi</th>
               <th className="py-2 px-3">Tyyppi</th>
-              <th className="py-2 px-3">Asiakastunnus</th>
-              <th className="py-2 px-3">Laskutus</th>
+              <th className="py-2 px-3">Asiakastunnus / Y-tunnus</th>
             </tr>
           </thead>
           <tbody>
@@ -102,7 +117,6 @@ export default function ContactList({
                   </td>
                   <td className="py-2 px-3">{c.type}</td>
                   <td className="py-2 px-3">{c.customerCode || "-"}</td>
-                  <td className="py-2 px-3">{c.enableBilling ? "✅" : "—"}</td>
                 </tr>
 
                 {/* 🔹 Laajennettu tietonäkymä */}
@@ -139,17 +153,33 @@ export default function ContactList({
                             Tapahtumat
                           </button>
 
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setContactToDelete(c.id);
-                              setShowConfirm(true);
-                            }}
-                            className="ml-auto text-red-500 hover:text-red-400 transition-colors"
-                            title="Poista kontakti"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <div className="flex items-center ml-auto gap-2">
+                            {/* ✏️ Muokkaa */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingId(c.id);
+                                setEditForm(c);
+                              }}
+                              className="text-yellow-400 hover:text-yellow-300 transition-colors"
+                              title="Muokkaa kontaktia"
+                            >
+                              <Edit size={18} />
+                            </button>
+
+                            {/* 🗑️ Poista */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setContactToDelete(c.id);
+                                setShowConfirm(true);
+                              }}
+                              className="text-red-500 hover:text-red-400 transition-colors"
+                              title="Poista kontakti"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
 
                           <button
                             onClick={(e) => {
@@ -165,13 +195,20 @@ export default function ContactList({
                         {/* Näytettävä sisältö */}
                         {tab === "info" ? (
                           <div className="space-y-1 text-gray-300">
+                            {/* 🔹 Näytä kontaktin nimi isommalla otsikkona */}
+                            <h3 className="text-yellow-400 text-lg font-semibold mb-2">
+                              {c.name}
+                            </h3>
+
                             <p>
                               <span className="text-yellow-400">Tyyppi:</span>{" "}
                               {c.type}
                             </p>
                             <p>
                               <span className="text-yellow-400">
-                                Asiakastunnus:
+                                {c.type === "Yritys"
+                                  ? "Y-tunnus:"
+                                  : "Asiakastunnus:"}
                               </span>{" "}
                               {c.customerCode || "-"}
                             </p>
@@ -199,25 +236,128 @@ export default function ContactList({
                                 {c.zip || ""} {c.city || ""}
                               </p>
                             )}
-
-                            <p>
-                              <span className="text-yellow-400">
-                                Laskutus aktivoitu:
-                              </span>{" "}
-                              {c.enableBilling ? "Kyllä" : "Ei"}
-                            </p>
                             <p>
                               <span className="text-yellow-400">
                                 Muistiinpanot:
                               </span>{" "}
                               {c.notes || "-"}
                             </p>
-                            <p>
-                              <span className="text-yellow-400">
-                                Vaihtoehtoiset nimet:
-                              </span>{" "}
-                              {c.altNames || "-"}
-                            </p>
+
+                            {editingId === c.id && editForm && (
+                              <div className="mt-4 bg-black/40 border border-yellow-700/40 rounded-xl p-4 space-y-3">
+                                <h3 className="text-yellow-400 font-semibold text-lg text-center">
+                                  Muokkaa kontaktia
+                                </h3>
+
+                                <CustomInputField
+                                  id="name"
+                                  label="Nimi"
+                                  value={editForm.name}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      name: e.target.value,
+                                    })
+                                  }
+                                />
+                                <CustomInputField
+                                  id="email"
+                                  label="Sähköposti"
+                                  value={editForm.email ?? ""}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      email: e.target.value,
+                                    })
+                                  }
+                                />
+                                <CustomInputField
+                                  id="address"
+                                  label="Osoite"
+                                  value={editForm.address ?? ""}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      address: e.target.value,
+                                    })
+                                  }
+                                />
+                                <CustomInputField
+                                  id="zip"
+                                  label="Postinumero"
+                                  value={editForm.zip ?? ""}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      zip: e.target.value,
+                                    })
+                                  }
+                                />
+                                <CustomInputField
+                                  id="city"
+                                  label="Kaupunki"
+                                  value={editForm.city ?? ""}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      city: e.target.value,
+                                    })
+                                  }
+                                />
+                                <CustomInputField
+                                  id="notes"
+                                  label="Muistiinpanot"
+                                  value={editForm.notes ?? ""}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      notes: e.target.value,
+                                    })
+                                  }
+                                />
+
+                                <div className="flex justify-center gap-4 mt-4">
+                                  <button
+                                    onClick={async () => {
+                                      const res = await fetch(
+                                        `/api/bookkeeping/contacts/${editForm.id}`,
+                                        {
+                                          method: "PUT",
+                                          headers: {
+                                            "Content-Type": "application/json",
+                                          },
+                                          body: JSON.stringify(editForm),
+                                        }
+                                      );
+                                      if (res.ok) {
+                                        setEditingId(null);
+                                        setEditForm(null);
+                                        setContacts((prev) =>
+                                          prev.map((item) =>
+                                            item.id === editForm.id
+                                              ? { ...editForm }
+                                              : item
+                                          )
+                                        );
+                                      }
+                                    }}
+                                    className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-6 py-2 rounded-md transition"
+                                  >
+                                    Tallenna muutokset
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      setEditingId(null);
+                                      setEditForm(null);
+                                    }}
+                                    className="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-6 py-2 rounded-md transition"
+                                  >
+                                    Peruuta
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <div className="text-gray-400 italic">

@@ -2,19 +2,42 @@
 
 import { useState } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
+import CustomInputField from "@/components/common/CustomInputField";
+import CustomTextareaField from "@/components/common/CustomTextareaField";
 
 type Contact = {
   id?: number;
   name: string;
   type: string;
   customerCode?: string;
-  enableBilling: boolean;
   email?: string;
   address?: string;
   zip?: string;
   city?: string;
   notes?: string;
-  altNames?: string;
+};
+
+type YTJPostOffice = {
+  city: string;
+  languageCode: string;
+  municipalityCode?: string;
+};
+
+type YTJAddress = {
+  type: string;
+  street?: string;
+  buildingNumber?: string;
+  entrance?: string;
+  apartmentNumber?: string;
+  apartmentIdSuffix?: string;
+  postCode?: string;
+  postOffices?: YTJPostOffice[];
+};
+
+type YTJCompany = {
+  businessId?: { value?: string };
+  names?: { name?: string }[];
+  addresses?: YTJAddress[];
 };
 
 export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
@@ -22,16 +45,16 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
     name: "",
     type: "",
     customerCode: "",
-    enableBilling: false,
     email: "",
     address: "",
     zip: "",
     city: "",
     notes: "",
-    altNames: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<YTJCompany[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,9 +68,7 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
       });
       if (res.ok) {
         setMessage("Kontakti tallennettu!");
-        setTimeout(() => {
-          onSuccess();
-        }, 800);
+        setTimeout(onSuccess, 800);
       } else {
         setMessage("Virhe tallennuksessa.");
       }
@@ -67,124 +88,218 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
         Lisää uusi kontakti
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* 🔹 Nimi */}
-        <input
-          type="text"
-          placeholder="Nimi"
+      <div className="grid grid-cols-1 gap-4">
+  {/* 🔹 Tyyppi */}
+  <div>
+    <CustomSelect
+      value={form.type}
+      onChange={(value) =>
+        setForm({ ...form, type: value, customerCode: "" })
+      }
+      options={[
+        { value: "", label: "Valitse..." },
+        { value: "Yksityishenkilö", label: "Yksityishenkilö" },
+        { value: "Yritys", label: "Yritys" },
+      ]}
+    />
+  </div>
+   {/* 🔹 Nimi */}
+        <CustomInputField
+          id="name"
+          label="Nimi"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          required
-          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white 
-                     focus:outline-none focus:border-yellow-400"
         />
 
-        {/* 🔹 Tyyppi */}
-        <CustomSelect
-          value={form.type}
-          onChange={(value) => setForm({ ...form, type: value })}
-          options={[
-            { value: "Yksityishenkilö", label: "Yksityishenkilö" },
-            { value: "Yritys", label: "Yritys" },
-          ]}
-        />
+        {/* 🔹 YTJ-haku vain yrityksille */}
+        {form.type === "Yritys" && (
+          <div className="col-span-full">
+            <button
+              type="button"
+              onClick={async () => {
+                if (!form.name.trim()) {
+                  alert("Anna yrityksen nimi ennen hakua.");
+                  return;
+                }
+                setLoading(true);
+                setMessage("Haetaan YTJ-tietoja...");
+                try {
+                  const res = await fetch(
+                    `/api/bookkeeping/ytj?query=${encodeURIComponent(
+                      form.name
+                    )}`
+                  );
+                  const data = await res.json();
+                  if (data?.companies?.length > 0) {
+                    setSearchResults(data.companies); // näytä kaikki tulokset
+                    setMessage(`Löytyi ${data.companies.length} osumaa.`);
+                  } else setMessage("Ei löytynyt yrityksiä annetulla nimellä.");
+                } catch (err) {
+                  console.error("YTJ-hakuvirhe:", err);
+                  setMessage("Virhe YTJ-haussa.");
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              disabled={loading}
+              className={`text-sm px-3 py-1 rounded-md transition ${
+                loading
+                  ? "bg-gray-600 text-gray-300 cursor-not-allowed"
+                  : "bg-yellow-700 hover:bg-yellow-600 text-black"
+              }`}
+            >
+              {loading ? "⏳ Haetaan..." : "🔍 Hae yritys YTJ:stä"}
+            </button>
+
+            {/* 🔹 Näytä hakutulokset */}
+            {searchResults.length > 0 && (
+              <ul
+                className="mt-3 bg-black/60 border border-yellow-700/40 rounded-md divide-y divide-yellow-700/20
+             max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-yellow-700/50 scrollbar-track-transparent"
+              >
+                {searchResults.map((c, idx) => {
+                  const name = c.names?.[0]?.name || "Tuntematon";
+                  const yid = c.businessId?.value || "-";
+                  const addr = c.addresses?.[0];
+                  const city = addr?.postOffices?.[0];
+                  const street = addr?.street || "";
+
+                  return (
+                    <li
+                      key={idx}
+                      onClick={() => {
+                        const address: YTJAddress | undefined =
+                          c.addresses?.find(
+                            (a: YTJAddress) => a.type === "RegisteredOffice"
+                          ) || c.addresses?.[0];
+
+                        const streetParts = [
+                          address?.street,
+                          address?.buildingNumber,
+                          address?.entrance,
+                          address?.apartmentNumber,
+                          address?.apartmentIdSuffix,
+                        ].filter(Boolean);
+                        const fullAddress = streetParts.join(" ");
+
+                        setForm({
+                          ...form,
+                          name,
+                          customerCode: yid,
+                          address: fullAddress || "",
+                          zip: address?.postCode || "",
+                          city:
+                            typeof address?.postOffices?.[0] === "object"
+                              ? address?.postOffices?.[0]?.city ?? ""
+                              : (address
+                                  ?.postOffices?.[0] as unknown as string) ??
+                                "",
+                        });
+
+                        setSearchResults([]);
+                        setMessage(`✅ Yritys "${name}" valittu YTJ:stä.`);
+                      }}
+                      className="px-3 py-2 cursor-pointer hover:bg-yellow-700/20 text-yellow-300"
+                    >
+                      <div className="font-semibold">{name}</div>
+                      <div className="text-xs text-gray-400">
+                        {yid} • {street}{" "}
+                        {typeof city === "string" ? city : city?.city || ""}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            {message && (
+              <div className="mt-2 flex items-center justify-between text-yellow-400 text-sm">
+                <p>{message}</p>
+                {searchResults.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchResults([])}
+                    className="ml-4 text-xs px-2 py-1 border border-yellow-700/50 rounded-md hover:bg-yellow-700/20 transition"
+                  >
+                    Tyhjennä lista ✖
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+       
 
         {/* 🔹 Sähköposti */}
-        <input
+        <CustomInputField
+          id="email"
+          label="Sähköposti"
           type="email"
-          placeholder="Sähköposti (esim. asiakas@email.com)"
           value={form.email || ""}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
-          className="col-span-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
-                     focus:outline-none focus:border-yellow-400"
         />
 
         {/* 🔹 Osoitetiedot */}
-        <input
-          type="text"
-          placeholder="Katuosoite"
+        <CustomInputField
+          id="address"
+          label="Katuosoite"
           value={form.address || ""}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
-          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
-                     focus:outline-none focus:border-yellow-400"
         />
 
-        <input
-          type="text"
-          placeholder="Postinumero"
+        <CustomInputField
+          id="zip"
+          label="Postinumero"
           value={form.zip || ""}
           onChange={(e) => setForm({ ...form, zip: e.target.value })}
-          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
-                     focus:outline-none focus:border-yellow-400"
         />
 
-        <input
-          type="text"
-          placeholder="Kaupunki"
+        <CustomInputField
+          id="city"
+          label="Kaupunki"
           value={form.city || ""}
           onChange={(e) => setForm({ ...form, city: e.target.value })}
-          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
-                     focus:outline-none focus:border-yellow-400"
         />
 
-        {/* 🔹 Asiakastunnus */}
-        <input
-          type="text"
-          placeholder="Asiakastunnus / Y-tunnus"
-          value={form.customerCode}
-          onChange={(e) => setForm({ ...form, customerCode: e.target.value })}
-          className="bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white
-                     focus:outline-none focus:border-yellow-400"
-        />
-
-        {/* 🔹 Laskutus-valinta */}
-        <label className="flex items-center gap-2 text-gray-300">
-          <input
-            type="checkbox"
-            checked={form.enableBilling}
-            onChange={(e) =>
-              setForm({ ...form, enableBilling: e.target.checked })
-            }
-            className="accent-yellow-500"
+        {/* 🔹 Y-tunnus vain yrityksille */}
+        {form.type === "Yritys" && (
+          <CustomInputField
+            id="customerCode"
+            label="Y-tunnus"
+            value={form.customerCode || ""}
+            onChange={(e) => setForm({ ...form, customerCode: e.target.value })}
           />
-          Aktivoi laskutus
-        </label>
+        )}
 
         {/* 🔹 Muistiinpanot */}
-        <textarea
-          placeholder="Muistiinpanot"
-          value={form.notes}
+        <CustomTextareaField
+          id="notes"
+          label="Muistiinpanot"
+          value={form.notes || ""}
           onChange={(e) => setForm({ ...form, notes: e.target.value })}
-          className="col-span-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 
-                     text-white focus:outline-none focus:border-yellow-400"
-          rows={3}
-        />
-
-        {/* 🔹 Vaihtoehtoiset nimet */}
-        <textarea
-          placeholder="Vaihtoehtoiset nimet"
-          value={form.altNames}
-          onChange={(e) => setForm({ ...form, altNames: e.target.value })}
-          className="col-span-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 
-                     text-white focus:outline-none focus:border-yellow-400"
-          rows={3}
         />
       </div>
 
-      {message && (
-        <p className="text-center text-yellow-400 font-medium">{message}</p>
-      )}
+      <div className="flex justify-center gap-3">
+  <button
+    type="submit"
+    disabled={loading}
+    className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
+               px-8 py-2 rounded-md transition disabled:opacity-50"
+  >
+    {loading ? "Tallennetaan..." : "Tallenna"}
+  </button>
 
-      <div className="flex justify-center">
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
-                     px-8 py-2 rounded-md transition disabled:opacity-50"
-        >
-          {loading ? "Tallennetaan..." : "Tallenna"}
-        </button>
-      </div>
+  <button
+    type="button"
+    onClick={() => onSuccess()} // sulkee lomakkeen kuten tallennuksen jälkeen
+    className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 border border-yellow-700/40 
+               font-semibold px-8 py-2 rounded-md transition"
+  >
+    Peruuta
+  </button>
+</div>
     </form>
   );
 }

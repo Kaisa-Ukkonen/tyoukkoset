@@ -13,7 +13,7 @@ const customerSelect = {
   address: true,
   zip: true,
   city: true,
-  enableBilling: true,
+
 };
 
 // 🔹 Laskurivin tyyppi
@@ -42,10 +42,18 @@ export async function GET() {
     });
 
     return NextResponse.json(invoices);
-  } catch (error) {
-    console.error("Virhe haettaessa laskuja:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Virhe haettaessa laskuja:", error.message, error.stack);
+      return NextResponse.json(
+        { error: error.message || "Virhe haettaessa laskuja" },
+        { status: 500 }
+      );
+    }
+
+    console.error("Tuntematon virhe haettaessa laskuja:", error);
     return NextResponse.json(
-      { error: "Virhe haettaessa laskuja" },
+      { error: "Tuntematon virhe haettaessa laskuja" },
       { status: 500 }
     );
   }

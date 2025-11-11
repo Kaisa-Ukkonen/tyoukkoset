@@ -15,13 +15,12 @@ export async function GET() {
         name: true,
         type: true,
         customerCode: true,
-        enableBilling: true,
+
         email: true,
         address: true,
         zip: true,
         city: true,
         notes: true,
-        altNames: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -37,27 +36,48 @@ export async function GET() {
   }
 }
 
+
 // ======================================================
-// 🔹 LISÄÄ uusi kontakti
+// 🔹 LISÄÄ uusi kontakti (automaattinen asiakastunnus yksityishenkilölle)
 // ======================================================
 export async function POST(req: Request) {
   try {
     const data = await req.json();
 
+    console.log("Uuden kontaktin tiedot:", data); // 🔍 debug-tulostus
+
+    let finalCustomerCode = data.customerCode || null;
+
+    // ✅ Luo automaattinen asiakastunnus yksityishenkilölle
+    if (data.type?.toLowerCase().includes("yksity")) {
+      const last = await prisma.contact.findFirst({
+        where: { type: { contains: "Yksityishenkilö" } },
+        orderBy: { id: "desc" },
+        select: { customerCode: true },
+      });
+
+      const lastNumber = last?.customerCode
+        ? parseInt(last.customerCode.split("-")[1] || "0", 10)
+        : 0;
+
+      const nextNumber = lastNumber + 1;
+      finalCustomerCode = `CUST-${String(nextNumber).padStart(5, "0")}`;
+    }
+
     const newContact = await prisma.contact.create({
       data: {
         name: data.name,
         type: data.type,
-        customerCode: data.customerCode || null,
-        enableBilling: data.enableBilling || false,
+        customerCode: finalCustomerCode,
         notes: data.notes || null,
-        altNames: data.altNames || null,
         email: data.email || null,
         address: data.address || null,
         zip: data.zip || null,
         city: data.city || null,
       },
     });
+
+    console.log("Tallennettu kontakti:", newContact);
 
     return NextResponse.json(newContact);
   } catch (err) {

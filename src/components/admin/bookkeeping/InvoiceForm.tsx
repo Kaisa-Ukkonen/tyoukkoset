@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
 import DatePickerField from "@/components/common/DatePickerField";
+import CustomInputField from "@/components/common/CustomInputField";
 import { Plus, Trash2 } from "lucide-react";
 
 type Contact = {
@@ -34,7 +35,7 @@ export type InvoiceLineData = InvoiceLine & {
 
 export type InvoiceFormData = {
   id?: number;
-  
+
   date: Date;
   dueDate: Date;
   paymentTerm: number;
@@ -58,7 +59,6 @@ export default function InvoiceForm({
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState<InvoiceFormData>({
-    
     date: new Date(),
     dueDate: new Date(),
     paymentTerm: 14,
@@ -162,13 +162,11 @@ export default function InvoiceForm({
     };
 
     console.log("📤 Lähetettävä lasku:", payload);
-    
 
     const response = await fetch("/api/bookkeeping/invoices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-      
     });
 
     if (response.ok) {
@@ -185,33 +183,52 @@ export default function InvoiceForm({
     >
       <h2 className="text-xl text-yellow-400 font-semibold">Uusi lasku</h2>
 
-
       {/* 🔹 Laskun perustiedot */}
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* 🔹 Laskun päivämäärä */}
         <DatePickerField
           label="Laskun päivämäärä"
           selected={form.date}
-          onChange={(date) => setForm({ ...form, date: date as Date })}
+          onChange={(date) => {
+            const newDate = date as Date;
+            setForm({
+              ...form,
+              date: newDate,
+              dueDate: new Date(
+                newDate.getTime() + form.paymentTerm * 24 * 60 * 60 * 1000
+              ),
+            });
+          }}
         />
 
-        <DatePickerField
-          label="Eräpäivä"
-          selected={form.dueDate}
-          onChange={(date) => setForm({ ...form, dueDate: date as Date })}
-        />
-
-        <div>
-          <label className="text-gray-300 text-sm">Maksuehto (päivää)</label>
-          <input
-            type="number"
-            value={form.paymentTerm}
-            onChange={(e) =>
-              setForm({ ...form, paymentTerm: parseInt(e.target.value) })
-            }
-            className="w-full bg-black/40 border border-yellow-700/40 rounded-md p-2 text-white"
-          />
+        {/* 🔹 Eräpäivä + maksuehto vierekkäin */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="col-span-2">
+            <DatePickerField
+              label="Eräpäivä"
+              selected={form.dueDate}
+              onChange={(date) => setForm({ ...form, dueDate: date as Date })}
+            />
+          </div>
+          <div className="col-span-1">
+            <CustomInputField
+              id="paymentTerm"
+              label="Maksuehto (pv)"
+              type="number"
+              value={form.paymentTerm.toString()}
+              onChange={(e) => {
+                const newTerm = parseInt(e.target.value) || 0;
+                setForm({
+                  ...form,
+                  paymentTerm: newTerm,
+                  dueDate: new Date(
+                    new Date(form.date).getTime() +
+                      newTerm * 24 * 60 * 60 * 1000
+                  ),
+                });
+              }}
+            />
+          </div>
         </div>
 
         {/* 🔹 Asiakas */}
@@ -246,6 +263,7 @@ export default function InvoiceForm({
               key={index}
               className="grid grid-cols-1 sm:grid-cols-6 gap-3 items-center bg-black/30 p-3 rounded-md border border-yellow-700/30"
             >
+              {/* 🔸 Tuote */}
               <div className="sm:col-span-2">
                 <CustomSelect
                   label="Tuote"
@@ -256,8 +274,6 @@ export default function InvoiceForm({
                     );
                     if (!product) return;
 
-                    // ✅ Käytetään ensisijaisesti tuotteen verotonta hintaa
-                    // Jos sitä ei ole, lasketaan se kokonaishinnasta ja ALV:sta
                     const netPrice =
                       product.netPrice ??
                       product.price / (1 + product.vatRate / 100);
@@ -268,12 +284,11 @@ export default function InvoiceForm({
                         ...newLines[index],
                         productId: product.id,
                         description: product.name,
-                        unitPrice: netPrice, // 🔹 nyt veroton hinta
+                        unitPrice: netPrice,
                         vatRate: product.vatRate,
-                        total: netPrice * (1 + product.vatRate / 100), // ALV lisätään vain näyttöön
+                        total: netPrice * (1 + product.vatRate / 100),
                       };
 
-                      // 🔹 Päivitä summat automaattisesti
                       const net = newLines.reduce(
                         (sum, l) => sum + l.unitPrice * l.quantity,
                         0
@@ -301,64 +316,50 @@ export default function InvoiceForm({
                 />
               </div>
 
-              <div>
-                <label className="text-gray-300 text-sm">Määrä</label>
-                <input
-                  type="number"
-                  value={line.quantity}
-                  onChange={(e) =>
-                    updateLine(index, {
-                      quantity: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  className="w-full bg-black/40 border border-yellow-700/40 rounded-md p-2 text-white"
-                />
-              </div>
+              {/* 🔸 Määrä (vain luettavissa) */}
+              <CustomInputField
+                id={`qty-${index}`}
+                label="Määrä"
+                type="number"
+                value={line.quantity.toString()}
+                onChange={() => {}}
+                readOnly
+              />
 
-              <div>
-                <label className="text-gray-300 text-sm">A-hinta</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={Number(line.unitPrice).toFixed(2)}
-                  onChange={(e) =>
-                    updateLine(index, {
-                      unitPrice:
-                        parseFloat(Number(e.target.value).toFixed(2)) || 0,
-                    })
-                  }
-                  className="w-full bg-black/40 border border-yellow-700/40 rounded-md p-2 text-white"
-                />
-              </div>
+              {/* 🔸 A-hinta (€) (vain luettavissa) */}
+              <CustomInputField
+                id={`price-${index}`}
+                label="A-hinta (€)"
+                type="text"
+                value={Number(line.unitPrice).toFixed(2) + " €"}
+                onChange={() => {}}
+                readOnly
+              />
 
-              <div>
-                <label className="text-gray-300 text-sm">ALV %</label>
-                <input
-                  type="number"
-                  value={line.vatRate}
-                  onChange={(e) =>
-                    updateLine(index, {
-                      vatRate: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  className="w-full bg-black/40 border border-yellow-700/40 rounded-md p-2 text-white"
-                />
-              </div>
+              {/* 🔸 ALV % (vain luettavissa) */}
+              <CustomInputField
+                id={`vat-${index}`}
+                label="ALV %"
+                type="number"
+                value={line.vatRate.toString()}
+                onChange={() => {}}
+                 readOnly
+              />
 
-              {/* 🔹 Rivin yhteissumma (sis. ALV) */}
-              <div className="flex flex-col items-end justify-center text-right">
-                <label className="text-xs text-yellow-500 uppercase tracking-wide mb-1">
-                  Yhteensä (sis. ALV)
-                </label>
-                <div className="border border-yellow-600/60 rounded-md px-3 py-1 text-yellow-300 font-semibold min-w-[110px] text-right">
-                  {(
-                    line.unitPrice *
-                    line.quantity *
-                    (1 + line.vatRate / 100)
-                  ).toFixed(2)}{" "}
-                  €
-                </div>
-              </div>
+              {/* 🔸 Yhteensä (€) — muokattava */}
+              <CustomInputField
+                id={`total-${index}`}
+                label="Yhteensä (€)"
+                type="number"
+                value={line.total.toFixed(2)}
+                onChange={(e) => {
+                  const newTotal = parseFloat(e.target.value) || 0;
+                  updateLine(index, {
+                    total: newTotal,
+                    unitPrice: newTotal / (1 + line.vatRate / 100),
+                  });
+                }}
+              />
 
               <button
                 type="button"
