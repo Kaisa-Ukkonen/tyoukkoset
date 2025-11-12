@@ -12,11 +12,10 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
     kilometers: "",
     notes: "",
   });
-  const [loading, setLoading] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     const res = await fetch("/api/bookkeeping/trips", {
       method: "POST",
@@ -35,7 +34,6 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
       });
       onSuccess();
     }
-    setLoading(false);
   };
 
   return (
@@ -143,15 +141,24 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="bg-yellow-600 hover:bg-yellow-500 text-black font-semibold 
-             px-6 py-2 rounded-md shadow-md transition 
-             flex items-center justify-center gap-2 mx-auto"
-      >
-        {loading ? "Tallennetaan..." : "💾 Tallenna matka"}
-      </button>
+
+      <div className="flex justify-end gap-4">
+        <button
+          type="button"
+          onClick={() => onSuccess()} // sulkee lomakkeen kuten tallennuksen jälkeen
+          className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 border border-yellow-700/40 
+               font-semibold px-8 py-2 rounded-md transition"
+        >
+          Peruuta
+        </button>
+        <button
+          type="submit"
+          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
+               px-5 py-2 rounded-md transition disabled:opacity-50"
+        >
+          Tallenna matka
+        </button>
+      </div>
     </form>
   );
 }

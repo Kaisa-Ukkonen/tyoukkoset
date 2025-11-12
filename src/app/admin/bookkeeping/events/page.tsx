@@ -63,53 +63,65 @@ export default function BookkeepingEventsPage() {
   );
 
   return (
-    <main className="text-white p-8">
-      <h1 className="text-3xl font-bold text-yellow-400 mb-8 text-center">
-        Kirjanpidon tapahtumat
-      </h1>
+  <main className="p-6 text-gray-200">
+    <div className="mx-auto max-w-4xl">
+      {/* 🔹 Otsikko + Haku + Nappi samalle riville (Laskut-tyyli) */}
+<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <h1 className="text-2xl font-semibold text-yellow-400 tracking-wide">
+          Tapahtumat
+        </h1>
 
-      {/* 🔍 Hakukenttä ja lisää-nappi */}
-      <div className="flex justify-center mb-6">
-        <div className="flex w-[700px] max-w-full">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <input
             type="text"
             placeholder="🔍 Hae tapahtumia..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 bg-black/40 border border-yellow-700/40 rounded-l-md px-4 py-2 text-yellow-100 focus:border-yellow-400 outline-none"
+            className="bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-sm text-white w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-yellow-600 placeholder-gray-500"
+            disabled={showForm}
           />
+
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-6 rounded-r-md transition-all"
-          >
-            {showForm ? "Sulje lomake" : "+ Lisää tapahtuma"}
+            className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-1.5 rounded-md font-semibold"
+            >
+              <span className="text-lg">＋</span>
+              Lisää tapahtuma
           </button>
         </div>
       </div>
 
-      {/* 🧾 Lomake avautuu vain tarvittaessa */}
-      <AnimatePresence>
-        {showForm && (
+      {/* 🔹 Näytetään vain toinen kerrallaan */}
+      <AnimatePresence mode="wait">
+        {showForm ? (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            key="bookkeeping-form"
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
           >
             <BookkeepingForm
               onSuccess={(newEntry) => {
                 handleNewEntry(newEntry);
-                setShowForm(false); // 🔹 suljetaan lomake
+                setShowForm(false);
               }}
             />
           </motion.div>
+        ) : (
+          <motion.div
+            key="bookkeeping-list"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            <BookkeepingList entries={filteredEntries} />
+          </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  </main>
+);
 
-      {/* 📋 Lista */}
-      <div className="mt-10">
-        <BookkeepingList entries={filteredEntries} />
-      </div>
-    </main>
-  );
 }

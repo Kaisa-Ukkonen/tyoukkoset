@@ -30,12 +30,12 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
     description: "",
   });
 
-  const [loading, setLoading] = useState(false);
+ 
   const [message, setMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+
     setMessage(null);
 
     try {
@@ -73,7 +73,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
     } catch {
       setMessage("⚠️ Yhteysvirhe tallennuksessa");
     } finally {
-      setLoading(false);
+
       setTimeout(() => setMessage(null), 4000);
     }
   };
@@ -118,7 +118,6 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
             { value: "Palvelu", label: "Palvelu" },
             { value: "Tuote", label: "Tuote" },
           ]}
-          
         />
 
         {/* 🔹 ALV sisältyy hintaan - toggle */}
@@ -224,13 +223,24 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
         />
       )}
 
-      <div className="flex justify-center">
+      <div className="flex justify-end gap-4">
+        {/* 🔹 Peruuta */}
         <button
-          disabled={loading}
-          type="submit"
-          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-6 py-2 rounded-md transition disabled:opacity-50"
+          type="button"
+          onClick={() => window.location.reload()} // tai jos haluat vain sulkea lomakkeen, korvaa myöhemmin onCancel-propilla
+          className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 
+               border border-yellow-700/40 font-semibold 
+               px-7 py-2 rounded-md transition"
         >
-          {loading ? "Tallennetaan..." : "Tallenna tuote"}
+          Peruuta
+        </button>
+        {/* 🔹 Tallenna */}
+        <button
+          type="submit"
+          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
+               px-3 py-1.5 text-sm rounded-md transition disabled:opacity-50"
+        >
+          Tallenna tuote
         </button>
       </div>
     </form>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import InvoiceList from "@/components/admin/bookkeeping/InvoiceList";
 import InvoiceForm from "@/components/admin/bookkeeping/InvoiceForm";
-import { PlusCircle } from "lucide-react";
+
 
 export default function InvoicesPage() {
   const [showForm, setShowForm] = useState(false);
@@ -32,9 +32,10 @@ export default function InvoicesPage() {
             />
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-2 rounded-md font-semibold"
+              className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-1.5 rounded-md font-semibold"
             >
-              <PlusCircle size={18} />
+              <span className="text-lg">＋</span>
+              
               Uusi lasku
             </button>
           </div>

@@ -25,7 +25,7 @@ export default function BookkeepingList({
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
+    <div className="max-w-4xl mx-auto mt-6 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
       <h3 className="text-xl font-semibold text-yellow-400 mb-4 text-center">
         Kirjatut tapahtumat
       </h3>

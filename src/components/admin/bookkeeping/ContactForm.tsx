@@ -89,21 +89,21 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
       </h2>
 
       <div className="grid grid-cols-1 gap-4">
-  {/* 🔹 Tyyppi */}
-  <div>
-    <CustomSelect
-      value={form.type}
-      onChange={(value) =>
-        setForm({ ...form, type: value, customerCode: "" })
-      }
-      options={[
-        { value: "", label: "Valitse..." },
-        { value: "Yksityishenkilö", label: "Yksityishenkilö" },
-        { value: "Yritys", label: "Yritys" },
-      ]}
-    />
-  </div>
-   {/* 🔹 Nimi */}
+        {/* 🔹 Tyyppi */}
+        <div>
+          <CustomSelect
+            value={form.type}
+            onChange={(value) =>
+              setForm({ ...form, type: value, customerCode: "" })
+            }
+            options={[
+              { value: "", label: "Valitse..." },
+              { value: "Yksityishenkilö", label: "Yksityishenkilö" },
+              { value: "Yritys", label: "Yritys" },
+            ]}
+          />
+        </div>
+        {/* 🔹 Nimi */}
         <CustomInputField
           id="name"
           label="Nimi"
@@ -229,8 +229,6 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
           </div>
         )}
 
-       
-
         {/* 🔹 Sähköposti */}
         <CustomInputField
           id="email"
@@ -281,25 +279,26 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
-      <div className="flex justify-center gap-3">
-  <button
-    type="submit"
-    disabled={loading}
-    className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
-               px-8 py-2 rounded-md transition disabled:opacity-50"
-  >
-    {loading ? "Tallennetaan..." : "Tallenna"}
-  </button>
-
-  <button
-    type="button"
-    onClick={() => onSuccess()} // sulkee lomakkeen kuten tallennuksen jälkeen
-    className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 border border-yellow-700/40 
+      <div className="flex justify-end gap-4">
+        <button
+          type="button"
+          onClick={() => onSuccess()} // sulkee lomakkeen kuten tallennuksen jälkeen
+          className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 border border-yellow-700/40 
                font-semibold px-8 py-2 rounded-md transition"
-  >
-    Peruuta
-  </button>
-</div>
+        >
+          Peruuta
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
+               px-8 py-2 rounded-md transition disabled:opacity-50"
+        >
+          {loading ? "Tallennetaan..." : "Tallenna"}
+        </button>
+
+        
+      </div>
     </form>
   );
 }

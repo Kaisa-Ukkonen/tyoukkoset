@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import ContactForm from "@/components/admin/bookkeeping/ContactForm";
 import ContactList from "@/components/admin/bookkeeping/ContactList";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function ContactsPage() {
   const [showForm, setShowForm] = useState(false);
@@ -15,50 +15,62 @@ export default function ContactsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-10">
-      <h1 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">
-        Kontaktit
-      </h1>
+    <main className="p-6 text-gray-200">
+      <div className="mx-auto max-w-3xl">
+        {/* 🔹 Otsikko + Haku + Nappi (Laskut-tyyli, tiiviimpi väli) */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
+          <h1 className="text-2xl font-semibold text-yellow-400 tracking-wide">
+            Kontaktit
+          </h1>
 
-      {/* 🔹 Yläpalkki: haku ja uusi kontakti */}
-      <div className="flex justify-center mb-6">
-        <div className="flex w-[700px] max-w-full gap-2">
-          {/* Hakukenttä */}
-          <input
-            type="text"
-            placeholder="🔍 Hae kontakteja..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 bg-black/40 border border-yellow-700/40 rounded-md px-4 py-2 text-white placeholder-gray-400 focus:border-yellow-400 outline-none"
-          />
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {/* Hakukenttä */}
+            <input
+              type="text"
+              placeholder="Haku..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-sm text-white w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-yellow-600 placeholder-gray-500"
+              disabled={showForm} // estää hakua lisäystilan aikana
+            />
 
-          {/* Lisää / Sulje lomake */}
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-5 py-2 rounded-md transition-all"
-          >
-            {showForm ? "Sulje lomake" : "+ Uusi kontakti"}
-          </button>
+            {/* Lisää / Sulje lomake */}
+            <button
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-1.5 rounded-md font-semibold"
+            >
+              <span className="text-lg">＋</span>
+              
+              Uusi kontakti
+            </button>
+          </div>
         </div>
+
+        {/* 🔹 Näytetään vain toinen kerrallaan */}
+        <AnimatePresence mode="wait">
+          {showForm ? (
+            <motion.div
+              key="contact-form"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ContactForm onSuccess={handleSuccess} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="contact-list"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ContactList refreshKey={refreshKey} searchTerm={searchTerm} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-
-      {/* 🔹 Näytetään lomake kun showForm = true */}
-      <AnimatePresence>
-        {showForm && (
-          <motion.div
-            key="contact-form"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <ContactForm onSuccess={handleSuccess} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 🔹 Kontaktien lista */}
-      <ContactList refreshKey={refreshKey} searchTerm={searchTerm} />
-    </div>
+    </main>
   );
 }

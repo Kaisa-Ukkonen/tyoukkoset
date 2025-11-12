@@ -248,14 +248,24 @@ export default function BookkeepingForm({
         />
       </div>
 
-      {/* Lähetysnappi */}
-      <div className="flex justify-center">
+      <div className="flex justify-end gap-4">
+        {/* 🔹 Peruuta */}
+        <button
+          type="button"
+          onClick={() => window.location.reload()} // tai halutessasi voit sulkea lomakkeen eri tavalla
+          className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 
+               border border-yellow-700/40 font-semibold 
+               px-8 py-2 rounded-md transition"
+        >
+          Peruuta
+        </button>
+        {/* 🔹 Tallenna */}
         <button
           type="submit"
-          disabled={loading}
-          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-6 py-2 rounded-md transition disabled:opacity-50"
+          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
+               px-2 py-1.5 rounded-md transition disabled:opacity-50"
         >
-          {loading ? "Tallennetaan..." : "+ Lisää tapahtuma"}
+          Lisää tapahtuma
         </button>
       </div>
     </form>

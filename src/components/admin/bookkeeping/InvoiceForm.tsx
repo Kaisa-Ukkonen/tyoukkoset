@@ -60,7 +60,10 @@ export default function InvoiceForm({
 }) {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-const [fieldErrors, setFieldErrors] = useState<{ customer?: string; product?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{
+    customer?: string;
+    product?: string;
+  }>({});
   const [form, setForm] = useState<InvoiceFormData>({
     date: new Date(),
     dueDate: new Date(),
@@ -168,57 +171,57 @@ const [fieldErrors, setFieldErrors] = useState<{ customer?: string; product?: st
 
   // 🔹 Lähetä lomake
   // 🔹 Lähetä lomake
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault(); // Estetään lomakkeen oletustoiminto heti alussa
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Estetään lomakkeen oletustoiminto heti alussa
 
-  // 🔹 Tyhjennetään aiemmat virheet ennen tarkistuksia
-  setFieldErrors({});
+    // 🔹 Tyhjennetään aiemmat virheet ennen tarkistuksia
+    setFieldErrors({});
 
-  // 🔹 Tarkista, että asiakas on valittu
-  if (!form.customerId && !form.customCustomer.trim()) {
-    setFieldErrors({ customer: "Valitse asiakas." });
-    return;
-  }
-
-  // 🔹 Tarkista, että vähintään yksi tuote on valittu
-  const invalidLine = form.lines.some((line) => !line.productId);
-  if (invalidLine || form.lines.length === 0) {
-    setFieldErrors({ product: "Valitse vähintään yksi tuote." });
-    return;
-  }
-
-  // ✅ Muodosta lähetettävä lasku backendin odottamaan muotoon
-  const payload = {
-    ...form,
-    lines: form.lines.map((line) => ({
-      productId: line.productId || null,
-      description: line.description,
-      quantity: line.quantity,
-      unitPrice: line.unitPrice,
-      vatRate: line.vatRate,
-      total: line.unitPrice * line.quantity,
-    })),
-  };
-
-  console.log("📤 Lähetettävä lasku:", payload);
-
-  // 🔹 Lähetä tiedot backendille
-  try {
-    const response = await fetch("/api/bookkeeping/invoices", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.ok) {
-      onSaved();
-    } else {
-      console.error("❌ Virhe tallennettaessa laskua");
+    // 🔹 Tarkista, että asiakas on valittu
+    if (!form.customerId && !form.customCustomer.trim()) {
+      setFieldErrors({ customer: "Valitse asiakas." });
+      return;
     }
-  } catch (error) {
-    console.error("⚠️ Yhteysvirhe tallennuksessa:", error);
-  }
-};
+
+    // 🔹 Tarkista, että vähintään yksi tuote on valittu
+    const invalidLine = form.lines.some((line) => !line.productId);
+    if (invalidLine || form.lines.length === 0) {
+      setFieldErrors({ product: "Valitse vähintään yksi tuote." });
+      return;
+    }
+
+    // ✅ Muodosta lähetettävä lasku backendin odottamaan muotoon
+    const payload = {
+      ...form,
+      lines: form.lines.map((line) => ({
+        productId: line.productId || null,
+        description: line.description,
+        quantity: line.quantity,
+        unitPrice: line.unitPrice,
+        vatRate: line.vatRate,
+        total: line.unitPrice * line.quantity,
+      })),
+    };
+
+    console.log("📤 Lähetettävä lasku:", payload);
+
+    // 🔹 Lähetä tiedot backendille
+    try {
+      const response = await fetch("/api/bookkeeping/invoices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        onSaved();
+      } else {
+        console.error("❌ Virhe tallennettaessa laskua");
+      }
+    } catch (error) {
+      console.error("⚠️ Yhteysvirhe tallennuksessa:", error);
+    }
+  };
 
   return (
     <form
@@ -310,11 +313,8 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             >
               {/* 🔸 Tuote */}
               <div className="sm:col-span-2">
-                
                 <CustomSelect
-                
                   label="Tuote"
-                  
                   value={line.productId ? String(line.productId) : ""}
                   onChange={(value) => {
                     const product = products.find(
@@ -365,7 +365,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     label: p.name,
                   }))}
                 />
-                {fieldErrors.product && <FieldError message={fieldErrors.product} />}
+                {fieldErrors.product && (
+                  <FieldError message={fieldErrors.product} />
+                )}
               </div>
 
               {/* 🔸 Määrä (vain luettavissa) */}
@@ -465,10 +467,12 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-gray-300"
+          className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 border border-yellow-700/40 
+               font-semibold px-8 py-2 rounded-md transition"
         >
           Peruuta
         </button>
+
         <button
           type="submit"
           className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 rounded-md text-black font-semibold"

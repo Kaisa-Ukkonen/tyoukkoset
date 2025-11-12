@@ -246,7 +246,7 @@ export default function InvoiceList({
                               e.stopPropagation();
                               setExpandedInvoiceId(null);
                             }}
-                            className="text-blue-400 hover:text-blue-300 text-sm"
+                           className="ml-auto text-gray-400 hover:text-red-400 text-sm"
                           >
                             Sulje ×
                           </button>
@@ -391,7 +391,7 @@ export default function InvoiceList({
                               }}
                               className="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-500 rounded-md text-black font-semibold transition"
                             >
-                              ✅ Hyväksy lasku
+                              Hyväksy lasku
                             </button>
 
                             {/* 🔴 Poista lasku */}

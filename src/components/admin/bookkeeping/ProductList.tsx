@@ -123,7 +123,7 @@ export default function ProductList({
             <th className="py-2 px-3 text-right">Varastosaldo</th>
             <th className="py-2 px-3 text-right">
               Kappalehinta <br />
-              <span className="text-xs text-gray-400">(sis. ALV)</span>
+              <span className="text-xs ">(sis. ALV)</span>
             </th>
             <th className="py-2 px-3 text-right">Veroton hinta</th>
             <th className="py-2 px-3 text-right">ALV-osuus (25.5%)</th>
@@ -140,7 +140,7 @@ export default function ProductList({
             <th className="py-2 px-3">Kesto</th>
             <th className="py-2 px-3 text-right">
               Kokonaishinta <br />
-              <span className="text-xs text-gray-400">(sis. ALV)</span>
+              <span className="text-xs">(sis. ALV)</span>
             </th>
             <th className="py-2 px-3 text-right">Veroton hinta (€)</th>
             <th className="py-2 px-3 text-right">ALV-osuus (€)</th>
@@ -476,10 +476,8 @@ export default function ProductList({
 
   // 🔹 Varsinainen renderöinti
   return (
-    <div className="max-w-6xl mx-auto mt-10 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
-      <h3 className="text-xl font-semibold text-yellow-400 mb-4 text-center">
-        Tallennetut tuotteet
-      </h3>
+    <div className="max-w-6xl mx-auto mt-6 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
+
 
       {/* PALVELUT */}
       <h3 className="text-yellow-400 text-lg mt-6 mb-2">Palvelut</h3>

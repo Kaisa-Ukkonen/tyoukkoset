@@ -90,36 +90,42 @@ export default function ContactList({
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
-      
+    <div className="max-w-5xl mx-auto mt-6 bg-black/40 border border-yellow-700/40 rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.6)] overflow-hidden">
       {filtered.length === 0 ? (
-        <p className="text-gray-400 italic">Ei kontakteja haulla.</p>
+        <p className="text-gray-400 italic p-6">Ei kontakteja haulla.</p>
       ) : (
         <table className="w-full text-sm text-gray-300 border-collapse">
-          <thead>
-            <tr className="border-b border-yellow-700/40 text-yellow-400 text-left">
-              <th className="py-2 px-3">Nimi</th>
-              <th className="py-2 px-3">Tyyppi</th>
-              <th className="py-2 px-3">Asiakastunnus / Y-tunnus</th>
+          {/* 🔹 Otsikko täysin laskujen tyylillä, ilman ylimääräistä marginaalia */}
+          <thead className="bg-yellow-700/10 text-yellow-300 uppercase text-xs">
+            <tr>
+              <th className="px-4 py-3 text-left">Nimi</th>
+              <th className="px-4 py-3 text-left">Tyyppi</th>
+              <th className="px-4 py-3 text-left">Asiakastunnus / Y-tunnus</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((c) => (
+            {filtered.map((c, idx) => (
               <React.Fragment key={c.id}>
                 <tr
-                  className="border-b border-gray-800 hover:bg-yellow-700/10 transition cursor-pointer"
                   onClick={() =>
                     setExpandedId(expandedId === c.id ? null : c.id)
                   }
+                  className={`border-b border-yellow-700/20 transition-colors cursor-pointer 
+                  ${
+                    expandedId === c.id
+                      ? "bg-yellow-700/20"
+                      : idx % 2 === 0
+                      ? "bg-black/30 hover:bg-yellow-700/10"
+                      : "bg-black/20 hover:bg-yellow-700/10"
+                  }`}
                 >
-                  <td className="py-2 px-3 text-yellow-300 hover:text-yellow-400 underline">
+                  <td className="py-2 px-3 text-yellow-300 hover:text-yellow-400 transition-colors">
                     {c.name}
                   </td>
                   <td className="py-2 px-3">{c.type}</td>
                   <td className="py-2 px-3">{c.customerCode || "-"}</td>
                 </tr>
 
-                {/* 🔹 Laajennettu tietonäkymä */}
                 {expandedId === c.id && (
                   <tr className="bg-black/60 border-b border-yellow-700/20">
                     <td colSpan={4} className="p-4">
