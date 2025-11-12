@@ -5,6 +5,7 @@ import CustomSelect from "@/components/common/CustomSelect";
 import DatePickerField from "@/components/common/DatePickerField";
 import CustomInputField from "@/components/common/CustomInputField";
 import { Plus, Trash2 } from "lucide-react";
+import FieldError from "@/components/common/FieldError";
 
 type Contact = {
   id: number;
@@ -17,6 +18,7 @@ type Product = {
   price: number;
   vatRate: number;
   netPrice?: number; // ✅ lisätty kenttä (veroton hinta)
+  vatIncluded: boolean;
 };
 
 type InvoiceLine = {
@@ -58,6 +60,7 @@ export default function InvoiceForm({
 }) {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+const [fieldErrors, setFieldErrors] = useState<{ customer?: string; product?: string }>({});
   const [form, setForm] = useState<InvoiceFormData>({
     date: new Date(),
     dueDate: new Date(),
@@ -105,32 +108,51 @@ export default function InvoiceForm({
   };
 
   // 🔹 Päivitä laskurivin tiedot ja summat
-  const updateLine = (index: number, updated: Partial<InvoiceLine>) => {
+  const updateLine = (
+    index: number,
+    updated: Partial<InvoiceLine>,
+    isGrossInput: boolean = false // 🔹 uusi valinnainen parametri
+  ) => {
     setForm((prev) => {
       const lines = [...prev.lines];
       lines[index] = { ...lines[index], ...updated };
 
-      const net = lines.reduce(
-        (sum, l) => sum + (l.unitPrice / (1 + l.vatRate / 100)) * l.quantity,
-        0
-      );
-      const vat = lines.reduce(
-        (sum, l) =>
-          sum +
-          (l.unitPrice - l.unitPrice / (1 + l.vatRate / 100)) * l.quantity,
-        0
-      );
-      const total = net + vat;
+      let netTotal = 0;
+      let vatTotal = 0;
+      let grossTotal = 0;
+
+      lines.forEach((l) => {
+        const product = products.find((p) => p.id === l.productId);
+        const vatIncluded = product?.vatIncluded ?? true;
+
+        // 🔹 jos käyttäjä syötti bruttosumman (Yhteensä € -kenttä)
+        // käytetään l.total sellaisenaan
+        const lineTotal = isGrossInput ? l.total : l.unitPrice * l.quantity;
+
+        if (vatIncluded) {
+          const net = lineTotal / (1 + l.vatRate / 100);
+          const vat = lineTotal - net;
+          netTotal += net;
+          vatTotal += vat;
+          grossTotal += lineTotal;
+        } else {
+          const vat = (lineTotal * l.vatRate) / 100;
+          netTotal += lineTotal;
+          vatTotal += vat;
+          grossTotal += lineTotal + vat;
+        }
+      });
 
       return {
         ...prev,
         lines,
-        netAmount: net,
-        vatAmount: vat,
-        totalAmount: total,
+        netAmount: netTotal,
+        vatAmount: vatTotal,
+        totalAmount: grossTotal,
       };
     });
   };
+
   // 🔹 Päivitä eräpäivä automaattisesti maksuehdon mukaan
   useEffect(() => {
     if (!form.date || !form.paymentTerm) return;
@@ -145,24 +167,43 @@ export default function InvoiceForm({
   }, [form.date, form.paymentTerm, form.dueDate]);
 
   // 🔹 Lähetä lomake
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // 🔹 Lähetä lomake
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault(); // Estetään lomakkeen oletustoiminto heti alussa
 
-    // ✅ Muodosta lähetettävä lasku selkeästi backendin odottamaan muotoon
-    const payload = {
-      ...form,
-      lines: form.lines.map((line) => ({
-        productId: line.productId || null,
-        description: line.description,
-        quantity: line.quantity,
-        unitPrice: line.unitPrice,
-        vatRate: line.vatRate,
-        total: line.unitPrice * line.quantity, // laske varmuuden vuoksi backendille
-      })),
-    };
+  // 🔹 Tyhjennetään aiemmat virheet ennen tarkistuksia
+  setFieldErrors({});
 
-    console.log("📤 Lähetettävä lasku:", payload);
+  // 🔹 Tarkista, että asiakas on valittu
+  if (!form.customerId && !form.customCustomer.trim()) {
+    setFieldErrors({ customer: "Valitse asiakas." });
+    return;
+  }
 
+  // 🔹 Tarkista, että vähintään yksi tuote on valittu
+  const invalidLine = form.lines.some((line) => !line.productId);
+  if (invalidLine || form.lines.length === 0) {
+    setFieldErrors({ product: "Valitse vähintään yksi tuote." });
+    return;
+  }
+
+  // ✅ Muodosta lähetettävä lasku backendin odottamaan muotoon
+  const payload = {
+    ...form,
+    lines: form.lines.map((line) => ({
+      productId: line.productId || null,
+      description: line.description,
+      quantity: line.quantity,
+      unitPrice: line.unitPrice,
+      vatRate: line.vatRate,
+      total: line.unitPrice * line.quantity,
+    })),
+  };
+
+  console.log("📤 Lähetettävä lasku:", payload);
+
+  // 🔹 Lähetä tiedot backendille
+  try {
     const response = await fetch("/api/bookkeeping/invoices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -174,7 +215,10 @@ export default function InvoiceForm({
     } else {
       console.error("❌ Virhe tallennettaessa laskua");
     }
-  };
+  } catch (error) {
+    console.error("⚠️ Yhteysvirhe tallennuksessa:", error);
+  }
+};
 
   return (
     <form
@@ -231,7 +275,6 @@ export default function InvoiceForm({
           </div>
         </div>
 
-        {/* 🔹 Asiakas */}
         <CustomSelect
           label="Asiakas (valitse tai kirjoita nimi)"
           value={form.customerId ? String(form.customerId) : ""}
@@ -243,6 +286,7 @@ export default function InvoiceForm({
                 customerId: selected.id,
                 customCustomer: "",
               });
+              setFieldErrors({}); // poista virhe jos korjataan
             } else {
               setForm({ ...form, customerId: null, customCustomer: value });
             }
@@ -252,6 +296,7 @@ export default function InvoiceForm({
             label: c.name,
           }))}
         />
+        <FieldError message={fieldErrors.customer} />
       </div>
 
       {/* 🔹 Laskurivit */}
@@ -265,8 +310,11 @@ export default function InvoiceForm({
             >
               {/* 🔸 Tuote */}
               <div className="sm:col-span-2">
+                
                 <CustomSelect
+                
                   label="Tuote"
+                  
                   value={line.productId ? String(line.productId) : ""}
                   onChange={(value) => {
                     const product = products.find(
@@ -274,9 +322,10 @@ export default function InvoiceForm({
                     );
                     if (!product) return;
 
-                    const netPrice =
-                      product.netPrice ??
-                      product.price / (1 + product.vatRate / 100);
+                    const vatIncluded = product.vatIncluded;
+                    const unitPrice = vatIncluded
+                      ? product.price / (1 + product.vatRate / 100) // jos hinta sis. alv → laske veroton
+                      : product.price; // jos ei sis. alv → suoraan
 
                     setForm((prev) => {
                       const newLines = [...prev.lines];
@@ -284,9 +333,11 @@ export default function InvoiceForm({
                         ...newLines[index],
                         productId: product.id,
                         description: product.name,
-                        unitPrice: netPrice,
+                        unitPrice: unitPrice,
                         vatRate: product.vatRate,
-                        total: netPrice * (1 + product.vatRate / 100),
+                        total: vatIncluded
+                          ? product.price // verollinen
+                          : product.price * (1 + product.vatRate / 100), // veroton → lisää alv
                       };
 
                       const net = newLines.reduce(
@@ -314,6 +365,7 @@ export default function InvoiceForm({
                     label: p.name,
                   }))}
                 />
+                {fieldErrors.product && <FieldError message={fieldErrors.product} />}
               </div>
 
               {/* 🔸 Määrä (vain luettavissa) */}
@@ -343,7 +395,7 @@ export default function InvoiceForm({
                 type="number"
                 value={line.vatRate.toString()}
                 onChange={() => {}}
-                 readOnly
+                readOnly
               />
 
               {/* 🔸 Yhteensä (€) — muokattava */}
@@ -351,13 +403,25 @@ export default function InvoiceForm({
                 id={`total-${index}`}
                 label="Yhteensä (€)"
                 type="number"
+                step="0.01"
+                min="0"
                 value={line.total.toFixed(2)}
                 onChange={(e) => {
-                  const newTotal = parseFloat(e.target.value) || 0;
-                  updateLine(index, {
-                    total: newTotal,
-                    unitPrice: newTotal / (1 + line.vatRate / 100),
-                  });
+                  const newTotal = Math.max(parseFloat(e.target.value) || 0, 0);
+
+                  const product = products.find((p) => p.id === line.productId);
+                  const vatIncluded = product?.vatIncluded ?? true;
+
+                  let unitPrice = 0;
+
+                  if (vatIncluded) {
+                    unitPrice = newTotal / (1 + line.vatRate / 100);
+                  } else {
+                    unitPrice = newTotal;
+                  }
+
+                  // 🔹 huomaa kolmas parametri = true
+                  updateLine(index, { total: newTotal, unitPrice }, true);
                 }}
               />
 

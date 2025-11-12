@@ -118,6 +118,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
             { value: "Palvelu", label: "Palvelu" },
             { value: "Tuote", label: "Tuote" },
           ]}
+          
         />
 
         {/* 🔹 ALV sisältyy hintaan - toggle */}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+
 // 🔹 Hae kaikki keikat
 export async function GET() {
   const gigs = await prisma.standupGig.findMany({

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import PDFDocument from "pdfkit";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+
 import fs from "fs";
 import path from "path";
 
-const prisma = new PrismaClient();
+
 
 export async function GET(
   req: NextRequest,
@@ -53,24 +54,33 @@ export async function GET(
   doc.text("tyoukkoset@gmail.com");
   doc.text("Y-tunnus: 3518481-5");
 
-  // =====================================================
-  // 🔹 Asiakkaan tiedot
-  // =====================================================
-  const customer = invoice.customer;
-  const customerName = invoice.customCustomer || customer?.name || "Asiakas";
-  const customerAddress = customer?.address || "";
-  const customerZipCity = [customer?.zip, customer?.city].filter(Boolean).join(" ");
-  const customerEmail = customer?.email || "";
+ // =====================================================
+// 🔹 Asiakkaan tiedot
+// =====================================================
+const customer = invoice.customer;
+const customerName = invoice.customCustomer || customer?.name || "Asiakas";
+const customerAddress = customer?.address || "";
+const customerZipCity = [customer?.zip, customer?.city].filter(Boolean).join(" ");
+const customerEmail = customer?.email || "";
 
-  const leftY = 220;
-  doc.font("Times-Bold").fontSize(12).text("Laskutusosoite:", 50, leftY);
-  doc.font("Times-Roman").fontSize(10);
-  const y = leftY + 15;
-  doc.text(customerName, 50, y);
-  if (customerAddress) doc.text(customerAddress, 50);
-  if (customerZipCity) doc.text(customerZipCity, 50);
-  if (customerEmail) doc.text(customerEmail, 50);
-  if (customer?.customerCode) doc.text(`Y-tunnus: ${customer.customerCode}`, 50);
+const leftY = 220;
+doc.font("Times-Bold").fontSize(12).text("Laskutusosoite:", 50, leftY);
+doc.font("Times-Roman").fontSize(10);
+
+const y = leftY + 15;
+doc.text(customerName, 50, y);
+if (customerAddress) doc.text(customerAddress, 50);
+if (customerZipCity) doc.text(customerZipCity, 50);
+if (customerEmail) doc.text(customerEmail, 50);
+
+// 🔹 Näytetään "Asiakastunnus" yksityisille ja "Y-tunnus" yrityksille
+if (customer?.customerCode) {
+  const tunnusLabel =
+    customer?.type?.toLowerCase() === "yksityishenkilö"
+      ? "Asiakastunnus"
+      : "Y-tunnus";
+  doc.text(`${tunnusLabel}: ${customer.customerCode}`, 50);
+}
 
   // =====================================================
   // 🔹 Laskun tiedot
@@ -118,16 +128,48 @@ export async function GET(
   });
 
   // =====================================================
-  // 🔹 Summat
-  // =====================================================
-  const netSum = invoice.lines.reduce((s, l) => s + l.quantity * l.unitPrice, 0);
-  const vatSum = invoice.lines.reduce((s, l) => s + (l.quantity * l.unitPrice * l.vatRate) / 100, 0);
-  const totalSum = netSum + vatSum;
-  doc.moveDown(2);
-  doc.fontSize(10);
-  doc.text(`Veroton summa: ${netSum.toFixed(2)} €`, 400);
-  doc.text(`ALV: ${vatSum.toFixed(2)} €`, 400);
-  doc.text(`Yhteensä: ${totalSum.toFixed(2)} €`, 400);
+// 🔹 Summat (siististi oikeassa reunassa mutta ei yli)
+// =====================================================
+const netSum = invoice.lines.reduce((s, l) => s + l.quantity * l.unitPrice, 0);
+const vatSum = invoice.lines.reduce(
+  (s, l) => s + (l.quantity * l.unitPrice * l.vatRate) / 100,
+  0
+);
+const totalSum = netSum + vatSum;
+
+doc.moveDown(2);
+doc.fontSize(10);
+doc.fillColor("black");
+
+// vähän vasemmalle, ettei karkaa reunasta
+const sumRightX = 500;
+const labelX = sumRightX - 80; // selitteet vähän vasemmalle
+const lineYStart = doc.y;
+
+// Veroton summa
+doc.text("Veroton summa:", labelX, lineYStart);
+doc.text(`${netSum.toFixed(2)} €`, sumRightX, lineYStart, { align: "right" });
+
+// ALV
+const lineY2 = lineYStart + 15;
+doc.text("ALV:", labelX, lineY2);
+doc.text(`${vatSum.toFixed(2)} €`, sumRightX, lineY2, { align: "right" });
+
+// erotusviiva ennen yhteensä
+doc
+  .moveTo(labelX, lineY2 + 12)
+  .lineTo(sumRightX, lineY2 + 12)
+  .strokeColor("#999")
+  .lineWidth(0.5)
+  .stroke();
+
+// Yhteensä
+doc.font("Times-Bold");
+const lineY3 = lineY2 + 20;
+doc.text("Yhteensä:", labelX, lineY3);
+doc.text(`${totalSum.toFixed(2)} €`, sumRightX, lineY3, { align: "right" });
+doc.font("Times-Roman");
+
 
   // =====================================================
   // 🔹 Jos lasku on LUONNOS → ei maksutietoja, vain vesileima

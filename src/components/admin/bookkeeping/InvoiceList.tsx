@@ -14,6 +14,17 @@ type InvoiceLine = {
   product?: { name: string } | null;
 };
 
+type CustomerData = {
+  id: number;
+  name: string;
+  email?: string;
+  address?: string;
+  zip?: string;
+  city?: string;
+  customerCode?: string;
+  type?: string; // esim. "Yksityishenkilö" tai "Yritys"
+};
+
 type Invoice = {
   id: number;
   invoiceNumber: string;
@@ -21,8 +32,8 @@ type Invoice = {
   dueDate: string;
   totalAmount: number;
   status: string;
-  lines?: InvoiceLine[]; // ✅ tämä varmistaa näkyvyyden
-  customer?: { name: string } | null;
+  lines?: InvoiceLine[];
+  customer?: CustomerData | null;
   customCustomer?: string | null;
 };
 
@@ -102,8 +113,8 @@ export default function InvoiceList({
     }
   };
 
- return (
-  <div className="mt-6 mx-auto max-w-3xl overflow-x-auto border border-yellow-700/30 rounded-xl bg-black/30 shadow-[0_0_15px_rgba(0,0,0,0.4)]">
+  return (
+    <div className="mt-6 mx-auto max-w-3xl overflow-x-auto border border-yellow-700/30 rounded-xl bg-black/30 shadow-[0_0_15px_rgba(0,0,0,0.4)]">
       <table className="w-full text-sm text-left text-gray-300">
         <thead className="bg-yellow-700/10 text-yellow-300 uppercase text-xs">
           <tr>
@@ -182,12 +193,38 @@ export default function InvoiceList({
                               </span>{" "}
                               {invoice.invoiceNumber}
                             </p>
+                            
                             <p>
                               <span className="text-yellow-400">Asiakas:</span>{" "}
                               {invoice.customCustomer ||
                                 invoice.customer?.name ||
                                 "—"}
                             </p>
+
+                            {invoice.customer?.customerCode && (
+                              <p>
+                                <span className="text-yellow-400">
+                                  {invoice.customer.type &&
+                                  invoice.customer.type
+                                    .toLowerCase()
+                                    .includes("yksityis")
+                                    ? "Asiakastunnus"
+                                    : "Y-tunnus"}
+                                  :
+                                </span>{" "}
+                                {invoice.customer.customerCode}
+                              </p>
+                            )}
+
+                            {invoice.customer?.email && (
+                              <p>
+                                <span className="text-yellow-400">
+                                  Sähköposti:
+                                </span>{" "}
+                                {invoice.customer.email}
+                              </p>
+                            )}
+
                             <p>
                               <span className="text-yellow-400">
                                 Laskun päivä:

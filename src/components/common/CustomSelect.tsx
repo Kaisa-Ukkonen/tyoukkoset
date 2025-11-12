@@ -20,6 +20,7 @@ interface CustomSelectProps {
   value: string;
   onChange: (value: string) => void;
   options: Option[];
+  required?: boolean; // 🔹 lisättiin jo aiemmin
 }
 
 export default function CustomSelect({
@@ -27,6 +28,7 @@ export default function CustomSelect({
   value,
   onChange,
   options,
+  required = false,
 }: CustomSelectProps) {
   const selectedOption = options.find((opt) => opt.value === value);
 
@@ -34,23 +36,40 @@ export default function CustomSelect({
     <div className="relative w-full">
       {/* 🔹 Pysyvä label joka “katkaisee” viivan */}
       {label && (
-  <label
-    className="absolute -top-2.5 left-3 px-1 text-xs text-yellow-400 font-medium
-               bg-[#0a0a0a] z-10"
-  >
-    {label}
-  </label>
-)}
+        <label
+          className="absolute -top-2.5 left-3 px-1 text-xs text-yellow-400 font-medium
+                     bg-[#0a0a0a] z-10"
+        >
+          {label}
+        </label>
+      )}
 
+      {/* 🔹 Piilotettu natiivi <select> validointia varten */}
+      {required && (
+        <select
+          value={value}
+          required
+          onChange={() => {}}
+          className="hidden"
+        >
+          <option value=""></option>
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      )}
+
+      {/* 🔹 Näkyvä Headless UI valitsin */}
       <Listbox value={value} onChange={onChange}>
         <div className="relative">
-          {/* 🔹 Itse valintalaatikko */}
           <ListboxButton
-  className="relative w-full cursor-pointer rounded-md bg-black/40 
-             border border-yellow-500/60 hover:border-yellow-400 focus:border-yellow-400 
-             py-2 pl-3 pr-10 text-left text-white 
-             focus:outline-none transition-all"
->
+            className="relative w-full cursor-pointer rounded-md bg-black/40 
+                       border border-yellow-500/60 hover:border-yellow-400 focus:border-yellow-400 
+                       py-2 pl-3 pr-10 text-left text-white 
+                       focus:outline-none transition-all"
+          >
             <span
               className={`block truncate ${
                 !selectedOption ? "text-gray-400" : ""
@@ -59,11 +78,13 @@ export default function CustomSelect({
               {selectedOption ? selectedOption.label : "Valitse..."}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <ChevronDown className="h-4 w-4 text-yellow-400" aria-hidden="true" />
+              <ChevronDown
+                className="h-4 w-4 text-yellow-400"
+                aria-hidden="true"
+              />
             </span>
           </ListboxButton>
 
-          {/* 🔹 Alasvetovalikko */}
           <Transition
             as={Fragment}
             leave="transition ease-in duration-100"
