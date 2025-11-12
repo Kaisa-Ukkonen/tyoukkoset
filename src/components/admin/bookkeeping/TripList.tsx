@@ -1,8 +1,12 @@
+//Kaikki matkat ja muokkauslomake
 "use client";
 import { useEffect, useState } from "react";
 import { MoreVertical, ChevronDown, ChevronRight } from "lucide-react";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import DatePickerField from "@/components/common/DatePickerField";
+import CustomInputField from "@/components/common/CustomInputField";
+import CustomSelect from "@/components/common/CustomSelect";
+import CustomTextareaField from "@/components/common/CustomTextareaField";
 
 type Trip = {
   id: number;
@@ -167,7 +171,7 @@ export default function TripList({
   ][];
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 space-y-4">
+    <div className="max-w-5xl mx-auto mt-10 space-y-4">
       {notification && (
         <div className="bg-yellow-900/40 border border-yellow-600/40 text-yellow-300 rounded-md p-2 text-center font-semibold">
           {notification}
@@ -244,7 +248,7 @@ export default function TripList({
                                   /* 🟡 Muokkaustila */
                                   <form
                                     onSubmit={handleUpdate}
-                                    className="space-y-3"
+                                    className="space-y-4 bg-black/40 border border-yellow-700/40 rounded-xl p-4"
                                   >
                                     <DatePickerField
                                       label="Päivämäärä"
@@ -263,105 +267,84 @@ export default function TripList({
                                       }
                                     />
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                      <div>
-                                        <label className="block text-yellow-300 font-semibold">
-                                          Lähtöosoite
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={editForm.startAddress}
-                                          onChange={(e) =>
-                                            setEditForm({
-                                              ...editForm,
-                                              startAddress: e.target.value,
-                                            })
-                                          }
-                                          className="w-full p-2 bg-black/40 border border-yellow-700/40 rounded-md text-yellow-100"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label className="block text-yellow-300 font-semibold">
-                                          Määränpää
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={editForm.endAddress}
-                                          onChange={(e) =>
-                                            setEditForm({
-                                              ...editForm,
-                                              endAddress: e.target.value,
-                                            })
-                                          }
-                                          className="w-full p-2 bg-black/40 border border-yellow-700/40 rounded-md text-yellow-100"
-                                        />
-                                      </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                      <div>
-                                        <label className="block text-yellow-300 font-semibold">
-                                          Päiväraha
-                                        </label>
-                                        <select
-                                          value={editForm.allowance}
-                                          onChange={(e) =>
-                                            setEditForm({
-                                              ...editForm,
-                                              allowance: e.target.value,
-                                            })
-                                          }
-                                          className="w-full p-2 bg-black/40 border border-yellow-700/40 rounded-md text-yellow-100"
-                                        >
-                                          <option value="">Valitse</option>
-                                          <option value="full">
-                                            Kokopäiväraha 53€
-                                          </option>
-                                          <option value="half">
-                                            Osapäiväraha 24€
-                                          </option>
-                                          <option value="none">
-                                            Ei päivärahaa
-                                          </option>
-                                        </select>
-                                      </div>
-                                      <div>
-                                        <label className="block text-yellow-300 font-semibold">
-                                          Kilometrit
-                                        </label>
-                                        <input
-                                          type="number"
-                                          min="0"
-                                          step="0.1"
-                                          value={editForm.kilometers}
-                                          onChange={(e) =>
-                                            setEditForm({
-                                              ...editForm,
-                                              kilometers: e.target.value,
-                                            })
-                                          }
-                                          className="w-full p-2 bg-black/40 border border-yellow-700/40 rounded-md text-yellow-100"
-                                        />
-                                      </div>
-                                    </div>
-
-                                    <div>
-                                      <label className="block text-yellow-300 font-semibold">
-                                        Lisätiedot
-                                      </label>
-                                      <textarea
-                                        value={editForm.notes}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                      <CustomInputField
+                                        id="startAddress"
+                                        label="Lähtöosoite"
+                                        value={editForm.startAddress}
                                         onChange={(e) =>
                                           setEditForm({
                                             ...editForm,
-                                            notes: e.target.value,
+                                            startAddress: e.target.value,
                                           })
                                         }
-                                        placeholder="Lisätietoja matkasta..."
-                                        className="w-full p-2 bg-black/40 border border-yellow-700/40 rounded-md text-yellow-100"
-                                        rows={3}
+                                      />
+                                      <CustomInputField
+                                        id="endAddress"
+                                        label="Määränpää"
+                                        value={editForm.endAddress}
+                                        onChange={(e) =>
+                                          setEditForm({
+                                            ...editForm,
+                                            endAddress: e.target.value,
+                                          })
+                                        }
                                       />
                                     </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                      <CustomSelect
+                                        label="Päiväraha"
+                                        value={editForm.allowance}
+                                        onChange={(val) =>
+                                          setEditForm({
+                                            ...editForm,
+                                            allowance: val,
+                                          })
+                                        }
+                                        options={[
+                                          { value: "", label: "Valitse..." },
+                                          {
+                                            value: "full",
+                                            label: "Kokopäiväraha 53€",
+                                          },
+                                          {
+                                            value: "half",
+                                            label: "Osapäiväraha 24€",
+                                          },
+                                          {
+                                            value: "none",
+                                            label: "Ei päivärahaa",
+                                          },
+                                        ]}
+                                      />
+
+                                      <CustomInputField
+                                        id="kilometers"
+                                        label="Kilometrit yhteensä"
+                                        type="number"
+                                        step="0.1"
+                                        value={editForm.kilometers.toString()}
+                                        onChange={(e) =>
+                                          setEditForm({
+                                            ...editForm,
+                                            kilometers: e.target.value,
+                                          })
+                                        }
+                                      />
+                                    </div>
+
+                                    <CustomTextareaField
+                                      id="notes"
+                                      label="Lisätiedot"
+                                      value={editForm.notes}
+                                      onChange={(e) =>
+                                        setEditForm({
+                                          ...editForm,
+                                          notes: e.target.value,
+                                        })
+                                      }
+                                    />
 
                                     <div className="flex justify-center gap-3 mt-3">
                                       <button

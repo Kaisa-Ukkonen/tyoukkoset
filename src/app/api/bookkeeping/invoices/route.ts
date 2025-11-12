@@ -26,11 +26,15 @@ type InvoiceLineInput = {
 };
 
 // ============================================================
-// 🔹 HAE kaikki laskut
+// 🔹 HAE kaikki laskut tai tietyn kontaktin laskut
 // ============================================================
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const contactId = searchParams.get("contactId");
+
     const invoices = await prisma.invoice.findMany({
+      where: contactId ? { customerId: Number(contactId) } : {},
       include: {
         lines: {
           include: { product: true },
@@ -59,20 +63,19 @@ export async function GET() {
 }
 
 // ============================================================
-// 🔹 LUO tai PÄIVITÄ lasku (tässä laskut tallennetaan valmiiksi laskettuina)
+// 🔹 LUO tai PÄIVITÄ lasku
 // ============================================================
 export async function POST(req: Request) {
   try {
     const data = await req.json();
 
-    // 🔸 Apufunktio laskurivien laskemiseen ennen tallennusta
     const prepareLines = (lines: InvoiceLineInput[], invoiceId?: number) =>
       lines.map((line) => {
-        const netPrice = line.unitPrice; // veroton yksikköhinta
-        const total = line.quantity * netPrice * (1 + line.vatRate / 100); // verollinen kokonaishinta
+        const netPrice = line.unitPrice;
+        const total = line.quantity * netPrice * (1 + line.vatRate / 100);
 
         const baseLine = {
-          invoiceId: invoiceId ?? 0, // 🔹 Prisma vaatii kentän, mutta 0 korvataan oikealla ID:llä vain update-käytössä
+          invoiceId: invoiceId ?? 0,
           productId: line.productId ?? null,
           description: line.description,
           quantity: line.quantity,
@@ -84,9 +87,7 @@ export async function POST(req: Request) {
         return baseLine;
       });
 
-    // ============================================================
-    // 🔸 Päivitetään olemassa oleva lasku
-    // ============================================================
+    // 🔸 Päivitä olemassa oleva lasku
     if (data.id) {
       await prisma.invoiceLine.deleteMany({ where: { invoiceId: data.id } });
 
@@ -97,19 +98,16 @@ export async function POST(req: Request) {
 
       const updated = await prisma.invoice.update({
         where: { id: data.id },
-        data: { /* ... */ },
+        data: { /* ... päivitä kentät kuten ennen */ },
         include: { lines: { include: { product: true } }, customer: { select: customerSelect } },
       });
 
       return NextResponse.json(updated);
     }
 
-    // ============================================================
-    // 🔸 Luodaan uusi lasku
-    // ============================================================
+    // 🔸 Luo uusi lasku
     const newInvoice = await prisma.invoice.create({
       data: {
-
         date: new Date(data.date),
         dueDate: new Date(data.dueDate),
         paymentTerm: data.paymentTerm,
@@ -122,12 +120,7 @@ export async function POST(req: Request) {
         vatRate: data.vatRate,
         status: data.status || "DRAFT",
         lines: {
-          // 🟢 poistetaan invoiceId kun käytetään relaatio-luontia
-          create: prepareLines(data.lines).map((line) => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { invoiceId, ...rest } = line;
-            return rest;
-          }),
+          create: prepareLines(data.lines).map(({ invoiceId, ...rest }) => rest),
         },
       },
       include: {

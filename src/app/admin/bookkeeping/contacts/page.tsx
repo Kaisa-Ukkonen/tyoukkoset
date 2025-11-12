@@ -19,7 +19,11 @@ export default function ContactsPage() {
       <div className="mx-auto max-w-3xl">
         {/* 🔹 Otsikko + Haku + Nappi (Laskut-tyyli, tiiviimpi väli) */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
-          <h1 className="text-2xl font-semibold text-yellow-400 tracking-wide">
+          <h1
+            className={`text-2xl font-semibold text-yellow-400 tracking-wide transition-all duration-500 ${
+              showForm ? "ml-6 sm:ml-12" : "ml-0"
+            }`}
+          >
             Kontaktit
           </h1>
 
@@ -40,7 +44,6 @@ export default function ContactsPage() {
               className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-1.5 rounded-md font-semibold"
             >
               <span className="text-lg">＋</span>
-              
               Uusi kontakti
             </button>
           </div>

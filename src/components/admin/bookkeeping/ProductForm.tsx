@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
+import FieldError from "@/components/common/FieldError";
+import CustomInputField from "@/components/common/CustomInputField";
+import CustomTextareaField from "@/components/common/CustomTextareaField";
 
 type Product = {
   id?: number;
@@ -30,11 +33,25 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
     description: "",
   });
 
- 
   const [message, setMessage] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: Record<string, string> = {};
+
+    if (!form.name.trim()) newErrors.name = "Anna tuotteen nimi";
+    if (!form.category)
+      newErrors.category = "Valitse tyyppi (tuote tai palvelu)";
+    if (!form.price || form.price <= 0) newErrors.price = "Anna hinta euroina";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return; // estää lähetyksen jos virheitä
+    }
+
+    setErrors({});
+    setMessage(null);
 
     setMessage(null);
 
@@ -73,7 +90,6 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
     } catch {
       setMessage("⚠️ Yhteysvirhe tallennuksessa");
     } finally {
-
       setTimeout(() => setMessage(null), 4000);
     }
   };
@@ -83,7 +99,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
       onSubmit={handleSubmit}
       className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto"
     >
-      <h2 className="text-xl font-semibold text-yellow-400 text-center mb-4">
+      <h2 className="text-xl font-semibold text-yellow-400 text-start mb-4">
         Lisää uusi tuote
       </h2>
 
@@ -91,34 +107,44 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* 🔹 Tuotteen nimi ja tuotekoodi */}
-        <input
-          type="text"
-          placeholder="Tuotteen nimi"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:border-yellow-400"
-          required
-        />
+        <div>
+          <CustomInputField
+            id="name"
+            label="Tuotteen nimi"
+            value={form.name}
+            onChange={(e) => {
+              setForm({ ...form, name: e.target.value });
+              if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
+            }}
+          />
+          <FieldError message={errors.name} />
+        </div>
 
-        <input
-          type="text"
-          placeholder="Tuotekoodi"
-          value={form.code}
+        <CustomInputField
+          id="code"
+          label="Tuotekoodi"
+          value={form.code ?? ""}
           onChange={(e) => setForm({ ...form, code: e.target.value })}
-          className="bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white"
         />
 
         {/* 🔹 Kategoria (CustomSelect) */}
-        <CustomSelect
-          label="Tyyppi"
-          value={form.category}
-          onChange={(val) => setForm({ ...form, category: val })}
-          options={[
-            { value: "", label: "Valitse tyyppi" },
-            { value: "Palvelu", label: "Palvelu" },
-            { value: "Tuote", label: "Tuote" },
-          ]}
-        />
+        <div>
+          <CustomSelect
+            label="Tyyppi"
+            value={form.category}
+            onChange={(val) => {
+              setForm({ ...form, category: val });
+              if (errors.category)
+                setErrors((prev) => ({ ...prev, category: "" }));
+            }}
+            options={[
+              { value: "", label: "Valitse tyyppi" },
+              { value: "Palvelu", label: "Palvelu" },
+              { value: "Tuote", label: "Tuote" },
+            ]}
+          />
+          <FieldError message={errors.category} />
+        </div>
 
         {/* 🔹 ALV sisältyy hintaan - toggle */}
         <div className="flex items-center gap-3">
@@ -140,21 +166,19 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
 
         {/* 🔹 Hinta ja ALV */}
         <div>
-          <label className="block text-sm text-gray-300 mb-1">
-            Kokonaishinta (sis. ALV)
-          </label>
-          <input
+          <label className="block text-sm text-gray-300 mb-1"></label>
+          <CustomInputField
+            id="price"
+            label="Kokonaishinta (sis. ALV)"
             type="number"
-            placeholder="Hinta..."
-            min="0"
             step="0.01"
-            value={form.price === 0 ? "" : form.price}
-            onChange={(e) =>
-              setForm({ ...form, price: parseFloat(e.target.value) || 0 })
-            }
-            className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:border-yellow-400"
-            required
+            value={form.price === 0 ? "" : form.price.toString()}
+            onChange={(e) => {
+              setForm({ ...form, price: parseFloat(e.target.value) || 0 });
+              if (errors.price) setErrors((prev) => ({ ...prev, price: "" }));
+            }}
           />
+          <FieldError message={errors.price} />
         </div>
 
         {/* 🔹 ALV-valikko (CustomSelect) */}

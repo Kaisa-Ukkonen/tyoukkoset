@@ -1,10 +1,25 @@
+//Uusi matka
 "use client";
+
 import { useState } from "react";
-import DatePickerField from "@/components/common/DatePickerField";
 import CustomSelect from "@/components/common/CustomSelect";
+import FieldError from "@/components/common/FieldError";
+import DatePickerField from "@/components/common/DatePickerField";
+import CustomInputField from "@/components/common/CustomInputField";
+import CustomTextareaField from "@/components/common/CustomTextareaField";
+
+
+type TripFormData = {
+  allowance: string; // Päiväraha
+  date: string; // Päivämäärä
+  startAddress: string; // Lähtöosoite
+  endAddress: string; // Määränpää
+  kilometers: string; // Kilometrit yhteensä (tekstinä, koska käsitellään inputista)
+  notes: string; // Lisätiedot
+};
 
 export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<TripFormData>({
     allowance: "",
     date: "",
     startAddress: "",
@@ -13,148 +28,174 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
     notes: "",
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [message, setMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: Record<string, string> = {};
 
-    const res = await fetch("/api/bookkeeping/trips", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    // 🔹 Tarkistetaan pakolliset kentät
+    if (!form.allowance) newErrors.allowance = "Valitse päiväraha";
+    if (!form.date) newErrors.date = "Valitse päivämäärä";
+    if (!form.startAddress.trim()) newErrors.startAddress = "Anna lähtöosoite";
+    if (!form.endAddress.trim()) newErrors.endAddress = "Anna määränpää";
+    if (!form.kilometers || Number(form.kilometers) <= 0)
+      newErrors.kilometers = "Anna kilometrit yhteensä";
 
-    if (res.ok) {
-      setForm({
-        allowance: "",
-        date: "",
-        startAddress: "",
-        endAddress: "",
-        kilometers: "",
-        notes: "",
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return; // Estää lähetyksen, jos virheitä
+    }
+
+    setErrors({});
+
+    try {
+      const res = await fetch("/api/bookkeeping/trips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          kilometers: Number(form.kilometers),
+        }),
       });
-      onSuccess();
+
+      if (res.ok) {
+        setMessage("✅ Matka tallennettu onnistuneesti!");
+        setForm({
+          allowance: "",
+          date: "",
+          startAddress: "",
+          endAddress: "",
+          kilometers: "",
+          notes: "",
+        });
+        onSuccess();
+      } else {
+        setMessage("❌ Virhe tallennuksessa");
+      }
+    } catch {
+      setMessage("⚠️ Yhteysvirhe tallennuksessa");
+    } finally {
+      setTimeout(() => setMessage(null), 4000);
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto"
+      className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 space-y-4 
+                 shadow-[0_0_15px_rgba(0,0,0,0.4)] max-w-3xl mx-auto"
     >
-      <div>
-        <label className="block text-yellow-300 font-semibold">Päiväraha</label>
-        <CustomSelect
-          value={form.allowance}
-          onChange={(val) => setForm({ ...form, allowance: val })}
-          options={[
-            { value: "", label: "Valitse..." },
-            { value: "full", label: "Kokopäiväraha 53€" },
-            { value: "half", label: "Osapäiväraha 24€" },
-            { value: "none", label: "Ei päivärahaa" },
-          ]}
-        />
-      </div>
+      <h2 className="text-center text-yellow-400 text-lg font-semibold mb-4">
+        Lisää keikkamatka
+      </h2>
 
-      <div>
-        <label className="block text-yellow-300 font-semibold mt-4"></label>
-        <DatePickerField
-          label="Päivämäärä"
-          selected={form.date ? new Date(form.date) : null}
-          onChange={(date) =>
-            setForm({
-              ...form,
-              date: date ? date.toISOString().split("T")[0] : "",
-            })
-          }
-        />
-      </div>
+      {message && (
+        <p className="text-center text-sm text-yellow-300 font-medium mb-3">
+          {message}
+        </p>
+      )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-        <div>
-          <label className="block text-yellow-300 font-semibold">
-            Lähtöosoite
-          </label>
-          <input
-            type="text"
-            value={form.startAddress}
-            onChange={(e) => setForm({ ...form, startAddress: e.target.value })}
-            placeholder="Esim. Kuopio"
-            className="w-full p-3 bg-black/40 border border-yellow-700/40 rounded-lg text-yellow-100"
-          />
-        </div>
-        <div>
-          <label className="block text-yellow-300 font-semibold">
-            Määränpää
-          </label>
-          <input
-            type="text"
-            value={form.endAddress}
-            onChange={(e) => setForm({ ...form, endAddress: e.target.value })}
-            placeholder="Esim. Joensuu"
-            className="w-full p-3 bg-black/40 border border-yellow-700/40 rounded-lg text-yellow-100"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-yellow-300 font-semibold mt-4">
-          Kilometrit yhteensä
-        </label>
-        <input
-          type="number"
-          min="0"
-          step="0.1"
-          value={form.kilometers}
-          onChange={(e) => {
-            // Estetään negatiiviset ja useampi desimaali
-            const val = e.target.value;
-
-            // 🔹 Salli tyhjä kenttä tai numerot, joilla max 1 desimaali
-            if (val === "" || /^\d*\.?\d{0,1}$/.test(val)) {
-              setForm({ ...form, kilometers: val });
-            }
-          }}
-          onBlur={(e) => {
-            // 🔹 Pyöristetään automaattisesti 1 desimaaliin kun kenttä menettää fokuksen
-            const val = parseFloat(e.target.value);
-            if (!isNaN(val)) {
-              setForm({ ...form, kilometers: val.toFixed(1) });
-            }
-          }}
-          placeholder="Esim. 178.5"
-          className="w-full p-3 bg-black/40 border border-yellow-700/40 rounded-lg text-yellow-100 focus:border-yellow-400 outline-none"
-          required
-        />
-      </div>
-
-      {/* 🟡 UUSI LISÄTIETOKENTTÄ */}
-      <div>
-        <label className="block text-yellow-300 font-semibold mt-4">
-          Lisätiedot
-        </label>
-        <textarea
-          value={form.notes}
-          onChange={(e) => setForm({ ...form, notes: e.target.value })}
-          placeholder="Lisätietoja matkasta..."
-          rows={3}
-          className="w-full p-3 bg-black/40 border border-yellow-700/40 rounded-lg text-yellow-100 focus:border-yellow-400 outline-none"
-        />
-      </div>
+      {/* 🔹 Päiväraha */}
+   <CustomSelect
+  label="Päiväraha"
+  value={form.allowance}
+  onChange={(val) => {
+    setForm({ ...form, allowance: val });
+    if (errors.allowance)
+      setErrors((prev) => ({ ...prev, allowance: "" }));
+  }}
+  options={[
+    { value: "", label: "Valitse..." },
+    { value: "full", label: "Kokopäiväraha 53€" },
+    { value: "half", label: "Osapäiväraha 24€" },
+    { value: "none", label: "Ei päivärahaa" },
+  ]}
+/>
+<FieldError message={errors.allowance} />
 
 
-      <div className="flex justify-end gap-4">
+      {/* 🔹 Päivämäärä */}
+     <DatePickerField
+  label="Päivämäärä"
+  selected={form.date ? new Date(form.date) : null}
+  onChange={(date) =>
+    setForm({
+      ...form,
+      date: date ? date.toISOString().split("T")[0] : "",
+    })
+  }
+/>
+<FieldError message={errors.date} />
+
+      {/* 🔹 Lähtöosoite ja määränpää */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <CustomInputField
+    id="startAddress"
+    label="Lähtöosoite"
+    value={form.startAddress}
+    onChange={(e) => {
+      setForm({ ...form, startAddress: e.target.value });
+      if (errors.startAddress)
+        setErrors((prev) => ({ ...prev, startAddress: "" }));
+    }}
+    placeholder="Esim. Kuopio"
+  />
+
+  <CustomInputField
+    id="endAddress"
+    label="Määränpää"
+    value={form.endAddress}
+    onChange={(e) => {
+      setForm({ ...form, endAddress: e.target.value });
+      if (errors.endAddress)
+        setErrors((prev) => ({ ...prev, endAddress: "" }));
+    }}
+    placeholder="Esim. Joensuu"
+  />
+</div>
+<FieldError message={errors.startAddress || errors.endAddress} />
+
+      {/* 🔹 Kilometrit yhteensä */}
+      <CustomInputField
+  id="kilometers"
+  label="Kilometrit yhteensä"
+  type="number"
+  step="0.1"
+  value={form.kilometers}
+  onChange={(e) => {
+    setForm({ ...form, kilometers: e.target.value });
+    if (errors.kilometers)
+      setErrors((prev) => ({ ...prev, kilometers: "" }));
+  }}
+  placeholder="Esim. 178.5"
+/>
+<FieldError message={errors.kilometers} />
+
+      {/* 🔹 Lisätiedot */}
+      <CustomTextareaField
+  id="notes"
+  label="Lisätiedot"
+  value={form.notes}
+  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+  placeholder="Lisätietoja matkasta..."
+/>
+
+      {/* 🔹 Painikkeet */}
+      <div className="flex justify-end gap-4 mt-6">
         <button
           type="button"
-          onClick={() => onSuccess()} // sulkee lomakkeen kuten tallennuksen jälkeen
+          onClick={() => onSuccess()}
           className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 border border-yellow-700/40 
-               font-semibold px-8 py-2 rounded-md transition"
+                     font-semibold px-8 py-2 rounded-md transition"
         >
           Peruuta
         </button>
         <button
           type="submit"
           className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
-               px-5 py-2 rounded-md transition disabled:opacity-50"
+                     px-6 py-2 rounded-md transition disabled:opacity-50"
         >
           Tallenna matka
         </button>

@@ -16,7 +16,7 @@ export default function TripsPage() {
 
   return (
     <main className="p-6 text-gray-200">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-3xl">
         {/* 🔹 Otsikko + Haku + Nappi samalle riville */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-2xl font-semibold text-yellow-400 tracking-wide">

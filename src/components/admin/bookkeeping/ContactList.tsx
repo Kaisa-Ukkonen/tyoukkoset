@@ -5,6 +5,7 @@ import ConfirmModal from "@/components/common/ConfirmModal";
 
 import { Edit, Trash2 } from "lucide-react";
 import CustomInputField from "@/components/common/CustomInputField";
+import ContactEvents from "@/components/admin/bookkeeping/ContactEvents";
 
 type Contact = {
   id: number;
@@ -159,34 +160,6 @@ export default function ContactList({
                             Tapahtumat
                           </button>
 
-                          <div className="flex items-center ml-auto gap-2">
-                            {/* ✏️ Muokkaa */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingId(c.id);
-                                setEditForm(c);
-                              }}
-                              className="text-yellow-400 hover:text-yellow-300 transition-colors"
-                              title="Muokkaa kontaktia"
-                            >
-                              <Edit size={18} />
-                            </button>
-
-                            {/* 🗑️ Poista */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setContactToDelete(c.id);
-                                setShowConfirm(true);
-                              }}
-                              className="text-red-500 hover:text-red-400 transition-colors"
-                              title="Poista kontakti"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -200,7 +173,34 @@ export default function ContactList({
 
                         {/* Näytettävä sisältö */}
                         {tab === "info" ? (
-                          <div className="space-y-1 text-gray-300">
+                          <div className="relative space-y-1 text-gray-300">
+                            <div className="absolute top-0 right-0 flex items-center gap-3">
+                              {/* ✏️ Muokkaa */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingId(c.id);
+                                  setEditForm(c);
+                                }}
+                                className="text-yellow-400 hover:text-yellow-300 transition-colors"
+                                title="Muokkaa kontaktia"
+                              >
+                                <Edit size={18} />
+                              </button>
+
+                              {/* 🗑️ Poista */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setContactToDelete(c.id);
+                                  setShowConfirm(true);
+                                }}
+                                className="text-red-500 hover:text-red-400 transition-colors"
+                                title="Poista kontakti"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
                             {/* 🔹 Näytä kontaktin nimi isommalla otsikkona */}
                             <h3 className="text-yellow-400 text-lg font-semibold mb-2">
                               {c.name}
@@ -366,8 +366,8 @@ export default function ContactList({
                             )}
                           </div>
                         ) : (
-                          <div className="text-gray-400 italic">
-                            Ei tapahtumia vielä tälle kontaktille.
+                          <div className="mt-3">
+                            <ContactEvents contactId={c.id} />
                           </div>
                         )}
                       </div>

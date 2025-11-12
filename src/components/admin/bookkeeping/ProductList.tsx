@@ -476,7 +476,7 @@ export default function ProductList({
 
   // 🔹 Varsinainen renderöinti
   return (
-    <div className="max-w-6xl mx-auto mt-6 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
+    <div className="max-w-4xl mx-auto mt-6 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
 
 
       {/* PALVELUT */}

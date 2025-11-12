@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import React from "react";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import { useSearchParams } from "next/navigation";
 import { Trash2 } from "lucide-react";
 
 type InvoiceLine = {
@@ -40,15 +41,19 @@ type Invoice = {
 export default function InvoiceList({
   refreshKey,
   searchTerm = "",
+  contactId,
 }: {
   refreshKey: number;
   searchTerm?: string;
+  contactId?: number;
 }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(
     null
   );
+  const searchParams = useSearchParams();
+  const invoiceParam = searchParams.get("invoice");
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     message: string;
@@ -65,27 +70,40 @@ export default function InvoiceList({
     setExpandedInvoiceId(expandedInvoiceId === id ? null : id);
   };
 
+  useEffect(() => {
+    if (invoiceParam) {
+      const id = Number(invoiceParam);
+
+      // 🔹 Odotetaan hetki ennen kuin avataan ja korostetaan lasku
+      setTimeout(() => {
+        setExpandedInvoiceId(id);
+        const row = document.getElementById(`invoice-${id}`);
+        if (row) {
+          row.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+    }
+  }, [invoiceParam]);
+
   // 🔹 Hae laskut API:sta
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const res = await fetch("/api/bookkeeping/invoices");
+        const url = contactId
+          ? `/api/bookkeeping/invoices?contactId=${contactId}`
+          : "/api/bookkeeping/invoices";
+
+        const res = await fetch(url);
         const data = await res.json();
 
-        console.log("🔥 Haetut laskut:", data);
-
-        if (res.ok && Array.isArray(data)) {
-          setInvoices(data);
-        } else {
-          console.error("Virheellinen vastaus laskuista:", data);
-          setInvoices([]);
-        }
+        if (res.ok && Array.isArray(data)) setInvoices(data);
+        else setInvoices([]);
       } catch (err) {
         console.error("Virhe haettaessa laskuja:", err);
       }
     };
     fetchInvoices();
-  }, [refreshKey]);
+  }, [refreshKey, contactId]);
 
   // 🔹 Suodata hakusanalla
   const filtered = invoices.filter(
@@ -133,9 +151,12 @@ export default function InvoiceList({
               <React.Fragment key={invoice.id}>
                 {/* 🔹 Laskun perusrivi */}
                 <tr
+                  id={`invoice-${invoice.id}`}
                   onClick={() => toggleExpand(invoice.id)}
-                  className={`border-t border-yellow-700/10 hover:bg-yellow-700/10 transition-colors cursor-pointer ${
-                    expandedInvoiceId === invoice.id ? "bg-yellow-700/20" : ""
+                  className={`border-t border-yellow-700/10 transition-colors cursor-pointer ${
+                    expandedInvoiceId === invoice.id
+                      ? "bg-yellow-700/20 hover:bg-yellow-700/20" // 🔹 pysyvä kellertävä tausta
+                      : "hover:bg-yellow-700/10"
                   }`}
                 >
                   <td className="px-4 py-2">{invoice.invoiceNumber}</td>
@@ -193,7 +214,7 @@ export default function InvoiceList({
                               </span>{" "}
                               {invoice.invoiceNumber}
                             </p>
-                            
+
                             <p>
                               <span className="text-yellow-400">Asiakas:</span>{" "}
                               {invoice.customCustomer ||
@@ -246,7 +267,7 @@ export default function InvoiceList({
                               e.stopPropagation();
                               setExpandedInvoiceId(null);
                             }}
-                           className="ml-auto text-gray-400 hover:text-red-400 text-sm"
+                            className="ml-auto text-gray-400 hover:text-red-400 text-sm"
                           >
                             Sulje ×
                           </button>

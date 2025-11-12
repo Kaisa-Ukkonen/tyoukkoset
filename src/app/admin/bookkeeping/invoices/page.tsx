@@ -1,14 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import InvoiceList from "@/components/admin/bookkeeping/InvoiceList";
 import InvoiceForm from "@/components/admin/bookkeeping/InvoiceForm";
+import { useSearchParams } from "next/navigation";
 
 
 export default function InvoicesPage() {
   const [showForm, setShowForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const searchParams = useSearchParams();
+const invoiceParam = searchParams.get("invoice");
+
+useEffect(() => {
+  if (invoiceParam) {
+    // pienen viiveen jälkeen vieritetään näkyviin tai laajennetaan
+    setTimeout(() => {
+      const row = document.getElementById(`invoice-${invoiceParam}`);
+      if (row) row.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+  }
+}, [invoiceParam]);
 
   const handleSaved = () => {
     setShowForm(false);

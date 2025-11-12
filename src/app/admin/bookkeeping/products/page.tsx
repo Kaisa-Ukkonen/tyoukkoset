@@ -16,9 +16,13 @@ export default function ProductsPage() {
 
   return (
     <main className="p-6 text-gray-200">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-4xl">
         {/* 🔹 Otsikko + Haku + Nappi samalle riville (Laskut-tyyli) */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div
+          className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 transition-all duration-500 ${
+            showForm ? "ml-28 sm:ml-28" : "ml-0"
+          }`}
+        >
           <h1 className="text-2xl font-semibold text-yellow-400 tracking-wide">
             Tuotteet ja palvelut
           </h1>

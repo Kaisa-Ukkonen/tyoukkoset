@@ -249,6 +249,8 @@ export default function BookkeepingForm({
       </div>
 
       <div className="flex justify-end gap-4">
+        
+
         {/* 🔹 Peruuta */}
         <button
           type="button"
@@ -262,10 +264,11 @@ export default function BookkeepingForm({
         {/* 🔹 Tallenna */}
         <button
           type="submit"
+            disabled={loading}
           className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
                px-2 py-1.5 rounded-md transition disabled:opacity-50"
         >
-          Lisää tapahtuma
+        Lisää tapahtuma
         </button>
       </div>
     </form>

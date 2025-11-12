@@ -11,6 +11,7 @@ interface CustomInputFieldProps {
   readOnly?: boolean;
   step?: string;
   min?: string;
+  className?: string; // 👈 lisätty tänne
 }
 
 export default function CustomInputField({
@@ -21,8 +22,9 @@ export default function CustomInputField({
   onChange,
   placeholder = " ",
   readOnly = false,
-  step, // ✅ lisätty tähän
-  min,  // ✅ ja tämä myös
+  step,
+  min,
+  className, // 👈 vastaanotetaan täällä
 }: CustomInputFieldProps) {
   return (
     <div className="relative w-full">
@@ -35,9 +37,10 @@ export default function CustomInputField({
         readOnly={readOnly}
         step={step}
         min={min}
-        className={`peer w-full bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-white
+        className={`peer bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-white
           placeholder-transparent focus:border-yellow-400 focus:outline-none transition-all
-          ${readOnly ? "text-gray-400 cursor-default" : ""}`}
+          ${readOnly ? "text-gray-400 cursor-default" : ""}
+          ${className ?? "w-full"}`} // 👈 className lisätty tänne
       />
 
       <label

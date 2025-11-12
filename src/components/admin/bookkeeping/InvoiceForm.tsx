@@ -97,7 +97,7 @@ export default function InvoiceForm({
       ...form,
       lines: [
         ...form.lines,
-        { description: "", quantity: 1, unitPrice: 0, vatRate: 24, total: 0 },
+        { description: "", quantity: 1, unitPrice: 0, vatRate: 0, total: 0 },
       ],
     });
   };
@@ -231,75 +231,77 @@ export default function InvoiceForm({
       <h2 className="text-xl text-yellow-400 font-semibold">Uusi lasku</h2>
 
       {/* 🔹 Laskun perustiedot */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* 🔹 Laskun päivämäärä */}
-        <DatePickerField
-          label="Laskun päivämäärä"
-          selected={form.date}
-          onChange={(date) => {
-            const newDate = date as Date;
-            setForm({
-              ...form,
-              date: newDate,
-              dueDate: new Date(
-                newDate.getTime() + form.paymentTerm * 24 * 60 * 60 * 1000
-              ),
-            });
-          }}
-        />
-
-        {/* 🔹 Eräpäivä + maksuehto vierekkäin */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="col-span-2">
-            <DatePickerField
-              label="Eräpäivä"
-              selected={form.dueDate}
-              onChange={(date) => setForm({ ...form, dueDate: date as Date })}
-            />
-          </div>
-          <div className="col-span-1">
-            <CustomInputField
-              id="paymentTerm"
-              label="Maksuehto (pv)"
-              type="number"
-              value={form.paymentTerm.toString()}
-              onChange={(e) => {
-                const newTerm = parseInt(e.target.value) || 0;
-                setForm({
-                  ...form,
-                  paymentTerm: newTerm,
-                  dueDate: new Date(
-                    new Date(form.date).getTime() +
-                      newTerm * 24 * 60 * 60 * 1000
-                  ),
-                });
-              }}
-            />
-          </div>
-        </div>
-
-        <CustomSelect
-          label="Asiakas (valitse tai kirjoita nimi)"
-          value={form.customerId ? String(form.customerId) : ""}
-          onChange={(value) => {
-            const selected = contacts.find((c) => String(c.id) === value);
-            if (selected) {
+      <div className="space-y-4">
+        {/* 🔹 Päivämäärät & maksuehto samalle riville */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Laskun päivämäärä */}
+          <DatePickerField
+            label="Laskun päivämäärä"
+            selected={form.date}
+            onChange={(date) => {
+              const newDate = date as Date;
               setForm({
                 ...form,
-                customerId: selected.id,
-                customCustomer: "",
+                date: newDate,
+                dueDate: new Date(
+                  newDate.getTime() + form.paymentTerm * 24 * 60 * 60 * 1000
+                ),
               });
-              setFieldErrors({}); // poista virhe jos korjataan
-            } else {
-              setForm({ ...form, customerId: null, customCustomer: value });
-            }
-          }}
-          options={contacts.map((c) => ({
-            value: String(c.id),
-            label: c.name,
-          }))}
-        />
-        <FieldError message={fieldErrors.customer} />
+            }}
+          />
+
+          {/* Eräpäivä */}
+          <DatePickerField
+            label="Eräpäivä"
+            selected={form.dueDate}
+            onChange={(date) => setForm({ ...form, dueDate: date as Date })}
+          />
+
+          {/* Maksuehto (pv) */}
+          <CustomInputField
+            id="paymentTerm"
+            label="Maksuehto (pv)"
+            type="number"
+            className="w-28" // 👈 lisäys
+            value={form.paymentTerm.toString()}
+            onChange={(e) => {
+              const newTerm = parseInt(e.target.value) || 0;
+              setForm({
+                ...form,
+                paymentTerm: newTerm,
+                dueDate: new Date(
+                  new Date(form.date).getTime() + newTerm * 24 * 60 * 60 * 1000
+                ),
+              });
+            }}
+          />
+        </div>
+
+        {/* 🔹 Asiakas-valikko alle */}
+        <div className="w-56">
+          <CustomSelect
+            label="Asiakas"
+            value={form.customerId ? String(form.customerId) : ""}
+            onChange={(value) => {
+              const selected = contacts.find((c) => String(c.id) === value);
+              if (selected) {
+                setForm({
+                  ...form,
+                  customerId: selected.id,
+                  customCustomer: "",
+                });
+                setFieldErrors({});
+              } else {
+                setForm({ ...form, customerId: null, customCustomer: value });
+              }
+            }}
+            options={contacts.map((c) => ({
+              value: String(c.id),
+              label: c.name,
+            }))}
+          />
+          <FieldError message={fieldErrors.customer} />
+        </div>
       </div>
 
       {/* 🔹 Laskurivit */}
@@ -309,131 +311,140 @@ export default function InvoiceForm({
           {form.lines.map((line, index) => (
             <div
               key={index}
-              className="grid grid-cols-1 sm:grid-cols-6 gap-3 items-center bg-black/30 p-3 rounded-md border border-yellow-700/30"
+              className="bg-black/30 p-3 rounded-md border border-yellow-700/30"
             >
-              {/* 🔸 Tuote */}
-              <div className="sm:col-span-2">
-                <CustomSelect
-                  label="Tuote"
-                  value={line.productId ? String(line.productId) : ""}
-                  onChange={(value) => {
-                    const product = products.find(
-                      (p) => String(p.id) === value
-                    );
-                    if (!product) return;
-
-                    const vatIncluded = product.vatIncluded;
-                    const unitPrice = vatIncluded
-                      ? product.price / (1 + product.vatRate / 100) // jos hinta sis. alv → laske veroton
-                      : product.price; // jos ei sis. alv → suoraan
-
-                    setForm((prev) => {
-                      const newLines = [...prev.lines];
-                      newLines[index] = {
-                        ...newLines[index],
-                        productId: product.id,
-                        description: product.name,
-                        unitPrice: unitPrice,
-                        vatRate: product.vatRate,
-                        total: vatIncluded
-                          ? product.price // verollinen
-                          : product.price * (1 + product.vatRate / 100), // veroton → lisää alv
-                      };
-
-                      const net = newLines.reduce(
-                        (sum, l) => sum + l.unitPrice * l.quantity,
-                        0
+              {/* 🔸 Ensimmäinen rivi: kentät */}
+              <div className="grid grid-cols-1 sm:grid-cols-6 gap-3 items-center">
+                {/* 🔹 Tuote */}
+                <div className="sm:col-span-2">
+                  <CustomSelect
+                    label="Tuote"
+                    value={line.productId ? String(line.productId) : ""}
+                    onChange={(value) => {
+                      const product = products.find(
+                        (p) => String(p.id) === value
                       );
-                      const vat = newLines.reduce(
-                        (sum, l) =>
-                          sum + l.unitPrice * (l.vatRate / 100) * l.quantity,
-                        0
-                      );
-                      const total = net + vat;
+                      if (!product) return;
 
-                      return {
-                        ...prev,
-                        lines: newLines,
-                        netAmount: net,
-                        vatAmount: vat,
-                        totalAmount: total,
-                      };
-                    });
-                  }}
-                  options={products.map((p) => ({
-                    value: String(p.id),
-                    label: p.name,
-                  }))}
+                      const vatIncluded = product.vatIncluded;
+                      const unitPrice = vatIncluded
+                        ? product.price / (1 + product.vatRate / 100)
+                        : product.price;
+
+                      setForm((prev) => {
+                        const newLines = [...prev.lines];
+                        newLines[index] = {
+                          ...newLines[index],
+                          productId: product.id,
+                          description: product.name,
+                          unitPrice: unitPrice,
+                          vatRate: product.vatRate,
+                          total: vatIncluded
+                            ? product.price
+                            : product.price * (1 + product.vatRate / 100),
+                        };
+
+                        const net = newLines.reduce(
+                          (sum, l) => sum + l.unitPrice * l.quantity,
+                          0
+                        );
+                        const vat = newLines.reduce(
+                          (sum, l) =>
+                            sum + l.unitPrice * (l.vatRate / 100) * l.quantity,
+                          0
+                        );
+                        const total = net + vat;
+
+                        return {
+                          ...prev,
+                          lines: newLines,
+                          netAmount: net,
+                          vatAmount: vat,
+                          totalAmount: total,
+                        };
+                      });
+                    }}
+                    options={products.map((p) => ({
+                      value: String(p.id),
+                      label: p.name,
+                    }))}
+                  />
+                  {fieldErrors.product && (
+                    <FieldError message={fieldErrors.product} />
+                  )}
+                </div>
+
+                {/* 🔹 Määrä (vain luettavissa) */}
+                <CustomInputField
+                  id={`qty-${index}`}
+                  label="Määrä"
+                  type="number"
+                  value={line.quantity.toString()}
+                  onChange={() => {}}
+                  readOnly
                 />
-                {fieldErrors.product && (
-                  <FieldError message={fieldErrors.product} />
-                )}
+
+                {/* 🔹 A-hinta (€) */}
+                <CustomInputField
+                  id={`price-${index}`}
+                  label="A-hinta (€)"
+                  type="text"
+                  value={Number(line.unitPrice).toFixed(2) + " €"}
+                  onChange={() => {}}
+                  readOnly
+                />
+
+                {/* 🔹 ALV % */}
+                <CustomInputField
+                  id={`vat-${index}`}
+                  label="ALV %"
+                  type="number"
+                  value={line.vatRate.toString()}
+                  onChange={() => {}}
+                  readOnly
+                />
+
+                {/* 🔹 Yhteensä (€) */}
+                <CustomInputField
+                  id={`total-${index}`}
+                  label="Yhteensä (€)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={line.total.toFixed(2)}
+                  onChange={(e) => {
+                    const newTotal = Math.max(
+                      parseFloat(e.target.value) || 0,
+                      0
+                    );
+
+                    const product = products.find(
+                      (p) => p.id === line.productId
+                    );
+                    const vatIncluded = product?.vatIncluded ?? true;
+
+                    let unitPrice = 0;
+                    if (vatIncluded) {
+                      unitPrice = newTotal / (1 + line.vatRate / 100);
+                    } else {
+                      unitPrice = newTotal;
+                    }
+
+                    updateLine(index, { total: newTotal, unitPrice }, true);
+                  }}
+                />
               </div>
 
-              {/* 🔸 Määrä (vain luettavissa) */}
-              <CustomInputField
-                id={`qty-${index}`}
-                label="Määrä"
-                type="number"
-                value={line.quantity.toString()}
-                onChange={() => {}}
-                readOnly
-              />
-
-              {/* 🔸 A-hinta (€) (vain luettavissa) */}
-              <CustomInputField
-                id={`price-${index}`}
-                label="A-hinta (€)"
-                type="text"
-                value={Number(line.unitPrice).toFixed(2) + " €"}
-                onChange={() => {}}
-                readOnly
-              />
-
-              {/* 🔸 ALV % (vain luettavissa) */}
-              <CustomInputField
-                id={`vat-${index}`}
-                label="ALV %"
-                type="number"
-                value={line.vatRate.toString()}
-                onChange={() => {}}
-                readOnly
-              />
-
-              {/* 🔸 Yhteensä (€) — muokattava */}
-              <CustomInputField
-                id={`total-${index}`}
-                label="Yhteensä (€)"
-                type="number"
-                step="0.01"
-                min="0"
-                value={line.total.toFixed(2)}
-                onChange={(e) => {
-                  const newTotal = Math.max(parseFloat(e.target.value) || 0, 0);
-
-                  const product = products.find((p) => p.id === line.productId);
-                  const vatIncluded = product?.vatIncluded ?? true;
-
-                  let unitPrice = 0;
-
-                  if (vatIncluded) {
-                    unitPrice = newTotal / (1 + line.vatRate / 100);
-                  } else {
-                    unitPrice = newTotal;
-                  }
-
-                  // 🔹 huomaa kolmas parametri = true
-                  updateLine(index, { total: newTotal, unitPrice }, true);
-                }}
-              />
-
-              <button
-                type="button"
-                onClick={() => removeLine(index)}
-                className="text-red-500 hover:text-red-400 ml-auto"
-              >
-                <Trash2 size={18} />
-              </button>
+              {/* 🔹 Toinen rivi: roskapönttö oikeassa reunassa */}
+              <div className="flex justify-end mt-2">
+                <button
+                  type="button"
+                  onClick={() => removeLine(index)}
+                  className="text-red-500 hover:text-red-400 transition-colors"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </div>
           ))}
         </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
 import CustomInputField from "@/components/common/CustomInputField";
 import CustomTextareaField from "@/components/common/CustomTextareaField";
+import FieldError from "@/components/common/FieldError";
 
 type Contact = {
   id?: number;
@@ -55,9 +56,25 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<YTJCompany[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: Record<string, string> = {};
+
+    if (!form.type) newErrors.type = "Valitse kontaktin tyyppi";
+    if (!form.name.trim()) newErrors.name = "Anna nimi";
+    if (form.type === "Yritys" && !form.customerCode?.trim())
+      newErrors.customerCode = "Yritykselle on annettava Y-tunnus";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return; // estää tallennuksen, jos virheitä
+    }
+
+    setErrors({});
+    setLoading(true);
+    setMessage(null);
     setLoading(true);
     setMessage(null);
     try {
@@ -102,6 +119,7 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
               { value: "Yritys", label: "Yritys" },
             ]}
           />
+          <FieldError message={errors.type} />
         </div>
         {/* 🔹 Nimi */}
         <CustomInputField
@@ -110,6 +128,7 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
+        <FieldError message={errors.type} />
 
         {/* 🔹 YTJ-haku vain yrityksille */}
         {form.type === "Yritys" && (
@@ -260,14 +279,20 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
           onChange={(e) => setForm({ ...form, city: e.target.value })}
         />
 
-        {/* 🔹 Y-tunnus vain yrityksille */}
         {form.type === "Yritys" && (
-          <CustomInputField
-            id="customerCode"
-            label="Y-tunnus"
-            value={form.customerCode || ""}
-            onChange={(e) => setForm({ ...form, customerCode: e.target.value })}
-          />
+          <div>
+            <CustomInputField
+              id="customerCode"
+              label="Y-tunnus"
+              value={form.customerCode || ""}
+              onChange={(e) => {
+                setForm({ ...form, customerCode: e.target.value });
+                if (errors.customerCode)
+                  setErrors((prev) => ({ ...prev, customerCode: "" }));
+              }}
+            />
+            <FieldError message={errors.customerCode} />
+          </div>
         )}
 
         {/* 🔹 Muistiinpanot */}
@@ -296,8 +321,6 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
         >
           {loading ? "Tallennetaan..." : "Tallenna"}
         </button>
-
-        
       </div>
     </form>
   );
