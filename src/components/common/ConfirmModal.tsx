@@ -1,7 +1,5 @@
-//Haluatko varmasti poistaa- nappi
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-
 
 type ConfirmModalProps = {
   show: boolean;
@@ -31,17 +29,27 @@ export default function ConfirmModal({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
           >
-            <p className="text-gray-200 mb-6">{message}</p>
+    <p className="text-white text-base font-semibold mb-6">
+  {message}
+</p>
+
             <div className="flex justify-center gap-4">
+              {/* 🔹 Poista-nappi */}
               <button
                 onClick={onConfirm}
-                className="bg-red-600 hover:bg-red-500 text-white font-semibold px-4 py-2 rounded-md transition"
+                className="bg-black/40 hover:bg-red-700/20 text-red-400 
+                           border border-red-700/40 font-semibold 
+                           px-7 py-2 rounded-md transition"
               >
-                Kyllä, poista
+                Poista
               </button>
+
+              {/* 🔹 Peruuta-nappi (yhtenäinen muun teeman kanssa) */}
               <button
                 onClick={onCancel}
-                className="bg-gray-600 hover:bg-gray-500 text-white font-semibold px-4 py-2 rounded-md transition"
+                className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 
+                           border border-yellow-700/40 font-semibold 
+                           px-7 py-2 rounded-md transition"
               >
                 Peruuta
               </button>

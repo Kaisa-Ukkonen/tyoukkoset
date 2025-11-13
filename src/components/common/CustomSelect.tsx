@@ -20,7 +20,8 @@ interface CustomSelectProps {
   value: string;
   onChange: (value: string) => void;
   options: Option[];
-   required?: boolean;
+  required?: boolean;
+  placeholder?: string;
 }
 
 export default function CustomSelect({
@@ -30,19 +31,15 @@ export default function CustomSelect({
   options,
 }: CustomSelectProps) {
   const selectedOption = options.find((opt) => opt.value === value);
-  
 
   return (
     <div className="relative w-full">
       {/* 🔹 Pysyvä label joka “katkaisee” viivan */}
-     {label && (
-  <label
-    className="absolute -top-2.5 left-3 px-1 text-xs text-yellow-400 font-medium bg-[#0a0a0a] z-10 pointer-events-none"
-  >
-    {label}
-  </label>
-)}
-
+      {label && (
+        <label className="absolute -top-2.5 left-3 px-1 text-xs text-yellow-400 font-medium bg-[#0a0a0a] z-10 pointer-events-none">
+          {label}
+        </label>
+      )}
 
       <Listbox value={value} onChange={onChange}>
         <div className="relative">

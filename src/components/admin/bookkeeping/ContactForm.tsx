@@ -105,22 +105,24 @@ export default function ContactForm({ onSuccess }: { onSuccess: () => void }) {
         Lisää uusi kontakti
       </h2>
 
-      <div className="grid grid-cols-1 gap-4">
-        {/* 🔹 Tyyppi */}
-        <div>
-          <CustomSelect
-            value={form.type}
-            onChange={(value) =>
-              setForm({ ...form, type: value, customerCode: "" })
-            }
-            options={[
-              { value: "", label: "Valitse..." },
-              { value: "Yksityishenkilö", label: "Yksityishenkilö" },
-              { value: "Yritys", label: "Yritys" },
-            ]}
-          />
-          <FieldError message={errors.type} />
-        </div>
+     <div className="grid grid-cols-1 gap-4">
+  {/* 🔹 Tyyppi */}
+<div>
+  <CustomSelect
+    label="Tyyppi"
+    value={form.type}
+    onChange={(value) =>
+      setForm({ ...form, type: value, customerCode: "" })
+    }
+    options={[
+      { value: "Yksityishenkilö", label: "Yksityishenkilö" },
+      { value: "Yritys", label: "Yritys" },
+    ]}
+    placeholder="Valitse tyyppi"
+  />
+  <FieldError message={errors.type} />
+</div>
+
         {/* 🔹 Nimi */}
         <CustomInputField
           id="name"

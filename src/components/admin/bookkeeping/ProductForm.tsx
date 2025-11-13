@@ -3,7 +3,7 @@ import { useState } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
 import FieldError from "@/components/common/FieldError";
 import CustomInputField from "@/components/common/CustomInputField";
-import CustomTextareaField from "@/components/common/CustomTextareaField";
+
 
 type Product = {
   id?: number;
@@ -132,16 +132,16 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
           <CustomSelect
             label="Tyyppi"
             value={form.category}
-            onChange={(val) => {
-              setForm({ ...form, category: val });
+            onChange={(value) => {
+              setForm({ ...form, category: value });
               if (errors.category)
                 setErrors((prev) => ({ ...prev, category: "" }));
             }}
             options={[
-              { value: "", label: "Valitse tyyppi" },
               { value: "Palvelu", label: "Palvelu" },
               { value: "Tuote", label: "Tuote" },
             ]}
+            placeholder="Valitse tyyppi"
           />
           <FieldError message={errors.category} />
         </div>

@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import DatePickerField from "@/components/common/DatePickerField";
 import CustomSelect from "@/components/common/CustomSelect";
+import CustomTextareaField from "@/components/common/CustomTextareaField";
+import CustomInputField from "@/components/common/CustomInputField";
 
 type Entry = {
   id: number;
@@ -36,15 +38,15 @@ export default function BookkeepingForm({
   } | null>(null);
 
   const [form, setForm] = useState({
-    date: "",
-    description: "",
-    type: "meno",
-    account: "",
-    amount: "",
-    vatRate: "25.5",
-    paymentMethod: "",
-    receipt: null as File | null,
-  });
+  date: new Date(), // 🔹 tämän päivän päivämäärä oletuksena
+  description: "",
+  type: "meno",
+  account: "",
+  amount: "",
+  vatRate: "25.5",
+  paymentMethod: "",
+  receipt: null as File | null,
+});
 
   // 🔹 Hae tilit tietokannasta
   useEffect(() => {
@@ -67,7 +69,7 @@ export default function BookkeepingForm({
     setNotification(null);
 
     const formData = new FormData();
-    formData.append("date", form.date);
+   formData.append("date", form.date.toISOString().split("T")[0]);
     formData.append("description", form.description);
     formData.append("type", form.type);
     formData.append("account", form.account);
@@ -93,15 +95,15 @@ export default function BookkeepingForm({
         if (onSuccess) onSuccess(result.data || result);
 
         setForm({
-          date: "",
-          description: "",
-          type: "meno",
-          account: "",
-          amount: "",
-          vatRate: "25.5",
-          paymentMethod: "",
-          receipt: null,
-        });
+  date: new Date(), // palautetaan oletusarvo
+  description: "",
+  type: "meno",
+  account: "",
+  amount: "",
+  vatRate: "25.5",
+  paymentMethod: "",
+  receipt: null,
+});
       } else {
         setNotification({
           type: "error",
@@ -142,19 +144,14 @@ export default function BookkeepingForm({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Päivämäärä */}
-        <div>
-          <label className="block text-sm text-gray-300 mb-1">Päivämäärä</label>
-          <DatePickerField
-            selected={form.date ? new Date(form.date) : null}
-            onChange={(date) =>
-              setForm({
-                ...form,
-                date: date ? date.toISOString().split("T")[0] : "",
-              })
-            }
-          />
-        </div>
+      <DatePickerField
+  label="Päivämäärä"
+  selected={form.date}
+  onChange={(date) => {
+    if (!date) return;
+    setForm({ ...form, date });
+  }}
+/>
 
         {/* Tyyppi */}
         <CustomSelect
@@ -167,46 +164,42 @@ export default function BookkeepingForm({
           ]}
         />
 
-        {/* Tili */}
+        {/* 🔹 Tili */}
         <CustomSelect
           label="Tili"
           value={form.account}
           onChange={(val) => setForm({ ...form, account: val })}
-          options={[
-            { value: "", label: "Valitse tili" },
-            ...accounts.map((acc) => ({
-              value: acc.name,
-              label: acc.name,
-            })),
-          ]}
+          options={accounts.map((acc) => ({
+            value: acc.name,
+            label: acc.name,
+          }))}
+          placeholder="Valitse tili"
         />
 
-        {/* Maksutapa */}
+        {/* 🔹 Maksutapa */}
         <CustomSelect
           label="Maksutapa"
           value={form.paymentMethod}
           onChange={(val) => setForm({ ...form, paymentMethod: val })}
           options={[
-            { value: "", label: "Valitse" },
             { value: "SumUp", label: "SumUp" },
             { value: "Käteinen", label: "Käteinen" },
             { value: "Yrityskortti", label: "Yrityskortti" },
             { value: "Yrittäjän maksu", label: "Yrittäjän maksu" },
           ]}
+          placeholder="Valitse maksutapa"
         />
 
-        {/* Summa */}
-        <div>
-          <label className="block text-sm text-gray-300 mb-1">Summa (€)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={form.amount}
-            onChange={(e) => setForm({ ...form, amount: e.target.value })}
-            className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
-            required
-          />
-        </div>
+       {/* 🔹 Summa (€) */}
+<CustomInputField
+  id="amount"
+  label="Summa (€)"
+  type="number"
+  step="0.01"
+  value={form.amount}
+  onChange={(e) => setForm({ ...form, amount: e.target.value })}
+  
+/>
 
         {/* ALV */}
         <CustomSelect
@@ -222,16 +215,14 @@ export default function BookkeepingForm({
         />
       </div>
 
-      {/* Kuvaus */}
-      <div>
-        <label className="block text-sm text-gray-300 mb-1">Kuvaus</label>
-        <textarea
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
-          rows={3}
-        />
-      </div>
+      {/* 🔹 Kuvaus */}
+<CustomTextareaField
+  id="description"
+  label="Kuvaus"
+  value={form.description}
+  onChange={(e) => setForm({ ...form, description: e.target.value })}
+  rows={3}
+/>
 
       {/* Tosite */}
       <div>
@@ -249,8 +240,6 @@ export default function BookkeepingForm({
       </div>
 
       <div className="flex justify-end gap-4">
-        
-
         {/* 🔹 Peruuta */}
         <button
           type="button"
@@ -264,11 +253,11 @@ export default function BookkeepingForm({
         {/* 🔹 Tallenna */}
         <button
           type="submit"
-            disabled={loading}
+          disabled={loading}
           className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
                px-2 py-1.5 rounded-md transition disabled:opacity-50"
         >
-        Lisää tapahtuma
+          Lisää tapahtuma
         </button>
       </div>
     </form>

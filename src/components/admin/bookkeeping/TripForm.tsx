@@ -8,7 +8,6 @@ import DatePickerField from "@/components/common/DatePickerField";
 import CustomInputField from "@/components/common/CustomInputField";
 import CustomTextareaField from "@/components/common/CustomTextareaField";
 
-
 type TripFormData = {
   allowance: string; // Päiväraha
   date: string; // Päivämäärä
@@ -98,89 +97,88 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
       )}
 
       {/* 🔹 Päiväraha */}
-   <CustomSelect
-  label="Päiväraha"
-  value={form.allowance}
-  onChange={(val) => {
-    setForm({ ...form, allowance: val });
-    if (errors.allowance)
-      setErrors((prev) => ({ ...prev, allowance: "" }));
-  }}
-  options={[
-    { value: "", label: "Valitse..." },
-    { value: "full", label: "Kokopäiväraha 53€" },
-    { value: "half", label: "Osapäiväraha 24€" },
-    { value: "none", label: "Ei päivärahaa" },
-  ]}
-/>
-<FieldError message={errors.allowance} />
-
+      <CustomSelect
+        label="Päiväraha"
+        value={form.allowance}
+        onChange={(val) => {
+          setForm({ ...form, allowance: val });
+          if (errors.allowance)
+            setErrors((prev) => ({ ...prev, allowance: "" }));
+        }}
+        options={[
+          { value: "full", label: "Kokopäiväraha 53 €" },
+          { value: "half", label: "Osapäiväraha 24 €" },
+          { value: "none", label: "Ei päivärahaa" },
+        ]}
+        placeholder="Valitse päiväraha"
+      />
+      <FieldError message={errors.allowance} />
 
       {/* 🔹 Päivämäärä */}
-     <DatePickerField
-  label="Päivämäärä"
-  selected={form.date ? new Date(form.date) : null}
-  onChange={(date) =>
-    setForm({
-      ...form,
-      date: date ? date.toISOString().split("T")[0] : "",
-    })
-  }
-/>
-<FieldError message={errors.date} />
+      <DatePickerField
+        label="Päivämäärä"
+        selected={form.date ? new Date(form.date) : null}
+        onChange={(date) =>
+          setForm({
+            ...form,
+            date: date ? date.toISOString().split("T")[0] : "",
+          })
+        }
+      />
+      <FieldError message={errors.date} />
 
       {/* 🔹 Lähtöosoite ja määränpää */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-  <CustomInputField
-    id="startAddress"
-    label="Lähtöosoite"
-    value={form.startAddress}
-    onChange={(e) => {
-      setForm({ ...form, startAddress: e.target.value });
-      if (errors.startAddress)
-        setErrors((prev) => ({ ...prev, startAddress: "" }));
-    }}
-    placeholder="Esim. Kuopio"
-  />
+        <CustomInputField
+          id="startAddress"
+          label="Lähtöosoite"
+          value={form.startAddress}
+          onChange={(e) => {
+            setForm({ ...form, startAddress: e.target.value });
+            if (errors.startAddress)
+              setErrors((prev) => ({ ...prev, startAddress: "" }));
+          }}
+          placeholder="Esim. Kuopio"
+        />
 
-  <CustomInputField
-    id="endAddress"
-    label="Määränpää"
-    value={form.endAddress}
-    onChange={(e) => {
-      setForm({ ...form, endAddress: e.target.value });
-      if (errors.endAddress)
-        setErrors((prev) => ({ ...prev, endAddress: "" }));
-    }}
-    placeholder="Esim. Joensuu"
-  />
-</div>
-<FieldError message={errors.startAddress || errors.endAddress} />
+        <CustomInputField
+          id="endAddress"
+          label="Määränpää"
+          value={form.endAddress}
+          onChange={(e) => {
+            setForm({ ...form, endAddress: e.target.value });
+            if (errors.endAddress)
+              setErrors((prev) => ({ ...prev, endAddress: "" }));
+          }}
+          placeholder="Esim. Joensuu"
+        />
+      </div>
+      <FieldError message={errors.startAddress || errors.endAddress} />
 
       {/* 🔹 Kilometrit yhteensä */}
       <CustomInputField
-  id="kilometers"
-  label="Kilometrit yhteensä"
-  type="number"
-  step="0.1"
-  value={form.kilometers}
-  onChange={(e) => {
-    setForm({ ...form, kilometers: e.target.value });
-    if (errors.kilometers)
-      setErrors((prev) => ({ ...prev, kilometers: "" }));
-  }}
-  placeholder="Esim. 178.5"
-/>
-<FieldError message={errors.kilometers} />
+        id="kilometers"
+        label="Kilometrit yhteensä"
+        type="number"
+        step="0.1"
+        value={form.kilometers}
+        onChange={(e) => {
+          setForm({ ...form, kilometers: e.target.value });
+          if (errors.kilometers)
+            setErrors((prev) => ({ ...prev, kilometers: "" }));
+        }}
+        placeholder="Esim. 178.5"
+      />
+      <FieldError message={errors.kilometers} />
 
       {/* 🔹 Lisätiedot */}
       <CustomTextareaField
-  id="notes"
-  label="Lisätiedot"
-  value={form.notes}
-  onChange={(e) => setForm({ ...form, notes: e.target.value })}
-  placeholder="Lisätietoja matkasta..."
-/>
+        id="notes"
+        label="Lisätiedot"
+        value={form.notes}
+        onChange={(e) => setForm({ ...form, notes: e.target.value })}
+        placeholder="Lisätietoja matkasta..."
+      />
 
       {/* 🔹 Painikkeet */}
       <div className="flex justify-end gap-4 mt-6">
