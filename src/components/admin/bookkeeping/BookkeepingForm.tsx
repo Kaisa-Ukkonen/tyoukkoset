@@ -38,15 +38,15 @@ export default function BookkeepingForm({
   } | null>(null);
 
   const [form, setForm] = useState({
-  date: new Date(), // 🔹 tämän päivän päivämäärä oletuksena
-  description: "",
-  type: "meno",
-  account: "",
-  amount: "",
-  vatRate: "25.5",
-  paymentMethod: "",
-  receipt: null as File | null,
-});
+    date: new Date(), // 🔹 tämän päivän päivämäärä oletuksena
+    description: "",
+    type: "meno",
+    account: "",
+    amount: "",
+    vatRate: "25.5",
+    paymentMethod: "",
+    receipt: null as File | null,
+  });
 
   // 🔹 Hae tilit tietokannasta
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function BookkeepingForm({
     setNotification(null);
 
     const formData = new FormData();
-   formData.append("date", form.date.toISOString().split("T")[0]);
+    formData.append("date", form.date.toISOString().split("T")[0]);
     formData.append("description", form.description);
     formData.append("type", form.type);
     formData.append("account", form.account);
@@ -95,15 +95,15 @@ export default function BookkeepingForm({
         if (onSuccess) onSuccess(result.data || result);
 
         setForm({
-  date: new Date(), // palautetaan oletusarvo
-  description: "",
-  type: "meno",
-  account: "",
-  amount: "",
-  vatRate: "25.5",
-  paymentMethod: "",
-  receipt: null,
-});
+          date: new Date(), // palautetaan oletusarvo
+          description: "",
+          type: "meno",
+          account: "",
+          amount: "",
+          vatRate: "25.5",
+          paymentMethod: "",
+          receipt: null,
+        });
       } else {
         setNotification({
           type: "error",
@@ -144,14 +144,14 @@ export default function BookkeepingForm({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <DatePickerField
-  label="Päivämäärä"
-  selected={form.date}
-  onChange={(date) => {
-    if (!date) return;
-    setForm({ ...form, date });
-  }}
-/>
+        <DatePickerField
+          label="Päivämäärä"
+          selected={form.date}
+          onChange={(date) => {
+            if (!date) return;
+            setForm({ ...form, date });
+          }}
+        />
 
         {/* Tyyppi */}
         <CustomSelect
@@ -190,16 +190,15 @@ export default function BookkeepingForm({
           placeholder="Valitse maksutapa"
         />
 
-       {/* 🔹 Summa (€) */}
-<CustomInputField
-  id="amount"
-  label="Summa (€)"
-  type="number"
-  step="0.01"
-  value={form.amount}
-  onChange={(e) => setForm({ ...form, amount: e.target.value })}
-  
-/>
+        {/* 🔹 Summa (€) */}
+        <CustomInputField
+          id="amount"
+          label="Summa (€)"
+          type="number"
+          step="0.01"
+          value={form.amount}
+          onChange={(e) => setForm({ ...form, amount: e.target.value })}
+        />
 
         {/* ALV */}
         <CustomSelect
@@ -216,13 +215,13 @@ export default function BookkeepingForm({
       </div>
 
       {/* 🔹 Kuvaus */}
-<CustomTextareaField
-  id="description"
-  label="Kuvaus"
-  value={form.description}
-  onChange={(e) => setForm({ ...form, description: e.target.value })}
-  rows={3}
-/>
+      <CustomTextareaField
+        id="description"
+        label="Kuvaus"
+        value={form.description}
+        onChange={(e) => setForm({ ...form, description: e.target.value })}
+        rows={3}
+      />
 
       {/* Tosite */}
       <div>

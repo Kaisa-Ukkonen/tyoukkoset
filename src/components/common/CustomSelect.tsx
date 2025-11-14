@@ -73,9 +73,9 @@ export default function CustomSelect({
             leaveTo="opacity-0"
           >
             <ListboxOptions
-              className="absolute mt-1 max-h-52 w-full overflow-auto rounded-md bg-[#0a0a0a] 
-                         border border-yellow-400/50 text-sm shadow-lg ring-1 ring-black/30 
-                         focus:outline-none z-20"
+              className="listbox-scroll absolute mt-1 max-h-52 w-full overflow-auto rounded-md bg-[#0a0a0a]
+             border border-yellow-400/50 text-sm shadow-lg ring-1 ring-black/30
+             focus:outline-none z-20"
             >
               {options.map((option) => (
                 <ListboxOption
