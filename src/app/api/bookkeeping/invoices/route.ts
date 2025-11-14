@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-
-// 🔹 Yhteinen asiakas-select (käytetään kaikissa kohdissa)
+// 🔹 Asiakkaan kentät
 const customerSelect = {
   id: true,
   name: true,
@@ -12,22 +11,42 @@ const customerSelect = {
   address: true,
   zip: true,
   city: true,
-
 };
 
-// 🔹 Laskurivin tyyppi
+// 🔹 Laskurivi frontista
 type InvoiceLineInput = {
   productId?: number | null;
   description: string;
   quantity: number;
-  unitPrice: number; // veroton yksikköhinta
+  unitPrice: number;
   vatRate: number;
-  total?: number; // verollinen kokonaishinta
+  total?: number;
+  vatHandling: string;
+  vatCode?: string | null;
 };
 
-// ============================================================
-// 🔹 HAE kaikki laskut tai tietyn kontaktin laskut
-// ============================================================
+// 🔹 Muodosta laskurivit tallennusta varten
+const prepareLines = (lines: InvoiceLineInput[]) =>
+  lines.map((line) => {
+    const total =
+      line.total ??
+      line.unitPrice * line.quantity * (1 + line.vatRate / 100);
+
+    return {
+      productId: line.productId ?? null,
+      description: line.description,
+      quantity: line.quantity,
+      unitPrice: line.unitPrice,
+      vatRate: line.vatRate,
+      vatHandling: line.vatHandling ?? null,
+      vatCode: line.vatCode ?? null,
+      total,
+    };
+  });
+
+/* ============================================================
+   🔹 HAE LASKUT
+============================================================ */
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -36,76 +55,75 @@ export async function GET(req: Request) {
     const invoices = await prisma.invoice.findMany({
       where: contactId ? { customerId: Number(contactId) } : {},
       include: {
-        lines: {
-          include: { product: true },
-        },
+        lines: { include: { product: true } },
         customer: { select: customerSelect },
       },
       orderBy: { date: "desc" },
     });
 
     return NextResponse.json(invoices);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Virhe haettaessa laskuja:", error.message, error.stack);
-      return NextResponse.json(
-        { error: error.message || "Virhe haettaessa laskuja" },
-        { status: 500 }
-      );
-    }
-
-    console.error("Tuntematon virhe haettaessa laskuja:", error);
+  } catch (error) {
+    console.error("Virhe haettaessa laskuja:", error);
     return NextResponse.json(
-      { error: "Tuntematon virhe haettaessa laskuja" },
+      { error: "Virhe haettaessa laskuja" },
       { status: 500 }
     );
   }
 }
 
-// ============================================================
-// 🔹 LUO tai PÄIVITÄ lasku
-// ============================================================
+/* ============================================================
+   🔹 LUO TAI PÄIVITÄ LASKU
+============================================================ */
 export async function POST(req: Request) {
   try {
     const data = await req.json();
 
-    const prepareLines = (lines: InvoiceLineInput[], invoiceId?: number) =>
-      lines.map((line) => {
-        const netPrice = line.unitPrice;
-        const total = line.quantity * netPrice * (1 + line.vatRate / 100);
-
-        const baseLine = {
-          invoiceId: invoiceId ?? 0,
-          productId: line.productId ?? null,
-          description: line.description,
-          quantity: line.quantity,
-          unitPrice: netPrice,
-          vatRate: line.vatRate,
-          total,
-        };
-
-        return baseLine;
-      });
-
-    // 🔸 Päivitä olemassa oleva lasku
+    /* ============================================================
+       🔸 PÄIVITÄ OLEMASSA OLEVA LASKU
+    ============================================================ */
     if (data.id) {
-      await prisma.invoiceLine.deleteMany({ where: { invoiceId: data.id } });
+      const invoiceId = data.id;
 
+      // Poista vanhat rivit
+      await prisma.invoiceLine.deleteMany({ where: { invoiceId } });
+
+      // Lisää uudet rivit
       if (Array.isArray(data.lines) && data.lines.length > 0) {
-        const lines = prepareLines(data.lines, data.id);
+        const lines = prepareLines(data.lines).map((l) => ({
+          ...l,
+          invoiceId,
+        }));
+
         await prisma.invoiceLine.createMany({ data: lines });
       }
 
+      // Päivitä laskun metadata
       const updated = await prisma.invoice.update({
-        where: { id: data.id },
-        data: { /* ... päivitä kentät kuten ennen */ },
-        include: { lines: { include: { product: true } }, customer: { select: customerSelect } },
+        where: { id: invoiceId },
+        data: {
+          date: new Date(data.date),
+          dueDate: new Date(data.dueDate),
+          paymentTerm: data.paymentTerm,
+          customerId: data.customerId || null,
+          customCustomer: data.customCustomer || null,
+          notes: data.notes || "",
+          netAmount: data.netAmount,
+          vatAmount: data.vatAmount,
+          totalAmount: data.totalAmount,
+          status: data.status,
+        },
+        include: {
+          lines: { include: { product: true } },
+          customer: { select: customerSelect },
+        },
       });
 
       return NextResponse.json(updated);
     }
 
-    // 🔸 Luo uusi lasku
+    /* ============================================================
+       🔸 LUO UUSI LASKU
+    ============================================================ */
     const newInvoice = await prisma.invoice.create({
       data: {
         date: new Date(data.date),
@@ -117,10 +135,9 @@ export async function POST(req: Request) {
         netAmount: data.netAmount,
         vatAmount: data.vatAmount,
         totalAmount: data.totalAmount,
-        vatRate: data.vatRate,
         status: data.status || "DRAFT",
         lines: {
-          create: prepareLines(data.lines).map(({ invoiceId, ...rest }) => rest),
+          create: prepareLines(data.lines), // Prisma lisää invoiceId:n automaattisesti
         },
       },
       include: {
@@ -131,7 +148,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newInvoice);
   } catch (error) {
-    console.error("Virhe luotaessa tai päivittäessä laskua:", error);
+    console.error("Virhe tallennettaessa laskua:", error);
     return NextResponse.json(
       { error: "Virhe tallennettaessa laskua" },
       { status: 500 }
@@ -139,9 +156,9 @@ export async function POST(req: Request) {
   }
 }
 
-// ============================================================
-// 🔹 POISTA lasku
-// ============================================================
+/* ============================================================
+   🔹 POISTA LASKU
+============================================================ */
 export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();

@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ProductForm from "@/components/admin/bookkeeping/ProductForm";
-import ProductList from "@/components/admin/bookkeeping/ProductList";
+import ProductForm from "@/app/admin/bookkeeping/products/ProductForm";
+import ProductList from "@/app/admin/bookkeeping/products/ProductList";
 
 export default function ProductsPage() {
   const [showForm, setShowForm] = useState(false);

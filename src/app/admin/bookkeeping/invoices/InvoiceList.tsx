@@ -1,3 +1,5 @@
+//näyttää laskurivit valmiista laskuista, toimii vain listaus- ja tarkastelunäkymässä, EI vaikuta laskun luontiin
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,14 +7,12 @@ import React from "react";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import { useSearchParams } from "next/navigation";
 import { Trash2 } from "lucide-react";
+import type { InvoiceLine, Product } from "@prisma/client";
 
-type InvoiceLine = {
-  id: number;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  vatRate: number;
-  product?: { name: string } | null;
+type InvoiceLineExtended = InvoiceLine & {
+  vatHandling?: string | null;
+  vatCode?: string | null;
+  product?: Product | null;
 };
 
 type CustomerData = {
@@ -132,7 +132,7 @@ export default function InvoiceList({
   };
 
   return (
-    <div className="mt-6 mx-auto max-w-3xl overflow-x-auto border border-yellow-700/30 rounded-xl bg-black/30 shadow-[0_0_15px_rgba(0,0,0,0.4)]">
+    <div className="mt-6 mx-auto max-w-4xl overflow-x-auto border border-yellow-700/30 rounded-xl bg-black/30 shadow-[0_0_15px_rgba(0,0,0,0.4)]">
       <table className="w-full text-sm text-left text-gray-300">
         <thead className="bg-yellow-700/10 text-yellow-300 uppercase text-xs">
           <tr>
@@ -292,52 +292,51 @@ export default function InvoiceList({
                                 </tr>
                               </thead>
                               <tbody>
-                                {invoice.lines.map((line) => {
-                                  // 🔹 Lasketaan ALV-osuus (määrä huomioiden)
-                                  const vatAmount =
-                                    (line.unitPrice *
+                                {(() => {
+                                  const lines = (invoice.lines ??
+                                    []) as InvoiceLineExtended[];
+
+                                  return lines.map((line) => {
+                                    const vatAmount =
+                                      (line.unitPrice *
+                                        line.quantity *
+                                        line.vatRate) /
+                                      100;
+                                    const total =
+                                      line.unitPrice *
                                       line.quantity *
-                                      line.vatRate) /
-                                    100;
+                                      (1 + line.vatRate / 100);
 
-                                  // 🔹 Lasketaan rivin verollinen yhteissumma
-                                  const total =
-                                    line.quantity *
-                                    line.unitPrice *
-                                    (1 + line.vatRate / 100);
+                                    return (
+                                      <tr
+                                        key={line.id}
+                                        className="border-b border-yellow-700/20"
+                                      >
+                                        <td className="py-1 px-2">
+                                          {line.product?.name ||
+                                            line.description ||
+                                            "-"}
+                                        </td>
 
-                                  return (
-                                    <tr
-                                      key={line.id}
-                                      className="border-b border-yellow-700/20"
-                                    >
-                                      <td className="py-1 px-2">
-                                        {line.product?.name ||
-                                          line.description ||
-                                          "-"}
-                                      </td>
-                                      <td className="py-1 px-2">
-                                        {line.quantity}
-                                      </td>
-                                      {/* 🔹 A-hinta (veroton) */}
-                                      <td className="py-1 px-2">
-                                        {line.unitPrice.toFixed(2)} €
-                                      </td>
-                                      {/* 🔹 ALV-osuus */}
-                                      <td className="py-1 px-2">
-                                        {vatAmount.toFixed(2)} €
-                                      </td>
-                                      {/* 🔹 ALV % */}
-                                      <td className="py-1 px-2">
-                                        {line.vatRate.toFixed(1)}%
-                                      </td>
-                                      {/* 🔹 Yhteensä (sis. ALV) */}
-                                      <td className="py-1 px-2 text-right">
-                                        {total.toFixed(2)} €
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
+                                        <td className="py-1 px-2">
+                                          {line.quantity}
+                                        </td>
+                                        <td className="py-1 px-2">
+                                          {line.unitPrice.toFixed(2)} €
+                                        </td>
+                                        <td className="py-1 px-2">
+                                          {vatAmount.toFixed(2)} €
+                                        </td>
+                                        <td className="py-1 px-2">
+                                          {line.vatRate.toFixed(1)}%
+                                        </td>
+                                        <td className="py-1 px-2 text-right">
+                                          {total.toFixed(2)} €
+                                        </td>
+                                      </tr>
+                                    );
+                                  });
+                                })()}
                               </tbody>
                             </table>
                           </div>
@@ -345,6 +344,29 @@ export default function InvoiceList({
                           <p className="text-gray-400 italic">
                             Ei laskurivejä.
                           </p>
+                        )}
+                        {/* 🔹 ALV 0% selite näkyviin */}
+                        {invoice?.lines?.some(
+                          (l: InvoiceLineExtended) =>
+                            l.vatRate === 0 && l.vatHandling
+                        ) && (
+                          <div className="mt-3 text-sm text-gray-400 italic">
+                            ALV 0% syy:{" "}
+                            <span className="text-yellow-400 font-semibold">
+                              {(() => {
+                                const firstLine = invoice
+                                  .lines[0] as InvoiceLineExtended;
+                                return (
+                                  <>
+                                    {firstLine?.vatHandling}
+                                    {firstLine?.vatCode
+                                      ? ` (${firstLine.vatCode})`
+                                      : ""}
+                                  </>
+                                );
+                              })()}
+                            </span>
+                          </div>
                         )}
 
                         <a

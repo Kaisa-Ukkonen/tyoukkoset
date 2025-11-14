@@ -5,9 +5,9 @@ import { registerLocale } from "react-datepicker";
 import { fi } from "date-fns/locale";
 registerLocale("fi", fi);
 
-import StandupForm from "@/components/admin/standup/StandupForm";
+import StandupForm from "@/app/admin/standup/StandupForm";
 
-import StandupList from "@/components/admin/standup/StandupList";
+import StandupList from "@/app/admin/standup/StandupList";
 import ConfirmModal from "@/components/common/ConfirmModal";
 
 type Gig = {
@@ -249,6 +249,7 @@ export default function AdminStandupPage() {
           startEditing={startEditing}
           handleUpdate={handleUpdate}
           setDeleteId={setDeleteId}
+          setEditingGig={setEditingGig}
         />
       )}
 

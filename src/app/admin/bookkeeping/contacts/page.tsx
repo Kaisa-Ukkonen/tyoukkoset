@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ContactForm from "@/components/admin/bookkeeping/ContactForm";
-import ContactList from "@/components/admin/bookkeeping/ContactList";
+import ContactForm from "@/app/admin/bookkeeping/contacts/ContactForm";
+import ContactList from "@/app/admin/bookkeeping/contacts/ContactList";
 
 export default function ContactsPage() {
   const [showForm, setShowForm] = useState(false);

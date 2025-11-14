@@ -165,7 +165,6 @@ model InvoiceLine {
   invoiceId   Int
   invoice     Invoice   @relation(fields: [invoiceId], references: [id])
 
-  // Tuote/palvelu
   productId   Int?
   product     Product?  @relation(fields: [productId], references: [id])
 
@@ -173,5 +172,9 @@ model InvoiceLine {
   quantity    Float      @default(1)
   unitPrice   Float      @default(0)
   vatRate     Float      @default(24)
+
+  vatHandling String?    // ⭐ UUSI
+  vatCode     String?    // ⭐ UUSI
+
   total       Float      @default(0)
 }

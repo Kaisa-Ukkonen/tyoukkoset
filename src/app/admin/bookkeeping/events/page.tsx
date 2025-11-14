@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import BookkeepingForm from "@/components/admin/bookkeeping/BookkeepingForm";
-import BookkeepingList from "@/components/admin/bookkeeping/BookkeepingList";
+import BookkeepingForm from "@/app/admin/bookkeeping/events/BookkeepingForm";
+import BookkeepingList from "@/app/admin/bookkeeping/events/BookkeepingList";
 
 type Entry = {
   id: number;

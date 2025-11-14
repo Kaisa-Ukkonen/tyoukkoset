@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import TripForm from "@/components/admin/bookkeeping/TripForm";
-import TripList from "@/components/admin/bookkeeping/TripList";
+import TripForm from "@/app/admin/bookkeeping/trips/TripForm";
+import TripList from "@/app/admin/bookkeeping/trips/TripList";
 
 export default function TripsPage() {
   const [showForm, setShowForm] = useState(false);

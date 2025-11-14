@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import CustomSelect from "@/components/common/CustomSelect";
+import CustomInputField from "@/components/common/CustomInputField";
 import { MoreVertical } from "lucide-react";
 import React from "react";
 
@@ -15,7 +17,8 @@ type Product = {
   vatRate: number;
   vatIncluded: boolean;
   description?: string;
-  quantity?: number; // 🔹 Varastosaldo (vain tuotteille)
+  quantity?: number;
+  vatHandling: string; // 🔹 Varastosaldo (vain tuotteille)
 };
 
 export default function ProductList({
@@ -28,7 +31,8 @@ export default function ProductList({
   const [products, setProducts] = useState<Product[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<Partial<Product>>({});
+  type EditableProduct = Omit<Product, "price"> & { price: string | number };
+  const [editForm, setEditForm] = useState<Partial<EditableProduct>>({});
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
@@ -90,10 +94,20 @@ export default function ProductList({
   // 🔹 Tallenna muokattu tuote
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const payload = {
+      ...editForm,
+      price: editForm.price === "" ? 0 : parseFloat(editForm.price as string),
+      quantity: Number(editForm.quantity),
+      vatRate: Number(editForm.vatRate),
+      hours: Number(editForm.hours),
+      minutes: Number(editForm.minutes),
+    };
+
     const res = await fetch("/api/bookkeeping/products", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editForm),
+      body: JSON.stringify(payload),
     });
 
     if (res.ok) {
@@ -120,17 +134,18 @@ export default function ProductList({
           <tr className="border-b border-yellow-700/40 text-yellow-400 text-left">
             <th className="py-2 px-3">Nimi</th>
             <th className="py-2 px-3">Tuotekoodi</th>
-            <th className="py-2 px-3 text-right">Varastosaldo</th>
+            <th className="py-2 px-3 text-right">Saldo</th>
             <th className="py-2 px-3 text-right">
               Kappalehinta <br />
               <span className="text-xs ">(sis. ALV)</span>
             </th>
             <th className="py-2 px-3 text-right">Veroton hinta</th>
-            <th className="py-2 px-3 text-right">ALV-osuus (25.5%)</th>
+            <th className="py-2 px-3 text-right">ALV-osuus</th>
+            <th className="py-2 px-3">ALV-käsittely</th>
+            <th className="py-2 px-3 text-right">ALV-kanta</th>
             <th className="py-2 px-3 text-right text-yellow-400">
-              Varaston arvo (€)
+              Varaston arvo
             </th>
-            <th className="py-2 px-3 text-center">Toiminnot</th>
           </tr>
         ) : (
           // 🔸 PALVELUT (vanha näkymä säilyy)
@@ -142,37 +157,39 @@ export default function ProductList({
               Kokonaishinta <br />
               <span className="text-xs">(sis. ALV)</span>
             </th>
-            <th className="py-2 px-3 text-right">Veroton hinta (€)</th>
-            <th className="py-2 px-3 text-right">ALV-osuus (€)</th>
-            <th className="py-2 px-3 text-right">ALV-kanta (%)</th>
+            <th className="py-2 px-3 text-right">Veroton hinta</th>
+            <th className="py-2 px-3 text-right">ALV-osuus</th>
+            <th className="py-2 px-3">ALV-käsittely</th>
+            <th className="py-2 px-3 text-right">ALV-kanta</th>
             <th className="py-2 px-3">Kuvaus</th>
-            <th className="py-2 px-3 text-center">Toiminnot</th>
           </tr>
         )}
       </thead>
 
       <tbody>
         {list.map((p) => {
-          // 🔹 Lasketaan yhteiset arvot
-          const veroton = p.vatIncluded
+          const isVerollinen = p.vatHandling === "Kotimaan verollinen myynti";
+
+          const veroton = isVerollinen
             ? p.price / (1 + p.vatRate / 100)
             : p.price;
-          const vero = p.vatIncluded
-            ? p.price - veroton
-            : veroton * (p.vatRate / 100);
+
+          const vero = isVerollinen ? p.price - veroton : 0;
           const kokonaishinta = p.vatIncluded ? p.price : veroton + vero;
           const varastonArvo = showStock ? (p.quantity || 0) * p.price : 0;
 
           return (
             <React.Fragment key={p.id}>
               <tr className="border-b border-gray-800 hover:bg-yellow-700/10 transition">
-                {/* --- Nimi ja tuotekoodi --- */}
+                {/* --- Nimi --- */}
                 <td className="py-2 px-3 text-yellow-300 font-medium">
                   {p.name}
                 </td>
+
+                {/* --- Tuotekoodi --- */}
                 <td className="py-2 px-3 text-gray-300">{p.code}</td>
 
-                {/* --- Palvelu: kesto --- */}
+                {/* --- Palvelun kesto (vain palvelut) --- */}
                 {!showStock && (
                   <td className="py-2 px-3 text-gray-300">
                     {p.hours ? `${p.hours}h` : ""}
@@ -180,7 +197,7 @@ export default function ProductList({
                   </td>
                 )}
 
-                {/* --- Tuote: varastosaldo --- */}
+                {/* --- Tuotteen saldo (vain tuotteet) --- */}
                 {showStock && (
                   <td className="py-2 px-3 text-right text-gray-300">
                     {p.quantity ?? 0}{" "}
@@ -188,31 +205,40 @@ export default function ProductList({
                   </td>
                 )}
 
-                {/* --- Hinnat --- */}
+                {/* --- Kappalehinta / Kokonaishinta --- */}
                 <td className="py-2 px-3 text-right">
                   {kokonaishinta.toFixed(2)} €
                 </td>
+
+                {/* --- Veroton hinta --- */}
                 <td className="py-2 px-3 text-right text-gray-300">
                   {veroton.toFixed(3)} €
                 </td>
+
+                {/* --- ALV-osuus --- */}
                 <td className="py-2 px-3 text-right text-gray-300">
                   {vero.toFixed(3)} €
                 </td>
 
-                {/* --- Palvelu: ALV-kanta ja kuvaus --- */}
-                {!showStock && (
-                  <>
-                    <td className="py-2 px-3 text-right">{p.vatRate} %</td>
-                    <td className="py-2 px-3 text-gray-400">
-                      {p.description || "-"}
-                    </td>
-                  </>
-                )}
+                {/* --- ALV-käsittely --- */}
+                <td className="py-2 px-3 text-gray-300">{p.vatHandling}</td>
 
-                {/* --- Tuote: Varaston arvo --- */}
+                {/* --- ALV-kanta (%) --- */}
+                <td className="py-2 px-3 text-right text-gray-300">
+                  {p.vatRate} %
+                </td>
+
+                {/* --- Varaston arvo (vain tuotteet) --- */}
                 {showStock && (
                   <td className="py-2 px-3 text-right text-yellow-400 font-semibold">
                     {varastonArvo.toFixed(2)} €
+                  </td>
+                )}
+
+                {/* --- Kuvaus (vain palvelut) --- */}
+                {!showStock && (
+                  <td className="py-2 px-3 text-gray-400">
+                    {p.description || "-"}
                   </td>
                 )}
 
@@ -261,155 +287,147 @@ export default function ProductList({
                 <tr className="bg-black/60 border-t border-yellow-800/30">
                   <td colSpan={showStock ? 9 : 8} className="p-4">
                     <form
-                      onSubmit={handleUpdate}
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleUpdate(e);
+                      }}
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm"
                     >
-                      {/* 🔹 Otsikko */}
+                      {/* ---------------- Otsikko ---------------- */}
                       <div className="col-span-full border-b border-yellow-700/30 pb-2 mb-2">
                         <h4 className="text-yellow-400 font-semibold text-center">
                           {showStock ? "Muokkaa tuotetta" : "Muokkaa palvelua"}
                         </h4>
                       </div>
 
-                      {/* 🔸 Nimi */}
-                      <div>
-                        <label className="block text-gray-400 text-xs mb-1">
-                          Nimi
-                        </label>
-                        <input
-                          type="text"
-                          value={editForm.name || ""}
-                          onChange={(e) =>
-                            setEditForm({ ...editForm, name: e.target.value })
-                          }
-                          placeholder="Tuotteen tai palvelun nimi"
-                          className="w-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white focus:border-yellow-400 focus:outline-none"
-                        />
-                      </div>
+                      {/* ---------------- Nimi ---------------- */}
+                      <CustomInputField
+                        id="edit-name"
+                        label="Nimi"
+                        value={editForm.name || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, name: e.target.value })
+                        }
+                      />
 
-                      {/* 🔸 Tuotekoodi */}
-                      <div>
-                        <label className="block text-gray-400 text-xs mb-1">
-                          Tuotekoodi
-                        </label>
-                        <input
-                          type="text"
-                          value={editForm.code || ""}
-                          onChange={(e) =>
-                            setEditForm({ ...editForm, code: e.target.value })
-                          }
-                          placeholder="Koodi"
-                          className="w-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white focus:border-yellow-400 focus:outline-none"
-                        />
-                      </div>
+                      {/* ---------------- Tuotekoodi ---------------- */}
+                      <CustomInputField
+                        id="edit-code"
+                        label="Tuotekoodi"
+                        value={editForm.code || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, code: e.target.value })
+                        }
+                      />
 
-                      {/* 🔸 Palvelu: kesto (tunnit/minuutit) */}
+                      {/* ---------------- Palvelu: Kesto ---------------- */}
                       {!showStock && (
-                        <div className="flex gap-2 col-span-full">
-                          <div className="w-1/2">
-                            <label className="block text-gray-400 text-xs mb-1">
-                              Tunnit
-                            </label>
-                            <input
-                              type="number"
-                              value={editForm.hours?.toString() || ""}
-                              onChange={(e) =>
-                                setEditForm({
-                                  ...editForm,
-                                  hours: parseInt(e.target.value) || 0,
-                                })
-                              }
-                              placeholder="h"
-                              className="w-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white focus:border-yellow-400"
-                            />
-                          </div>
-                          <div className="w-1/2">
-                            <label className="block text-gray-400 text-xs mb-1">
-                              Minuutit
-                            </label>
-                            <input
-                              type="number"
-                              value={editForm.minutes?.toString() || ""}
-                              onChange={(e) =>
-                                setEditForm({
-                                  ...editForm,
-                                  minutes: parseInt(e.target.value) || 0,
-                                })
-                              }
-                              placeholder="min"
-                              className="w-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white focus:border-yellow-400"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 🔸 Tuote: varasto */}
-                      {showStock && (
-                        <div>
-                          <label className="block text-gray-400 text-xs mb-1">
-                            Varastosaldo (kpl)
-                          </label>
-                          <input
+                        <div className="col-span-full flex gap-3">
+                          <CustomInputField
+                            id="edit-hours"
                             type="number"
-                            value={editForm.quantity?.toString() || ""}
+                            label="Tunnit"
+                            value={editForm.hours?.toString() || ""}
                             onChange={(e) =>
                               setEditForm({
                                 ...editForm,
-                                quantity: parseInt(e.target.value) || 0,
+                                hours: parseInt(e.target.value) || 0,
                               })
                             }
-                            placeholder="Varasto"
-                            className="w-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white focus:border-yellow-400"
+                          />
+                          <CustomInputField
+                            id="edit-minutes"
+                            type="number"
+                            label="Minuutit"
+                            value={editForm.minutes?.toString() || ""}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                minutes: parseInt(e.target.value) || 0,
+                              })
+                            }
                           />
                         </div>
                       )}
 
-                      {/* 🔸 Hinta */}
-                      <div>
-                        <label className="block text-gray-400 text-xs mb-1">
-                          Kokonaishinta sis. ALV (€)
-                        </label>
-                        <input
+                      {/* ---------------- Tuote: Varasto ---------------- */}
+                      {showStock && (
+                        <CustomInputField
+                          id="edit-quantity"
                           type="number"
-                          value={editForm.price?.toString() || ""}
+                          label="Varastosaldo (kpl)"
+                          value={editForm.quantity?.toString() || ""}
                           onChange={(e) =>
                             setEditForm({
                               ...editForm,
-                              price: parseFloat(e.target.value) || 0,
+                              quantity: parseInt(e.target.value) || 0,
                             })
                           }
-                          placeholder="Hinta"
-                          className="w-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white focus:border-yellow-400"
                         />
-                      </div>
+                      )}
 
-                      {/* 🔸 ALV */}
-                      <div>
-                        <label className="block text-gray-400 text-xs mb-1">
-                          ALV-kanta (%)
-                        </label>
-                        <input
-                          type="number"
-                          value={editForm.vatRate?.toString() || ""}
-                          onChange={(e) =>
+                      {/* ---------------- Hinta (2 desimaalia, pilkku sallittu) ---------------- */}
+                      <CustomInputField
+                        id="edit-price"
+                        label="Kokonaishinta (€)"
+                        type="text"
+                        value={String(editForm.price ?? "")}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === "")
+                            return setEditForm({ ...editForm, price: "" });
+
+                          if (/^\d*([.,]\d{0,2})?$/.test(val)) {
                             setEditForm({
                               ...editForm,
-                              vatRate: parseFloat(e.target.value) || 0,
-                            })
+                              price: val.replace(",", "."),
+                            });
                           }
-                          placeholder="25.5"
-                          className="w-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white focus:border-yellow-400"
-                        />
-                      </div>
+                        }}
+                      />
 
-                      {/* 🔸 Kuvaus vain palveluille */}
+                      {/* ---------------- ALV-käsittely ---------------- */}
+                      <CustomSelect
+                        label="ALV-käsittely"
+                        value={
+                          editForm.vatHandling || "Kotimaan verollinen myynti"
+                        }
+                        onChange={(value) =>
+                          setEditForm({ ...editForm, vatHandling: value })
+                        }
+                        options={[
+                          {
+                            value: "Kotimaan verollinen myynti",
+                            label: "Kotimaan verollinen myynti",
+                          },
+                          { value: "Veroton", label: "Veroton" },
+                          {
+                            value: "Nollaverokannan myynti",
+                            label: "Nollaverokannan myynti",
+                          },
+                        ]}
+                      />
+
+                      {/* ---------------- ALV-kanta (%) ---------------- */}
+                      <CustomInputField
+                        id="edit-vatRate"
+                        type="number"
+                        label="ALV-kanta (%)"
+                        value={editForm.vatRate?.toString() || ""}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            vatRate: parseFloat(e.target.value) || 0,
+                          })
+                        }
+                      />
+
+                      {/* ---------------- Kuvaus (vain palvelu) ---------------- */}
                       {!showStock && (
                         <div className="col-span-full">
-                          <label className="block text-gray-400 text-xs mb-1">
-                            Kuvaus
-                          </label>
-                          <input
-                            type="text"
+                          <CustomInputField
+                            id="edit-description"
+                            label="Kuvaus"
                             value={editForm.description || ""}
                             onChange={(e) =>
                               setEditForm({
@@ -417,27 +435,28 @@ export default function ProductList({
                                 description: e.target.value,
                               })
                             }
-                            placeholder="Kuvaus"
-                            className="w-full bg-black/40 border border-yellow-700/50 rounded-md px-3 py-2 text-white focus:border-yellow-400"
                           />
                         </div>
                       )}
 
-                      {/* 🔹 Napit */}
-                      <div className="col-span-full flex justify-center gap-3 mt-3">
+                      {/* ---------------- Napit ---------------- */}
+                      <div className="col-span-full flex justify-end gap-3 mt-3">
                         <button
                           type="submit"
-                          className="bg-yellow-600 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded-md transition"
+                          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-6 py-2 rounded-md transition"
                         >
                           Tallenna
                         </button>
+
                         <button
                           type="button"
                           onClick={() => {
                             setEditingId(null);
                             setEditingCategory(null);
                           }}
-                          className="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-md transition"
+                          className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 
+                     border border-yellow-700/40 font-semibold 
+                     px-6 py-2 rounded-md transition"
                         >
                           Peruuta
                         </button>
@@ -452,33 +471,33 @@ export default function ProductList({
       </tbody>
 
       {/* 🔹 Varaston kokonaisarvo yhteenveto */}
-      {showStock && list.length > 0 && (
-        <tfoot>
-          <tr className="border-t border-yellow-700/40 bg-black/50">
-            <td
-              colSpan={6}
-              className="py-3 px-4 text-right text-gray-300 font-semibold"
-            >
-              Varaston kokonaisarvo:
-            </td>
-            <td className="py-3 px-4 text-right text-yellow-400 font-bold">
-              {list
-                .reduce((sum, p) => sum + p.price * (p.quantity || 0), 0)
-                .toFixed(2)}{" "}
-              €
-            </td>
-            <td></td>
-          </tr>
-        </tfoot>
-      )}
+{showStock && list.length > 0 && (
+  <tfoot>
+    <tr className="border-t border-yellow-700/40 bg-black/50">
+      {/* Teksti vasemmalle – vie kaikki muut sarakkeet paitsi viimeisen */}
+      <td
+        colSpan={8}
+        className="py-3 px-4 text-right text-gray-300 font-semibold"
+      >
+        Varaston kokonaisarvo:
+      </td>
+
+      {/* Summa viimeiseen sarakkeeseen */}
+      <td className="py-3 px-4 text-right text-yellow-400 font-bold">
+        {list
+          .reduce((sum, p) => sum + p.price * (p.quantity || 0), 0)
+          .toFixed(2)}{" "}
+        €
+      </td>
+    </tr>
+  </tfoot>
+)}
     </table>
   );
 
   // 🔹 Varsinainen renderöinti
   return (
     <div className="max-w-4xl mx-auto mt-6 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
-
-
       {/* PALVELUT */}
       <h3 className="text-yellow-400 text-lg mt-6 mb-2">Palvelut</h3>
       {services.length === 0 ? (

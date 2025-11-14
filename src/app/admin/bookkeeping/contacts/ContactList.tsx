@@ -5,7 +5,7 @@ import ConfirmModal from "@/components/common/ConfirmModal";
 
 import { Edit, Trash2 } from "lucide-react";
 import CustomInputField from "@/components/common/CustomInputField";
-import ContactEvents from "@/components/admin/bookkeeping/ContactEvents";
+import ContactEvents from "@/app/admin/bookkeeping/contacts/ContactEvents";
 
 type Contact = {
   id: number;

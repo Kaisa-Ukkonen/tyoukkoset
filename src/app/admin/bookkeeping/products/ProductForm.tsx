@@ -4,7 +4,6 @@ import CustomSelect from "@/components/common/CustomSelect";
 import FieldError from "@/components/common/FieldError";
 import CustomInputField from "@/components/common/CustomInputField";
 
-
 type Product = {
   id?: number;
   name: string;
@@ -13,10 +12,11 @@ type Product = {
   hours?: number;
   minutes?: number;
   quantity?: number;
-  price: number;
+  price: number | string;
   vatRate: number;
   vatIncluded: boolean;
   description?: string;
+  vatHandling: string;
 };
 
 export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
@@ -27,10 +27,11 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
     hours: 0,
     minutes: 0,
     quantity: 0,
-    price: 0,
+    price: "",
     vatRate: 25.5,
     vatIncluded: true,
     description: "",
+    vatHandling: "Kotimaan verollinen myynti",
   });
 
   const [message, setMessage] = useState<string | null>(null);
@@ -43,7 +44,11 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
     if (!form.name.trim()) newErrors.name = "Anna tuotteen nimi";
     if (!form.category)
       newErrors.category = "Valitse tyyppi (tuote tai palvelu)";
-    if (!form.price || form.price <= 0) newErrors.price = "Anna hinta euroina";
+    const priceNum = parseFloat(form.price.toString());
+
+    if (isNaN(priceNum) || priceNum <= 0) {
+      newErrors.price = "Anna hinta euroina";
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -51,8 +56,6 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
     }
 
     setErrors({});
-    setMessage(null);
-
     setMessage(null);
 
     try {
@@ -65,7 +68,10 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
           minutes: parseInt(form.minutes?.toString() || "0"),
           quantity: parseInt(form.quantity?.toString() || "0"),
           price: parseFloat(form.price.toString()),
-          vatRate: parseFloat(form.vatRate.toString()),
+          vatRate:
+            form.vatHandling === "Kotimaan verollinen myynti"
+              ? parseFloat(form.vatRate.toString())
+              : 0, // 🔥 UUSI: jos veroton → ALV 0 %
         }),
       });
 
@@ -82,6 +88,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
           vatRate: 25.5,
           vatIncluded: true,
           description: "",
+          vatHandling: "Kotimaan verollinen myynti",
         });
         onSuccess();
       } else {
@@ -106,7 +113,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
       {message && <p className="text-center text-gray-300">{message}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* 🔹 Tuotteen nimi ja tuotekoodi */}
+        {/* 🔹 Tuotteen nimi */}
         <div>
           <CustomInputField
             id="name"
@@ -127,7 +134,25 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
           onChange={(e) => setForm({ ...form, code: e.target.value })}
         />
 
-        {/* 🔹 Kategoria (CustomSelect) */}
+        {/* 🔥 UUSI: ALV-käsittely */}
+        <CustomSelect
+          label="ALV-käsittely"
+          value={form.vatHandling}
+          onChange={(value) => setForm({ ...form, vatHandling: value })}
+          options={[
+            {
+              value: "Kotimaan verollinen myynti",
+              label: "Kotimaan verollinen myynti",
+            },
+            { value: "Veroton", label: "Veroton" },
+            {
+              value: "Nollaverokannan myynti",
+              label: "Nollaverokannan myynti",
+            },
+          ]}
+        />
+
+        {/* 🔹 Kategoria */}
         <div>
           <CustomSelect
             label="Tyyppi"
@@ -146,7 +171,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
           <FieldError message={errors.category} />
         </div>
 
-        {/* 🔹 ALV sisältyy hintaan - toggle */}
+        {/* 🔹 ALV sisältyy hintaan */}
         <div className="flex items-center gap-3">
           <label className="text-gray-300">ALV sisältyy hintaan</label>
           <button
@@ -164,35 +189,44 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
           </button>
         </div>
 
-        {/* 🔹 Hinta ja ALV */}
-        <div>
-          <label className="block text-sm text-gray-300 mb-1"></label>
-          <CustomInputField
-            id="price"
-            label="Kokonaishinta (sis. ALV)"
-            type="number"
-            step="0.01"
-            value={form.price === 0 ? "" : form.price.toString()}
-            onChange={(e) => {
-              setForm({ ...form, price: parseFloat(e.target.value) || 0 });
-              if (errors.price) setErrors((prev) => ({ ...prev, price: "" }));
-            }}
-          />
-          <FieldError message={errors.price} />
-        </div>
+        {/* 🔹 Hinta */}
+        <CustomInputField
+          id="price"
+          label="Kokonaishinta (€)"
+          type="text"
+          value={form.price === 0 ? "" : form.price.toString()}
+          onChange={(e) => {
+            const val = e.target.value;
 
-        {/* 🔹 ALV-valikko (CustomSelect) */}
-        <CustomSelect
-          label="ALV (%)"
-          value={form.vatRate.toString()}
-          onChange={(val) => setForm({ ...form, vatRate: parseFloat(val) })}
-          options={[
-            { value: "25.5", label: "25.5 %" },
-            { value: "14", label: "14 %" },
-            { value: "10", label: "10 %" },
-            { value: "0", label: "0 %" },
-          ]}
+            // Tyhjä sallitaan
+            if (val === "") {
+              setForm({ ...form, price: "" });
+              return;
+            }
+
+            // Vain numerot + 0–2 desimaalia
+            if (/^\d*([.,]\d{0,2})?$/.test(val)) {
+              const formatted = val.replace(",", ".");
+              setForm({ ...form, price: formatted });
+            }
+          }}
         />
+        <FieldError message={errors.price} />
+
+        {/* 🔥 ALV % näkyy vain verolliselle */}
+        {form.vatHandling === "Kotimaan verollinen myynti" && (
+          <CustomSelect
+            label="ALV (%)"
+            value={form.vatRate.toString()}
+            onChange={(val) => setForm({ ...form, vatRate: parseFloat(val) })}
+            options={[
+              { value: "25.5", label: "25.5 %" },
+              { value: "14", label: "14 %" },
+              { value: "10", label: "10 %" },
+              { value: "0", label: "0 %" },
+            ]}
+          />
+        )}
       </div>
 
       {/* 🔹 Kesto (vain palvelu) */}

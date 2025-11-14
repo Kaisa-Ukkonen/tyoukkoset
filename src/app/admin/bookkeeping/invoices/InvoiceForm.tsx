@@ -1,3 +1,5 @@
+//Laskun luonti, Laskun muokkaus, Laskurivien lisääminen / poistaminen, Tuotevalinnat ja hintalogiikka, Lopullinen tallennus backendille
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -19,6 +21,7 @@ type Product = {
   vatRate: number;
   netPrice?: number; // ✅ lisätty kenttä (veroton hinta)
   vatIncluded: boolean;
+  vatHandling: string;
 };
 
 type InvoiceLine = {
@@ -29,6 +32,8 @@ type InvoiceLine = {
   unitPrice: number;
   vatRate: number;
   total: number;
+  vatHandling: string;
+  vatCode?: string | null;
 };
 
 export type InvoiceLineData = InvoiceLine & {
@@ -97,7 +102,14 @@ export default function InvoiceForm({
       ...form,
       lines: [
         ...form.lines,
-        { description: "", quantity: 1, unitPrice: 0, vatRate: 0, total: 0 },
+        {
+          description: "",
+          quantity: 1,
+          unitPrice: 0,
+          vatRate: 0,
+          total: 0,
+          vatHandling: "Kotimaan verollinen myynti", // 🔥 LISÄÄ
+        },
       ],
     });
   };
@@ -111,11 +123,7 @@ export default function InvoiceForm({
   };
 
   // 🔹 Päivitä laskurivin tiedot ja summat
-  const updateLine = (
-    index: number,
-    updated: Partial<InvoiceLine>,
-    isGrossInput: boolean = false // 🔹 uusi valinnainen parametri
-  ) => {
+  const updateLine = (index: number, updated: Partial<InvoiceLine>) => {
     setForm((prev) => {
       const lines = [...prev.lines];
       lines[index] = { ...lines[index], ...updated };
@@ -125,25 +133,16 @@ export default function InvoiceForm({
       let grossTotal = 0;
 
       lines.forEach((l) => {
-        const product = products.find((p) => p.id === l.productId);
-        const vatIncluded = product?.vatIncluded ?? true;
+        const isVerollinen = l.vatHandling === "Kotimaan verollinen myynti";
 
-        // 🔹 jos käyttäjä syötti bruttosumman (Yhteensä € -kenttä)
-        // käytetään l.total sellaisenaan
-        const lineTotal = isGrossInput ? l.total : l.unitPrice * l.quantity;
+        const gross = l.total; // 🔹 käytä aina rivin total-arvoa
 
-        if (vatIncluded) {
-          const net = lineTotal / (1 + l.vatRate / 100);
-          const vat = lineTotal - net;
-          netTotal += net;
-          vatTotal += vat;
-          grossTotal += lineTotal;
-        } else {
-          const vat = (lineTotal * l.vatRate) / 100;
-          netTotal += lineTotal;
-          vatTotal += vat;
-          grossTotal += lineTotal + vat;
-        }
+        const net = isVerollinen ? gross / (1 + l.vatRate / 100) : gross;
+        const vat = isVerollinen ? gross - net : 0;
+
+        netTotal += net;
+        vatTotal += vat;
+        grossTotal += gross;
       });
 
       return {
@@ -169,7 +168,6 @@ export default function InvoiceForm({
     }
   }, [form.date, form.paymentTerm, form.dueDate]);
 
-  // 🔹 Lähetä lomake
   // 🔹 Lähetä lomake
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Estetään lomakkeen oletustoiminto heti alussa
@@ -199,6 +197,8 @@ export default function InvoiceForm({
         quantity: line.quantity,
         unitPrice: line.unitPrice,
         vatRate: line.vatRate,
+        vatHandling: line.vatHandling || null, // ⭐ uusi
+        vatCode: line.vatCode || null, // ⭐ uusi
         total: line.unitPrice * line.quantity,
       })),
     };
@@ -305,112 +305,137 @@ export default function InvoiceForm({
       </div>
 
       {/* 🔹 Laskurivit */}
+
       <div>
         <h3 className="text-yellow-400 font-semibold mb-2">Laskurivit</h3>
-        <div className="space-y-3">
+
+        <div className="space-y-4">
           {form.lines.map((line, index) => (
             <div
               key={index}
-              className="bg-black/30 p-3 rounded-md border border-yellow-700/30"
+              className="bg-black/40 p-4 rounded-lg border border-yellow-700/40 shadow"
             >
-              {/* 🔸 Ensimmäinen rivi: kentät */}
-              <div className="grid grid-cols-1 sm:grid-cols-6 gap-3 items-center">
-                {/* 🔹 Tuote */}
-                <div className="sm:col-span-2">
-                  <CustomSelect
-                    label="Tuote"
-                    value={line.productId ? String(line.productId) : ""}
-                    onChange={(value) => {
-                      const product = products.find(
-                        (p) => String(p.id) === value
-                      );
-                      if (!product) return;
+              {/* 🔶 Ylärivi */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Tuote */}
+                <CustomSelect
+                  label="Tuote"
+                  value={line.productId ? String(line.productId) : ""}
+                  onChange={(value) => {
+                    const product = products.find(
+                      (p) => String(p.id) === value
+                    );
+                    if (!product) return;
 
-                      const vatIncluded = product.vatIncluded;
-                      const unitPrice = vatIncluded
-                        ? product.price / (1 + product.vatRate / 100)
-                        : product.price;
+                    const vatIncluded = product.vatIncluded;
+                    const isVerollinen =
+                      product.vatHandling === "Kotimaan verollinen myynti";
 
-                      setForm((prev) => {
-                        const newLines = [...prev.lines];
-                        newLines[index] = {
-                          ...newLines[index],
-                          productId: product.id,
-                          description: product.name,
-                          unitPrice: unitPrice,
-                          vatRate: product.vatRate,
-                          total: vatIncluded
-                            ? product.price
-                            : product.price * (1 + product.vatRate / 100),
-                        };
+                    // 🔹 Lasketaan yksikköhinta Yhteensä-kenttää varten
+                    const unitPrice = vatIncluded
+                      ? product.price / (1 + product.vatRate / 100)
+                      : product.price;
 
-                        const net = newLines.reduce(
-                          (sum, l) => sum + l.unitPrice * l.quantity,
-                          0
-                        );
-                        const vat = newLines.reduce(
-                          (sum, l) =>
-                            sum + l.unitPrice * (l.vatRate / 100) * l.quantity,
-                          0
-                        );
-                        const total = net + vat;
+                    const total = vatIncluded
+                      ? product.price
+                      : product.price * (1 + product.vatRate / 100);
 
-                        return {
-                          ...prev,
-                          lines: newLines,
-                          netAmount: net,
-                          vatAmount: vat,
-                          totalAmount: total,
-                        };
-                      });
-                    }}
-                    options={products.map((p) => ({
-                      value: String(p.id),
-                      label: p.name,
-                    }))}
+                    updateLine(index, {
+                      productId: product.id,
+                      description: product.name,
+                      unitPrice: unitPrice,
+                      vatRate: isVerollinen ? product.vatRate : 0,
+                      total,
+                      vatHandling: product.vatHandling,
+                    });
+                  }}
+                  options={products.map((p) => ({
+                    value: String(p.id),
+                    label: p.name,
+                  }))}
+                />
+
+                <CustomSelect
+                  label="ALV-käsittely"
+                  value={line.vatHandling || "Kotimaan verollinen myynti"}
+                  onChange={(val) => {
+                    const isVerollinen = val === "Kotimaan verollinen myynti";
+                    updateLine(index, {
+                      vatHandling: val,
+                      vatRate: isVerollinen ? line.vatRate : 0,
+                      total: line.total,
+                      unitPrice: line.unitPrice,
+                    });
+                  }}
+                  options={[
+                    {
+                      value: "Kotimaan verollinen myynti",
+                      label: "Kotimaan verollinen myynti",
+                    },
+                    { value: "Veroton", label: "Veroton" },
+                    {
+                      value: "Nollaverokannan myynti",
+                      label: "Nollaverokannan myynti",
+                    },
+                  ]}
+                />
+
+                {/* ALV % (näkyy vain verollisessa) */}
+                {line.vatHandling === "Kotimaan verollinen myynti" && (
+                  <CustomInputField
+                    id={`vat-${index}`}
+                    label="ALV %"
+                    type="text"
+                    readOnly // 🔥 nyt käyttäjä ei voi muuttaa
+                    value={line.vatRate.toFixed(1) + " %"}
+                    onChange={() => {}} // 🔥 poistetaan muutokset
                   />
-                  {fieldErrors.product && (
-                    <FieldError message={fieldErrors.product} />
-                  )}
-                </div>
+                )}
+              </div>
 
-                {/* 🔹 Määrä (vain luettavissa) */}
+              {/* 🔶 Alarivi */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 items-end">
+                {/* Määrä */}
                 <CustomInputField
                   id={`qty-${index}`}
                   label="Määrä"
                   type="number"
                   value={line.quantity.toString()}
-                  onChange={() => {}}
-                  readOnly
+                  onChange={(e) => {
+                    const qty = Math.max(parseFloat(e.target.value) || 1, 1);
+
+                    const unit = line.unitPrice;
+                    const vatHandling = line.vatHandling;
+                    const isVerollinen =
+                      vatHandling === "Kotimaan verollinen myynti";
+
+                    const total = isVerollinen
+                      ? unit * qty * (1 + line.vatRate / 100)
+                      : unit * qty;
+
+                    updateLine(index, {
+                      quantity: qty,
+                      total,
+                    });
+                  }}
                 />
 
-                {/* 🔹 A-hinta (€) */}
+                {/* A-hinta (readOnly) */}
                 <CustomInputField
-                  id={`price-${index}`}
+                  id={`unit-${index}`}
                   label="A-hinta (€)"
                   type="text"
-                  value={Number(line.unitPrice).toFixed(2) + " €"}
-                  onChange={() => {}}
                   readOnly
+                  value={line.unitPrice.toFixed(2) + " €"}
+                  onChange={() => {}}
                 />
 
-                {/* 🔹 ALV % */}
-                <CustomInputField
-                  id={`vat-${index}`}
-                  label="ALV %"
-                  type="number"
-                  value={line.vatRate.toString()}
-                  onChange={() => {}}
-                  readOnly
-                />
-
-                {/* 🔹 Yhteensä (€) */}
+                {/* Yhteensä (muokattavissa) */}
                 <CustomInputField
                   id={`total-${index}`}
                   label="Yhteensä (€)"
                   type="number"
                   step="0.01"
-                  min="0"
                   value={line.total.toFixed(2)}
                   onChange={(e) => {
                     const newTotal = Math.max(
@@ -418,25 +443,61 @@ export default function InvoiceForm({
                       0
                     );
 
-                    const product = products.find(
-                      (p) => p.id === line.productId
-                    );
-                    const vatIncluded = product?.vatIncluded ?? true;
+                    const vatHandling = line.vatHandling;
+                    const isVerollinen =
+                      vatHandling === "Kotimaan verollinen myynti";
 
-                    let unitPrice = 0;
-                    if (vatIncluded) {
-                      unitPrice = newTotal / (1 + line.vatRate / 100);
-                    } else {
-                      unitPrice = newTotal;
-                    }
+                    const unitPrice = isVerollinen
+                      ? newTotal / (1 + line.vatRate / 100)
+                      : newTotal;
 
-                    updateLine(index, { total: newTotal, unitPrice }, true);
+                    updateLine(index, {
+                      total: newTotal,
+                      unitPrice,
+                    });
                   }}
                 />
-              </div>
+                {/* 🔹 Näytä ALV 0 % -syykoodi vain verottomille riveille */}
+                {line.vatHandling === "Veroton" && (
+                  <div className="col-span-full mt-2">
+                    <CustomSelect
+                      label="ALV 0 % -syy"
+                      value={line.vatCode || ""}
+                      onChange={(value) =>
+                        updateLine(index, { vatCode: value })
+                      }
+                      options={[
+                        {
+                          value: "AE",
+                          label: "AE – Kotimaan käännetty verovelvollisuus",
+                        },
+                        {
+                          value: "E",
+                          label: "E – Verosta vapautettu myynti",
+                        },
+                        {
+                          value: "G",
+                          label:
+                            "G – Kauppa kolmansien maiden yritysten kanssa",
+                        },
+                        {
+                          value: "K",
+                          label: "K – Tavaroiden ja palveluiden yhteisökauppa",
+                        },
+                        {
+                          value: "O",
+                          label: "O – Arvolisäveron ulkopuolinen myynti",
+                        },
+                        {
+                          value: "Z",
+                          label: "Z – Nollaverokannan alainen myynti",
+                        },
+                      ]}
+                    />
+                  </div>
+                )}
 
-              {/* 🔹 Toinen rivi: roskapönttö oikeassa reunassa */}
-              <div className="flex justify-end mt-2">
+                {/* Poista rivi */}
                 <button
                   type="button"
                   onClick={() => removeLine(index)}
@@ -449,6 +510,7 @@ export default function InvoiceForm({
           ))}
         </div>
 
+        {/* Lisää rivi */}
         <button
           type="button"
           onClick={addLine}
@@ -457,11 +519,10 @@ export default function InvoiceForm({
           <Plus size={18} /> Lisää rivi
         </button>
       </div>
-
       {/* 🔹 Yhteenveto */}
-      <div className="border-t border-yellow-700/30 pt-3 flex justify-end gap-10 text-sm text-gray-300">
+      <div className="border-t border-yellow-700/30 pt-3 flex justify-end gap-10 text-sm text-gray-300 mt-6">
         <div>
-          <span className="text-gray-400">Veroton: </span>
+          <span className="text-gray-400">Veroton hinta: </span>
           {form.netAmount.toFixed(2)} €
         </div>
         <div>
@@ -474,12 +535,12 @@ export default function InvoiceForm({
       </div>
 
       {/* 🔹 Toimintopainikkeet */}
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-end gap-4 mt-6">
         <button
           type="button"
           onClick={onCancel}
           className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 border border-yellow-700/40 
-               font-semibold px-8 py-2 rounded-md transition"
+         font-semibold px-8 py-2 rounded-md transition"
         >
           Peruuta
         </button>

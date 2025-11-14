@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import InvoiceList from "@/components/admin/bookkeeping/InvoiceList";
-import InvoiceForm from "@/components/admin/bookkeeping/InvoiceForm";
+import InvoiceList from "@/app/admin/bookkeeping/invoices/InvoiceList";
+import InvoiceForm from "@/app/admin/bookkeeping/invoices/InvoiceForm";
 import { useSearchParams } from "next/navigation";
 
 
@@ -31,7 +31,7 @@ useEffect(() => {
   return (
     <main className="p-6 text-gray-200">
       {/* 🔹 Keskitetään otsikko + haku + nappi saman leveyden sisään */}
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-4xl">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-2xl font-semibold text-yellow-400">Laskut</h1>
 
