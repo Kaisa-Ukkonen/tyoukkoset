@@ -42,24 +42,32 @@ enum Role {
   ADMIN
 }
 
-//Kirjanpito
+//Tilit
 model Account {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique // ✅ Tee tästä uniikki
-  type        String
-  description String?
-  createdAt   DateTime @default(now())
+  id             Int      @id @default(autoincrement())
 
-  entries BookkeepingEntry[]
+  number         Int      @default(0)     // tilinumero
+  name           String   @unique
+  type           String   @default("tulo")   // tulo/meno
+
+  instruction    String?
+  vatHandling    String   @default("Kotimaan verollinen myynti")
+  vatRate        Float    @default(0)
+  openingBalance Float    @default(0)
+
+  createdAt      DateTime @default(now())
+
+  entries        BookkeepingEntry[]
 }
 
+//Kirjanpito
 model BookkeepingEntry {
   id            Int      @id @default(autoincrement())
   date          DateTime // Maksupäivä
   description   String? // Kuvaus, esim. "Mikrofonin osto"
   type          String // "tulo" tai "meno"
   amount        Float // Bruttosumma (sis. alv)
-  vatRate       Float // ALV-prosentti (esim. 24, 14, 10, 0)
+  vatRate       Float // ALV-prosentti 
   vatAmount     Float // ALV euroina
   paymentMethod String? // "SumUp", "Käteinen", "Yrityskortti", "Yrittäjän maksu"
   receiptNumber String? // Esim. kuitti- tai laskunumero
