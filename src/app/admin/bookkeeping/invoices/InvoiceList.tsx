@@ -328,7 +328,9 @@ export default function InvoiceList({
                                           {vatAmount.toFixed(2)} €
                                         </td>
                                         <td className="py-1 px-2">
-                                          {line.vatRate.toFixed(1)}%
+                                          {line.vatRate % 1 === 0
+                                            ? `${line.vatRate} %`
+                                            : `${line.vatRate.toFixed(1)} %`}
                                         </td>
                                         <td className="py-1 px-2 text-right">
                                           {total.toFixed(2)} €
