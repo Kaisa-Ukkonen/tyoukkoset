@@ -18,17 +18,18 @@ export default function AccountsPage() {
   };
 
   return (
-    <main className="p-6 text-gray-200">
-      <div className="mx-auto max-w-4xl">
-        {/* 🔹 Otsikko + hakukenttä + nappi */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-          <h1
-            className={`text-2xl font-semibold text-yellow-400 tracking-wide ${showForm ? "ml-6" : ""}`}
-          >
-            Tililuettelo
-          </h1>
+    <main className="w-full text-gray-200 px-2 sm:px-4 lg:px-8">
+      <div className="w-full max-w-4xl mx-auto mb-6">
+        
+        {/* 🔹 Otsikko (keskitetty sisäalueeseen kuten laskut) */}
+        <h1 className="text-2xl font-semibold text-yellow-400 mb-4">
+          Tililuettelo
+        </h1>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+        {/* 🔹 Haku + nappi DESKTOP oikealle, mobiilissa pinottu */}
+        <div className="flex w-full justify-end">
+          <div className="flex w-full sm:w-auto items-center gap-2">
+
             {/* Hakukenttä */}
             <input
               type="text"
@@ -39,21 +40,41 @@ export default function AccountsPage() {
               disabled={showForm}
             />
 
-            {/* Lisää uusi tili */}
+            {/* Mobiilin pieni plus */}
             <button
               onClick={() => {
                 setFormAccountId(null);
                 setShowForm(true);
               }}
-              className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-1.5 rounded-md font-semibold"
+              className="
+                sm:hidden bg-yellow-600 text-black
+                w-10 h-10 rounded-md flex items-center justify-center
+                hover:bg-yellow-500 transition
+              "
+            >
+              +
+            </button>
+
+            {/* Desktop-nappi */}
+            <button
+              onClick={() => {
+                setFormAccountId(null);
+                setShowForm(true);
+              }}
+              className="
+                hidden sm:flex items-center gap-2
+                bg-yellow-600 hover:bg-yellow-500
+                text-black px-4 py-1 rounded-md font-semibold
+              "
             >
               <span className="text-lg">＋</span>
               Uusi tili
             </button>
+
           </div>
         </div>
 
-        {/* 🔹 Lomake tai lista */}
+        {/* 🔹 Lista tai lomake */}
         <AnimatePresence mode="wait">
           {showForm ? (
             <motion.div
@@ -89,6 +110,7 @@ export default function AccountsPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
       </div>
     </main>
   );

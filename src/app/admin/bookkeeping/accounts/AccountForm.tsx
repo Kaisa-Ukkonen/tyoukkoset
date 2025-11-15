@@ -193,6 +193,13 @@ export default function AccountForm({
             onChange={(value) => setForm({ ...form, vatRate: value })}
             options={vatRateOptions}
           />
+          {/* Alkusaldo */}
+          <CustomSelect
+            label="Alkusaldo"
+            value={form.type}
+            onChange={(value) => setForm({ ...form, type: value })}
+            options={typeOptions}
+          />
 
           {/* Kirjausohje */}
           <div>

@@ -130,10 +130,42 @@ export default function InvoiceList({
       console.error("Virhe poistettaessa laskua:", err);
     }
   };
+  // 🔹 Mobiilin hyväksymisnappi
+  const handleApproveMobile = async (
+    e: React.MouseEvent,
+    invoiceId: number
+  ) => {
+    e.stopPropagation();
+
+    try {
+      const res = await fetch(
+        `/api/bookkeeping/invoices/${invoiceId}/approve`,
+        {
+          method: "POST",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(`Virhe: ${data.error || data.message}`);
+        return;
+      }
+
+      // Päivitä näkymä
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert("Palvelinvirhe laskun hyväksynnässä.");
+    }
+  };
 
   return (
-    <div className="mt-6 mx-auto max-w-4xl overflow-x-auto border border-yellow-700/30 rounded-xl bg-black/30 shadow-[0_0_15px_rgba(0,0,0,0.4)]">
-      <table className="w-full text-sm text-left text-gray-300">
+    
+    <div
+    
+      className="mt-6 mx-auto w-full lg:max-w-4xl lg:border lg:border-yellow-700/30 lg:rounded-xl lg:bg-black/30 lg:shadow-[0_0_15px_rgba(0,0,0,0.4)]">
+      <table className="hidden lg:table w-full text-sm text-left text-gray-300">
         <thead className="bg-yellow-700/10 text-yellow-300 uppercase text-xs">
           <tr>
             <th className="px-4 py-3">Numero</th>
@@ -394,6 +426,16 @@ export default function InvoiceList({
                                 {notification.message}
                               </div>
                             )}
+                             {/* 🔴 Poista lasku */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setConfirmDelete(invoice.id);
+                              }}
+                              className="text-red-500 hover:text-red-400"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                             {/* 🟡 Hyväksy lasku */}
                             <button
                               onClick={async (e) => {
@@ -436,19 +478,10 @@ export default function InvoiceList({
                               }}
                               className="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-500 rounded-md text-black font-semibold transition"
                             >
-                              Hyväksy lasku
+                              Hyväksy
                             </button>
 
-                            {/* 🔴 Poista lasku */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setConfirmDelete(invoice.id);
-                              }}
-                              className="text-red-500 hover:text-red-400"
-                            >
-                              <Trash2 size={18} />
-                            </button>
+
                           </div>
                         )}
                       </div>
@@ -469,7 +502,205 @@ export default function InvoiceList({
           )}
         </tbody>
       </table>
+      {/* ────────────────────────────────────────────── */}
+      {/* MOBIILI KORTINÄKYMÄ (<640px)                 */}
+      {/* ────────────────────────────────────────────── */}
 
+      <div className="lg:hidden mt-6 space-y-4">
+        {filtered.length === 0 && (
+          <p className="text-gray-400 italic">Ei laskuja hakuehdoilla.</p>
+        )}
+
+        {filtered.map((invoice) => {
+          const isOpen = expandedInvoiceId === invoice.id;
+
+          return (
+            <div
+              key={invoice.id}
+              className="bg-black/60 border border-yellow-700/30 rounded-xl p-4 shadow-lg"
+            >
+              
+              {/* Yläosa — perustiedot */}
+              <div
+                className="flex justify-between items-start"
+                onClick={() => toggleExpand(invoice.id)}
+              >
+                <div>
+                  <p className="text-yellow-400 font-semibold text-lg">
+                    Lasku #{invoice.invoiceNumber}
+                  </p>
+
+                  <p className="text-gray-300 text-sm">
+                    {invoice.customCustomer || invoice.customer?.name || "—"}
+                  </p>
+
+                  <p className="text-gray-400 text-xs mt-1">
+                    {new Date(invoice.date).toLocaleDateString("fi-FI")} →{" "}
+                    {new Date(invoice.dueDate).toLocaleDateString("fi-FI")}
+                  </p>
+                </div>
+
+                <span
+                  className={`text-sm font-semibold ${
+                    invoice.status === "PAID"
+                      ? "text-green-400"
+                      : invoice.status === "APPROVED"
+                      ? "text-yellow-400"
+                      : invoice.status === "SENT"
+                      ? "text-yellow-300"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {invoice.status === "DRAFT"
+                    ? "Luonnos"
+                    : invoice.status === "SENT"
+                    ? "Lähetetty"
+                    : invoice.status === "PAID"
+                    ? "Maksettu"
+                    : invoice.status === "APPROVED"
+                    ? "Hyväksytty"
+                    : invoice.status}
+                </span>
+                
+              </div>
+
+              {/* Laajennettu näkymä */}
+              {isOpen && (
+                <div className="mt-4 border-t border-yellow-700/30 pt-4 space-y-4">
+                  {/* 🔹 Sulje-nappi – laajennetun laatikon yläreunaan */}
+<div className="flex justify-end -mt-2 -mb-2">
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      setExpandedInvoiceId(null);
+    }}
+    className="text-gray-400 hover:text-red-400 text-sm"
+  >
+    Sulje ×
+  </button>
+</div>
+                  {/* Asiakastiedot */}
+                  <div className="text-sm text-gray-300 space-y-1">
+                    {invoice.customer?.customerCode && (
+                      <p>
+                        <span className="text-yellow-400">
+                          {invoice.customer.type
+                            ?.toLowerCase()
+                            .includes("yksityis")
+                            ? "Asiakastunnus"
+                            : "Y-tunnus"}
+                          :
+                        </span>{" "}
+                        {invoice.customer.customerCode}
+                      </p>
+                      
+                    )}
+                    
+
+
+                    {invoice.customer?.email && (
+                      <p>
+                        <span className="text-yellow-400">Sähköposti:</span>{" "}
+                        {invoice.customer.email}
+                      </p>
+                    )}
+                    
+                  </div>
+                  
+
+                  {/* Laskurivit */}
+                  {invoice.lines && invoice.lines.length > 0 ? (
+                    <div className="space-y-3">
+                      {invoice.lines.map((line) => {
+                        const vatAmount =
+                          (line.unitPrice * line.quantity * line.vatRate) / 100;
+                        const total =
+                          line.unitPrice *
+                          line.quantity *
+                          (1 + line.vatRate / 100);
+
+                        return (
+                          <div
+                            key={line.id}
+                            className="border border-yellow-700/20 rounded-md p-3 text-sm"
+                          >
+                            <p className="text-yellow-400 font-semibold">
+                              {line.description || "-"}
+                            </p>
+
+                            <p>Määrä: {line.quantity}</p>
+                            <p>A-hinta: {line.unitPrice.toFixed(2)} €</p>
+                            <p>ALV-osuus: {vatAmount.toFixed(2)} €</p>
+                            <p>
+                              ALV:
+                              {line.vatRate % 1 === 0
+                                ? ` ${line.vatRate} %`
+                                : ` ${line.vatRate.toFixed(1)} %`}
+                            </p>
+
+                            <p className="font-semibold text-right mt-1">
+                              Yhteensä: {total.toFixed(2)} €
+                            </p>
+                          </div>
+                        );
+                      })}
+                      
+                    </div>
+                    
+                  ) : (
+                    <p className="text-gray-400 italic">Ei laskurivejä.</p>
+                  )}
+
+                  {/* ALV 0% syy */}
+                  {invoice.lines?.some(
+                    (l) => l.vatRate === 0 && l.vatHandling
+                  ) && (
+                    <p className="text-gray-400 text-sm italic">
+                      ALV 0% syy:{" "}
+                      <span className="text-yellow-400">
+                        {invoice.lines[0].vatHandling}
+                      </span>
+                    </p>
+                  )}
+
+                  {/* PDF-linkki */}
+                  <a
+                    href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
+                    target="_blank"
+                    className="text-yellow-400 hover:text-yellow-300 text-sm"
+                  >
+                    📄 Näytä PDF-lasku
+                  </a>
+
+                  {/* Toimintopainikkeet */}
+                  {invoice.status === "DRAFT" && (
+                    <div className="flex justify-end gap-4">
+                      {/* Poista */}
+                                                  <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setConfirmDelete(invoice.id);
+                              }}
+                              className="text-red-500 hover:text-red-400"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+
+                      {/* Hyväksy */}
+                      <button
+                        onClick={(e) => handleApproveMobile(e, invoice.id)}
+                        className="px-3 py-1 bg-yellow-600 hover:bg-yellow-500 text-black text-sm rounded-md"
+                      >
+                        Hyväksy
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
       <ConfirmModal
         show={!!confirmDelete}
         message="Haluatko varmasti poistaa tämän laskun?"

@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ProductForm from "@/app/admin/bookkeeping/products/ProductForm";
@@ -15,39 +16,61 @@ export default function ProductsPage() {
   };
 
   return (
-    <main className="p-6 text-gray-200">
-      <div className="mx-auto max-w-4xl">
-        {/* 🔹 Otsikko + Haku + Nappi samalle riville (Laskut-tyyli) */}
-        <div
-          className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 transition-all duration-500 ${
-            showForm ? "ml-28 sm:ml-28" : "ml-0"
-          }`}
-        >
-          <h1 className="text-2xl font-semibold text-yellow-400 tracking-wide">
-            Tuotteet ja palvelut
-          </h1>
+    <main className="w-full text-gray-200 px-2 sm:px-4 lg:px-8">
+      <div className="w-full max-w-4xl mx-auto mb-6">
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+        {/* 🔹 Otsikko */}
+        <h1 className="text-2xl font-semibold text-yellow-400 mb-4">
+          Tuotteet ja palvelut
+        </h1>
+
+        {/* 🔹 Haku + napit */}
+        <div className="flex w-full justify-end mb-4">
+          <div className="flex w-full sm:w-auto items-center gap-2">
+
+            {/* Hakukenttä */}
             <input
               type="text"
-              placeholder="🔍 Hae tuotteita..."
+              placeholder="Hae tuotteita..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-sm text-white w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-yellow-600 placeholder-gray-500"
+              className="
+                bg-black/40 border border-yellow-700/40 rounded-md 
+                px-3 py-2 text-sm text-white 
+                w-full sm:w-64
+              "
               disabled={showForm}
             />
 
+            {/* Mobiilin pieni plus */}
             <button
-              onClick={() => setShowForm(!showForm)}
-              className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-black px-3 py-1.5 rounded-md font-semibold transition-all duration-200 shadow-[0_0_10px_rgba(255,255,0,0.2)]"
+              onClick={() => setShowForm(true)}
+              className="
+                sm:hidden bg-yellow-600 text-black
+                w-10 h-10 rounded-md flex items-center justify-center
+                hover:bg-yellow-500 transition
+              "
+            >
+              +
+            </button>
+
+            {/* Desktop-nappi */}
+            <button
+              onClick={() => setShowForm(true)}
+              className="
+                hidden sm:flex items-center gap-2
+                bg-yellow-600 hover:bg-yellow-500
+                text-black px-4 py-1 rounded-md font-semibold
+              "
             >
               <span className="text-lg">＋</span>
               Lisää tuote
             </button>
+
           </div>
         </div>
 
-        {/* 🔹 Näytetään vain toinen kerrallaan */}
+        {/* 🔹 Lista tai lomake */}
         <AnimatePresence mode="wait">
           {showForm ? (
             <motion.div
@@ -67,10 +90,14 @@ export default function ProductsPage() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              <ProductList refreshKey={refreshKey} searchTerm={searchTerm} />
+              <ProductList 
+                refreshKey={refreshKey}
+                searchTerm={searchTerm}
+              />
             </motion.div>
           )}
         </AnimatePresence>
+
       </div>
     </main>
   );

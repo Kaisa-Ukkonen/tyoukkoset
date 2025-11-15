@@ -224,10 +224,7 @@ export default function InvoiceForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 mb-10 space-y-6"
-    >
+    <form onSubmit={handleSubmit} className="space-y-6">
       <h2 className="text-xl text-yellow-400 font-semibold">Uusi lasku</h2>
 
       {/* 🔹 Laskun perustiedot */}
@@ -547,9 +544,9 @@ export default function InvoiceForm({
 
         <button
           type="submit"
-          className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 rounded-md text-black font-semibold"
+          className="px-7 py-2 bg-yellow-600 hover:bg-yellow-500 rounded-md text-black font-semibold"
         >
-          Tallenna lasku
+          Tallenna
         </button>
       </div>
     </form>

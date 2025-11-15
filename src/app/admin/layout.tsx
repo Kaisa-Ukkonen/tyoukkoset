@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
+
 export default function AdminLayout({
   children,
 }: {
@@ -14,11 +15,14 @@ export default function AdminLayout({
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState(false);
 
+
+
   const links = [
     { name: "Dashboard", path: "/admin" },
     { name: "Tatuoinnit", path: "/admin/tattoos" },
     { name: "Stand Up", path: "/admin/standup" },
   ];
+  
 
   const bookkeepingLinks = [
     { label: "Etusivu", href: "/admin/bookkeeping" },
@@ -104,16 +108,17 @@ export default function AdminLayout({
               >
                 {bookkeepingLinks.map((item) => (
                   <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={`block px-4 py-2 text-sm transition ${
-                        pathname === item.href
-                          ? "bg-yellow-700/30 text-yellow-400"
-                          : "text-gray-300 hover:bg-yellow-700/20 hover:text-yellow-400"
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
+<Link
+  href={item.href}
+  onClick={() => setOpenDropdown(false)}     // 🔥 sulkee dropdownin aina
+  className={`block px-4 py-2 text-sm transition ${
+    pathname === item.href
+      ? "bg-yellow-700/30 text-yellow-400"
+      : "text-gray-300 hover:bg-yellow-700/20 hover:text-yellow-400"
+  }`}
+>
+  {item.label}
+</Link>
                   </li>
                 ))}
               </motion.ul>
@@ -123,8 +128,9 @@ export default function AdminLayout({
       </header>
 
       {/* --- SISÄLTÖ --- */}
-      <main className="relative z-10 flex-1 p-8">{children}</main>
-
+<main className="relative z-10 flex-1 px-2 py-4 sm:px-6 sm:py-6 lg:p-8">
+  {children}
+</main>
       {/* --- FOOTER --- */}
       <footer className="relative z-10 text-center text-gray-500 py-4 border-t border-yellow-700/30 text-sm">
         © {new Date().getFullYear()} TyöUkkoset – Admin Panel
