@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
 import FieldError from "@/components/common/FieldError";
 import CustomInputField from "@/components/common/CustomInputField";
@@ -19,7 +19,31 @@ type Product = {
   vatHandling: string;
 };
 
-export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
+export default function ProductForm({
+  onSuccess,
+  editingProduct,
+}: {
+  onSuccess: () => void;
+  editingProduct?: Product | null;
+}) {
+   useEffect(() => {
+    if (editingProduct) {
+      setForm({
+        name: editingProduct.name,
+        code: editingProduct.code || "",
+        category: editingProduct.category,
+        hours: editingProduct.hours || 0,
+        minutes: editingProduct.minutes || 0,
+        quantity: editingProduct.quantity || 0,
+        price: editingProduct.price.toString(),
+        vatRate: editingProduct.vatRate,
+        vatIncluded: editingProduct.vatIncluded,
+        description: editingProduct.description || "",
+        vatHandling: editingProduct.vatHandling,
+      });
+    }
+  }, [editingProduct]);
+
   const [form, setForm] = useState<Product>({
     name: "",
     code: "",
@@ -107,7 +131,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
       className="space-y-4"
     >
       <h2 className="text-xl font-semibold text-yellow-400 text-start mb-4">
-        Lisää uusi tuote
+        Lisää uusi tuote tai palvelu
       </h2>
 
       {message && <p className="text-center text-gray-300">{message}</p>}
@@ -117,7 +141,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
         <div>
           <CustomInputField
             id="name"
-            label="Tuotteen nimi"
+            label="Nimi"
             value={form.name}
             onChange={(e) => {
               setForm({ ...form, name: e.target.value });
@@ -296,9 +320,9 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
         <button
           type="submit"
           className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
-               px-3 py-1.5 text-sm rounded-md transition disabled:opacity-50"
+               px-8 py-1.5 text-sm rounded-md transition disabled:opacity-50"
         >
-          Tallenna tuote
+          Tallenna
         </button>
       </div>
     </form>

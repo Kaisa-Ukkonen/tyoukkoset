@@ -1,7 +1,7 @@
-//Uusi matka
+//Uusi tai muokkaa matkaa
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
 import FieldError from "@/components/common/FieldError";
 import DatePickerField from "@/components/common/DatePickerField";
@@ -9,15 +9,31 @@ import CustomInputField from "@/components/common/CustomInputField";
 import CustomTextareaField from "@/components/common/CustomTextareaField";
 
 type TripFormData = {
-  allowance: string; // Päiväraha
-  date: string; // Päivämäärä
-  startAddress: string; // Lähtöosoite
-  endAddress: string; // Määränpää
-  kilometers: string; // Kilometrit yhteensä (tekstinä, koska käsitellään inputista)
-  notes: string; // Lisätiedot
+  allowance: string;
+  date: string;
+  startAddress: string;
+  endAddress: string;
+  kilometers: string;
+  notes: string;
 };
 
-export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
+type Trip = {
+  id: number;
+  date: string;
+  startAddress: string;
+  endAddress: string;
+  kilometers: number;
+  allowance: string;
+  notes?: string;
+};
+
+export default function TripForm({
+  onSuccess,
+  editingTrip,
+}: {
+  onSuccess: () => void;
+  editingTrip: Trip | null;
+}) {
   const [form, setForm] = useState<TripFormData>({
     allowance: "",
     date: "",
@@ -30,11 +46,24 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
 
+  // ⭐ Täytä kentät jos muokataan matkaa
+  useEffect(() => {
+    if (editingTrip) {
+      setForm({
+        allowance: editingTrip.allowance,
+        date: editingTrip.date,
+        startAddress: editingTrip.startAddress,
+        endAddress: editingTrip.endAddress,
+        kilometers: editingTrip.kilometers.toString(),
+        notes: editingTrip.notes || "",
+      });
+    }
+  }, [editingTrip]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: Record<string, string> = {};
 
-    // 🔹 Tarkistetaan pakolliset kentät
+    const newErrors: Record<string, string> = {};
     if (!form.allowance) newErrors.allowance = "Valitse päiväraha";
     if (!form.date) newErrors.date = "Valitse päivämäärä";
     if (!form.startAddress.trim()) newErrors.startAddress = "Anna lähtöosoite";
@@ -44,31 +73,32 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      return; // Estää lähetyksen, jos virheitä
+      return;
     }
 
     setErrors({});
 
     try {
+      const payload = {
+        id: editingTrip?.id,
+        allowance: form.allowance,
+        date: form.date,
+        startAddress: form.startAddress,
+        endAddress: form.endAddress,
+        kilometers: Number(form.kilometers),
+        notes: form.notes,
+      };
+
+      const isEdit = Boolean(editingTrip);
+
       const res = await fetch("/api/bookkeeping/trips", {
-        method: "POST",
+        method: isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          kilometers: Number(form.kilometers),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        setMessage("✅ Matka tallennettu onnistuneesti!");
-        setForm({
-          allowance: "",
-          date: "",
-          startAddress: "",
-          endAddress: "",
-          kilometers: "",
-          notes: "",
-        });
+        setMessage(isEdit ? "✅ Matka päivitetty!" : "✅ Matka tallennettu!");
         onSuccess();
       } else {
         setMessage("❌ Virhe tallennuksessa");
@@ -76,17 +106,14 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
     } catch {
       setMessage("⚠️ Yhteysvirhe tallennuksessa");
     } finally {
-      setTimeout(() => setMessage(null), 4000);
+      setTimeout(() => setMessage(null), 3000);
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4"
-    >
+    <form onSubmit={handleSubmit} className="space-y-4">
       <h2 className="text-center text-yellow-400 text-lg font-semibold mb-4">
-        Lisää keikkamatka
+        {editingTrip ? "Muokkaa keikkamatkaa" : "Lisää keikkamatka"}
       </h2>
 
       {message && (
@@ -101,8 +128,7 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
         value={form.allowance}
         onChange={(val) => {
           setForm({ ...form, allowance: val });
-          if (errors.allowance)
-            setErrors((prev) => ({ ...prev, allowance: "" }));
+          if (errors.allowance) setErrors((prev) => ({ ...prev, allowance: "" }));
         }}
         options={[
           { value: "full", label: "Kokopäiväraha 53 €" },
@@ -126,7 +152,7 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
       />
       <FieldError message={errors.date} />
 
-      {/* 🔹 Lähtöosoite ja määränpää */}
+      {/* 🔹 Lähtö + määränpää */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <CustomInputField
           id="startAddress"
@@ -154,7 +180,7 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
       <FieldError message={errors.startAddress || errors.endAddress} />
 
-      {/* 🔹 Kilometrit yhteensä */}
+      {/* 🔹 Kilometrit */}
       <CustomInputField
         id="kilometers"
         label="Kilometrit yhteensä"
@@ -179,7 +205,7 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
         placeholder="Lisätietoja matkasta..."
       />
 
-      {/* 🔹 Painikkeet */}
+      {/* 🔹 Napit */}
       <div className="flex justify-end gap-4 mt-6">
         <button
           type="button"
@@ -189,12 +215,13 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
         >
           Peruuta
         </button>
+
         <button
           type="submit"
           className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
                      px-6 py-2 rounded-md transition disabled:opacity-50"
         >
-          Tallenna
+          {editingTrip ? "Tallenna" : "Tallenna"}
         </button>
       </div>
     </form>

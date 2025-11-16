@@ -6,7 +6,7 @@ import CustomInputField from "@/components/common/CustomInputField";
 import { MoreVertical } from "lucide-react";
 import React from "react";
 
-type Product = {
+export type Product = {
   id: number;
   name: string;
   code?: string;
@@ -24,9 +24,13 @@ type Product = {
 export default function ProductList({
   refreshKey,
   searchTerm = "",
+  setShowForm,
+  setEditingProduct,
 }: {
   refreshKey: number;
   searchTerm?: string;
+  setShowForm?: (v: boolean) => void;
+  setEditingProduct?: (product: Product | null) => void;
 }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -127,7 +131,7 @@ export default function ProductList({
 
   // 🔹 Apufunktio joka piirtää yhden listan (palvelut/tuotteet)
   const renderTable = (list: Product[], showStock: boolean) => (
-    <table className="w-full text-sm text-gray-300 border-collapse mb-8">
+    <table className="hidden sm:table w-full text-sm text-gray-300 border-collapse mb-8">
       <thead>
         {showStock ? (
           // 🔸 TUOTTEET (varastotiedot)
@@ -471,48 +475,192 @@ export default function ProductList({
       </tbody>
 
       {/* 🔹 Varaston kokonaisarvo yhteenveto */}
-{showStock && list.length > 0 && (
-  <tfoot>
-    <tr className="border-t border-yellow-700/40 bg-black/50">
-      {/* Teksti vasemmalle – vie kaikki muut sarakkeet paitsi viimeisen */}
-      <td
-        colSpan={8}
-        className="py-3 px-4 text-right text-gray-300 font-semibold"
-      >
-        Varaston kokonaisarvo:
-      </td>
+      {showStock && list.length > 0 && (
+        <tfoot>
+          <tr className="border-t border-yellow-700/40 bg-black/50">
+            {/* Teksti vasemmalle – vie kaikki muut sarakkeet paitsi viimeisen */}
+            <td
+              colSpan={8}
+              className="py-3 px-4 text-right text-gray-300 font-semibold"
+            >
+              Varaston kokonaisarvo:
+            </td>
 
-      {/* Summa viimeiseen sarakkeeseen */}
-      <td className="py-3 px-4 text-right text-yellow-400 font-bold">
-        {list
-          .reduce((sum, p) => sum + p.price * (p.quantity || 0), 0)
-          .toFixed(2)}{" "}
-        €
-      </td>
-    </tr>
-  </tfoot>
-)}
+            {/* Summa viimeiseen sarakkeeseen */}
+            <td className="py-3 px-4 text-right text-yellow-400 font-bold">
+              {list
+                .reduce((sum, p) => sum + p.price * (p.quantity || 0), 0)
+                .toFixed(2)}{" "}
+              €
+            </td>
+          </tr>
+        </tfoot>
+      )}
     </table>
   );
-
   // 🔹 Varsinainen renderöinti
   return (
-    <div className="max-w-4xl mx-auto mt-6 bg-black/40 border border-yellow-700/40 rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto">
-      {/* PALVELUT */}
-      <h3 className="text-yellow-400 text-lg mt-6 mb-2">Palvelut</h3>
-      {services.length === 0 ? (
-        <p className="text-gray-500 italic mb-6">Ei palveluja lisätty.</p>
-      ) : (
-        renderTable(services, false)
-      )}
+    <>
+      {/* 🔹 MOBIILI — kortit, ei taulukoita, ei kehystä */}
+      <div className="sm:hidden mt-6 px-2">
+        {/* PALVELUT – mobiilikortit */}
+        <h3 className="text-yellow-400 text-lg mt-6 mb-2">Palvelut</h3>
+        {services.length === 0 ? (
+          <p className="text-gray-500 italic mb-6">Ei palveluja lisätty.</p>
+        ) : (
+          <div className="space-y-4 mb-6">
+            {services.map((p) => (
+              <div
+                key={p.id}
+                className="bg-black/60 border border-yellow-700/30 
+                         rounded-xl p-4 shadow-md transition relative"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <p className="text-yellow-400 font-semibold text-base">
+                    {p.name}
+                  </p>
 
-      {/* TUOTTEET */}
-      <h3 className="text-yellow-400 text-lg mt-8 mb-2">Tuotteet</h3>
-      {items.length === 0 ? (
-        <p className="text-gray-500 italic">Ei tuotteita lisätty.</p>
-      ) : (
-        renderTable(items, true)
-      )}
+                  {/* 🔹 FIX: stopPropagation lisätty */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenMenuId(openMenuId === p.id ? null : p.id);
+                    }}
+                  >
+                    <MoreVertical className="text-gray-400 hover:text-yellow-400" />
+                  </button>
+
+                  {openMenuId === p.id && (
+                    <div
+                      onClick={(e) => e.stopPropagation()} // 🔹 FIX
+                      className="absolute right-2 top-8 bg-black/90 border border-yellow-700/40 rounded-md shadow-lg z-20"
+                    >
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm text-yellow-400 hover:bg-yellow-700/20"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingProduct?.(p); // ⭐ Vie muokattava tuote ProductsPagelle
+                          setShowForm?.(true); // ⭐ Avaa popup-lomake
+                          setOpenMenuId(null); // Sulje valikko
+                        }}
+                      >
+                        Muokkaa
+                      </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-700/20"
+                        onClick={() => setDeleteId(p.id)}
+                      >
+                        Poista
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-sm text-gray-300 space-y-1">
+                  <p>Tuotekoodi: {p.code || "-"}</p>
+                  <p>
+                    Kesto: {p.hours ? `${p.hours}h` : ""}
+                    {p.minutes ? ` ${p.minutes}min` : ""}
+                  </p>
+                  <p>Kokonaishinta: {p.price.toFixed(2)} €</p>
+                  <p>ALV: {p.vatRate} %</p>
+                  <p>Kuvaus: {p.description || "-"}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* TUOTTEET – mobiilikortit */}
+        <h3 className="text-yellow-400 text-lg mt-8 mb-2">Tuotteet</h3>
+        {items.length === 0 ? (
+          <p className="text-gray-500 italic mb-6">Ei tuotteita lisätty.</p>
+        ) : (
+          <div className="space-y-4 mb-6">
+            {items.map((p) => (
+              <div
+                key={p.id}
+                className="bg-black/60 border border-yellow-700/30 
+                         rounded-xl p-4 shadow-md transition relative"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <p className="text-yellow-400 font-semibold text-base">
+                    {p.name}
+                  </p>
+
+                  {/* 🔹 FIX: stopPropagation lisätty */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenMenuId(openMenuId === p.id ? null : p.id);
+                    }}
+                  >
+                    <MoreVertical className="text-gray-400 hover:text-yellow-400" />
+                  </button>
+
+                  {openMenuId === p.id && (
+                    <div
+                      onClick={(e) => e.stopPropagation()} // 🔹 FIX
+                      className="absolute right-2 top-8 bg-black/90 border border-yellow-700/40 rounded-md shadow-lg z-20"
+                    >
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-yellow-700/20"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingProduct?.(p); // ⭐ Vie muokattava tuote ProductsPagelle
+                          setShowForm?.(true); // ⭐ Avaa popup-lomake
+                          setOpenMenuId(null); // Sulje valikko
+                        }}
+                      >
+                        Muokkaa
+                      </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-700/20"
+                        onClick={() => setDeleteId(p.id)}
+                      >
+                        Poista
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-sm text-gray-300 space-y-1">
+                  <p>Tuotekoodi: {p.code || "-"}</p>
+                  <p>Saldo: {p.quantity ?? 0} kpl</p>
+                  <p>Kappalehinta: {p.price.toFixed(2)} €</p>
+                  <p>ALV: {p.vatRate} %</p>
+                  <p>ALV-käsittely: {p.vatHandling}</p>
+                  <p>Varaston arvo: {(p.quantity || 0) * p.price} €</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 🔹 DESKTOP */}
+      <div
+        className="
+      hidden sm:block
+      max-w-4xl mx-auto mt-6 
+      bg-black/40 border border-yellow-700/40 rounded-xl p-6 
+      shadow-[0_0_15px_rgba(0,0,0,0.4)] overflow-x-auto
+    "
+      >
+        <h3 className="text-yellow-400 text-lg mt-6 mb-2">Palvelut</h3>
+        {services.length === 0 ? (
+          <p className="text-gray-500 italic mb-6">Ei palveluja lisätty.</p>
+        ) : (
+          renderTable(services, false)
+        )}
+
+        <h3 className="text-yellow-400 text-lg mt-8 mb-2">Tuotteet</h3>
+        {items.length === 0 ? (
+          <p className="text-gray-500 italic">Ei tuotteita lisätty.</p>
+        ) : (
+          renderTable(items, true)
+        )}
+      </div>
 
       <ConfirmModal
         show={deleteId !== null}
@@ -520,6 +668,6 @@ export default function ProductList({
         onConfirm={confirmDelete}
         onCancel={() => setDeleteId(null)}
       />
-    </div>
+    </>
   );
 }

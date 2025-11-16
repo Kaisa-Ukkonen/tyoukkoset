@@ -2,16 +2,20 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { Product } from "@/app/admin/bookkeeping/products/ProductList";
 import ProductForm from "@/app/admin/bookkeeping/products/ProductForm";
 import ProductList from "@/app/admin/bookkeeping/products/ProductList";
 
 export default function ProductsPage() {
   const [showForm, setShowForm] = useState(false);
+
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const handleSuccess = () => {
     setShowForm(false);
+    setEditingProduct(null); // ⭐ Tyhjennetään muokkauksen jälkeen
     setRefreshKey((prev) => prev + 1);
   };
 
@@ -42,7 +46,10 @@ export default function ProductsPage() {
 
             {/* Mobiilin pieni plus */}
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                setEditingProduct(null); // ⭐ Uusi tuote → tyhjä lomake
+                setShowForm(true);
+              }}
               className="
                 sm:hidden bg-yellow-600 text-black
                 w-10 h-10 rounded-md flex items-center justify-center
@@ -54,7 +61,10 @@ export default function ProductsPage() {
 
             {/* Desktop-nappi */}
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                setEditingProduct(null); // ⭐ uusi tuote
+                setShowForm(true);
+              }}
               className="
                 hidden sm:flex items-center gap-2
                 bg-yellow-600 hover:bg-yellow-500
@@ -67,9 +77,10 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        {/* 🔹 Lista tai lomake popupilla */}
+        {/* 🔹 Lista tai popup-lomake */}
         <AnimatePresence mode="wait">
           {showForm ? (
+            // ⭐ POPUP MODAALI
             <motion.div
               key="overlay"
               initial={{ opacity: 0 }}
@@ -77,12 +88,12 @@ export default function ProductsPage() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="
-        fixed inset-x-0 top-[72px] bottom-0 z-40
-        bg-black/60 backdrop-blur-sm
-        flex justify-center items-start
-        overflow-y-auto
-        px-4 pt-4 pb-4
-      "
+                fixed inset-x-0 top-[72px] bottom-0 z-40
+                bg-black/60 backdrop-blur-sm
+                flex justify-center items-start
+                overflow-y-auto
+                px-4 pt-4 pb-4
+              "
             >
               <motion.div
                 key="product-form"
@@ -91,12 +102,15 @@ export default function ProductsPage() {
                 exit={{ scale: 0.95, opacity: 0 }}
                 transition={{ duration: 0.25 }}
                 className="
-  bg-black/90 border border-yellow-700/40 rounded-xl
-  w-full max-w-lg max-h-[80vh] overflow-y-auto
-  p-6 shadow-xl mt-4
-"
+                  bg-black/90 border border-yellow-700/40 rounded-xl
+                  w-full max-w-lg max-h-[80vh] overflow-y-auto
+                  p-6 shadow-xl mt-4
+                "
               >
-                <ProductForm onSuccess={handleSuccess} />
+                <ProductForm
+                  onSuccess={handleSuccess}
+                  editingProduct={editingProduct} // ⭐ Viedään lomakkeeseen
+                />
               </motion.div>
             </motion.div>
           ) : (
@@ -107,7 +121,17 @@ export default function ProductsPage() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              <ProductList refreshKey={refreshKey} searchTerm={searchTerm} />
+              <ProductList
+                refreshKey={refreshKey}
+                searchTerm={searchTerm}
+                setShowForm={setShowForm}
+                setEditingProduct={setEditingProduct}
+              />
+
+              <ProductForm
+                onSuccess={handleSuccess}
+                editingProduct={editingProduct}
+              />
             </motion.div>
           )}
         </AnimatePresence>
