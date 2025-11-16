@@ -6,16 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import BookkeepingForm from "@/app/admin/bookkeeping/events/BookkeepingForm";
 import BookkeepingList from "@/app/admin/bookkeeping/events/BookkeepingList";
 
-type Entry = {
-  id: number;
-  date: string;
-  description: string | null;
-  type: string;
-  amount: number;
-  vatRate: number;
-  paymentMethod: string | null;
-  account: { name: string };
-};
+import type { Entry } from "./types/Entry";
 
 export default function BookkeepingEventsPage() {
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -25,7 +16,7 @@ export default function BookkeepingEventsPage() {
   // 🔹 Hae tietokannasta
   const fetchEntries = async () => {
     try {
-      const res = await fetch("/api/bookkeeping");
+      const res = await fetch("/api/bookkeeping/events");
       const data = await res.json();
       setEntries(data);
     } catch (err) {
@@ -58,7 +49,7 @@ export default function BookkeepingEventsPage() {
     const term = searchTerm.toLowerCase();
     return (
       e.description?.toLowerCase().includes(term) ||
-      e.account?.name?.toLowerCase().includes(term) ||
+      e.category?.name?.toLowerCase().includes(term) ||
       e.paymentMethod?.toLowerCase().includes(term)
     );
   });
@@ -66,7 +57,6 @@ export default function BookkeepingEventsPage() {
   return (
     <main className="w-full text-gray-200 px-2 sm:px-4 lg:px-8">
       <div className="w-full max-w-4xl mx-auto mb-6">
-
         {/* 🔹 Otsikko */}
         <h1 className="text-2xl font-semibold text-yellow-400 mb-4">
           Tapahtumat
@@ -75,7 +65,6 @@ export default function BookkeepingEventsPage() {
         {/* 🔹 Haku + napit */}
         <div className="flex w-full justify-end mb-4">
           <div className="flex w-full sm:w-auto items-center gap-2">
-
             {/* Hakukenttä */}
             <input
               type="text"
@@ -114,7 +103,6 @@ export default function BookkeepingEventsPage() {
               <span className="text-lg">＋</span>
               Lisää tapahtuma
             </button>
-
           </div>
         </div>
 
@@ -147,7 +135,6 @@ export default function BookkeepingEventsPage() {
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
     </main>
   );

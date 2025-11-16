@@ -5,32 +5,22 @@ import DatePickerField from "@/components/common/DatePickerField";
 import CustomSelect from "@/components/common/CustomSelect";
 import CustomTextareaField from "@/components/common/CustomTextareaField";
 import CustomInputField from "@/components/common/CustomInputField";
-
-type Entry = {
-  id: number;
-  date: string;
-  description: string | null;
-  type: string;
-  amount: number;
-  vatRate: number;
-  paymentMethod: string | null;
-  account: { name: string };
-};
+import type { Entry } from "./types/Entry";
 
 export default function BookkeepingForm({
   onSuccess,
 }: {
   onSuccess?: (entry: Entry) => void;
 }) {
-  type Account = {
+  type Category = {
     id: number;
     name: string;
-    type: string;
-    description?: string;
-    createdAt: string;
+    type: "TULO" | "MENO";
+    defaultVat: number;
+    description?: string | null;
   };
 
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<{
     type: "success" | "error";
@@ -38,10 +28,10 @@ export default function BookkeepingForm({
   } | null>(null);
 
   const [form, setForm] = useState({
-    date: new Date(), // 🔹 tämän päivän päivämäärä oletuksena
+    date: new Date(),
     description: "",
     type: "meno",
-    account: "",
+    categoryId: 0,
     amount: "",
     vatRate: "25.5",
     paymentMethod: "",
@@ -49,17 +39,19 @@ export default function BookkeepingForm({
   });
 
   // 🔹 Hae tilit tietokannasta
+  // 🔹 Hae kategoriat tietokannasta
   useEffect(() => {
-    const fetchAccounts = async () => {
+    const fetchCategories = async () => {
       try {
-        const res = await fetch("/api/bookkeeping/accounts");
+        const res = await fetch("/api/bookkeeping/categories");
         const data = await res.json();
-        setAccounts(data);
+        setCategories(data);
       } catch (err) {
-        console.error("Virhe tilien haussa:", err);
+        console.error("Virhe kategorioiden haussa:", err);
       }
     };
-    fetchAccounts();
+
+    fetchCategories();
   }, []);
 
   // 🔹 Lähetys
@@ -72,14 +64,15 @@ export default function BookkeepingForm({
     formData.append("date", form.date.toISOString().split("T")[0]);
     formData.append("description", form.description);
     formData.append("type", form.type);
-    formData.append("account", form.account);
+
     formData.append("amount", form.amount);
+    formData.append("categoryId", String(form.categoryId));
     formData.append("vatRate", form.vatRate);
     formData.append("paymentMethod", form.paymentMethod);
     if (form.receipt) formData.append("receipt", form.receipt);
 
     try {
-      const res = await fetch("/api/bookkeeping", {
+      const res = await fetch("/api/bookkeeping/events", {
         method: "POST",
         body: formData,
       });
@@ -92,13 +85,13 @@ export default function BookkeepingForm({
           message: "Kirjanpitotapahtuma tallennettu onnistuneesti!",
         });
 
-        if (onSuccess) onSuccess(result.data || result);
+        if (onSuccess) onSuccess(result);
 
         setForm({
           date: new Date(), // palautetaan oletusarvo
           description: "",
           type: "meno",
-          account: "",
+          categoryId: 0,
           amount: "",
           vatRate: "25.5",
           paymentMethod: "",
@@ -164,16 +157,16 @@ export default function BookkeepingForm({
           ]}
         />
 
-        {/* 🔹 Tili */}
+        {/* 🔹 kategoria */}
         <CustomSelect
-          label="Tili"
-          value={form.account}
-          onChange={(val) => setForm({ ...form, account: val })}
-          options={accounts.map((acc) => ({
-            value: acc.name,
-            label: acc.name,
+          label="Kategoria"
+          value={String(form.categoryId)}
+          onChange={(val) => setForm({ ...form, categoryId: Number(val) })}
+          options={categories.map((cat) => ({
+            value: String(cat.id),
+            label: `${cat.name} (${cat.type === "TULO" ? "Tulo" : "Meno"})`,
           }))}
-          placeholder="Valitse tili"
+          placeholder="Valitse kategoria"
         />
 
         {/* 🔹 Maksutapa */}
@@ -256,7 +249,7 @@ export default function BookkeepingForm({
           className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
                px-8 py-1.5 rounded-md transition disabled:opacity-50"
         >
-          Lisää
+          Tallenna
         </button>
       </div>
     </form>

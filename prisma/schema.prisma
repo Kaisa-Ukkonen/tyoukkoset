@@ -44,37 +44,36 @@ enum Role {
 
 //Tilit
 model Account {
-  id             Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  number         Int      @default(0)     // tilinumero
-  name           String   @unique
-  type           String   @default("tulo")   // tulo/meno
+  number Int    @default(0)
+  name   String @unique
+  type   String @default("tulo")
 
   instruction    String?
-  vatHandling    String   @default("Kotimaan verollinen myynti")
-  vatRate        Float    @default(0)
-  openingBalance Float    @default(0)
+  vatHandling    String  @default("Kotimaan verollinen myynti")
+  vatRate        Float   @default(0)
+  openingBalance Float   @default(0)
 
-  createdAt      DateTime @default(now())
-
-  entries        BookkeepingEntry[]
+  createdAt DateTime @default(now())
 }
 
 //Kirjanpito
 model BookkeepingEntry {
   id            Int      @id @default(autoincrement())
-  date          DateTime // Maksupäivä
-  description   String? // Kuvaus, esim. "Mikrofonin osto"
-  type          String // "tulo" tai "meno"
-  amount        Float // Bruttosumma (sis. alv)
-  vatRate       Float // ALV-prosentti 
-  vatAmount     Float // ALV euroina
-  paymentMethod String? // "SumUp", "Käteinen", "Yrityskortti", "Yrittäjän maksu"
-  receiptNumber String? // Esim. kuitti- tai laskunumero
+  date          DateTime
+  description   String?
+  type          String // tulo / meno
+  amount        Float
+  vatRate       Float
+  vatAmount     Float
+  paymentMethod String?
+  receiptNumber String?
   createdAt     DateTime @default(now())
 
-  accountId Int
-  account   Account @relation(fields: [accountId], references: [id])
+  // ⭐ UUSI SUHDE KATEGORIAAN
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
 
   receipt Receipt?
 }
@@ -90,37 +89,37 @@ model Receipt {
 
 //Tuotteet
 model Product {
-  id          Int      @id @default(autoincrement())
-  name        String
-  code        String? // Tuotekoodi
-  category    String // Tatuointi / Stand Up
-  hours       Int?
-  minutes     Int?
-  price       Float
-  vatIncluded Boolean  @default(false)
-  vatRate     Float // esim. 25.5
-  vatHandling String   @default("Kotimaan verollinen myynti")
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  quantity    Int?     @default(0)
-  invoiceLines  InvoiceLine[]
+  id           Int           @id @default(autoincrement())
+  name         String
+  code         String? // Tuotekoodi
+  category     String // Tatuointi / Stand Up
+  hours        Int?
+  minutes      Int?
+  price        Float
+  vatIncluded  Boolean       @default(false)
+  vatRate      Float // esim. 25.5
+  vatHandling  String        @default("Kotimaan verollinen myynti")
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  quantity     Int?          @default(0)
+  invoiceLines InvoiceLine[]
 }
 
 //Kontaktit
 model Contact {
-  id            Int      @id @default(autoincrement())
-  name          String
-  type          String
-  customerCode  String?      // esim. asiakastunnus
-  email         String?      // 🔹 sähköpostiosoite laskutusta varten
-  address       String?      // 🔹 katuosoite
-  zip           String?      // 🔹 postinumero
-  city          String?      // 🔹 postitoimipaikka
-  notes         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  invoices      Invoice[]
+  id           Int       @id @default(autoincrement())
+  name         String
+  type         String
+  customerCode String? // esim. asiakastunnus
+  email        String? // 🔹 sähköpostiosoite laskutusta varten
+  address      String? // 🔹 katuosoite
+  zip          String? // 🔹 postinumero
+  city         String? // 🔹 postitoimipaikka
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  invoices     Invoice[]
 }
 
 //Keikkamatkat
@@ -130,36 +129,36 @@ model Trip {
   startAddress String
   endAddress   String
   kilometers   Int
-  allowance    String   // "full", "half", "none"
+  allowance    String // "full", "half", "none"
   createdAt    DateTime @default(now())
   notes        String?
 }
 
 // Lasku
 model Invoice {
-  id              Int             @id @default(autoincrement())
-  invoiceNumber   Int?            @unique // 🔹 Ei pakollinen – luodaan hyväksynnässä
-  referenceNumber String?         // 🔹 Luodaan hyväksynnässä (viitenumero)
-  status          String          @default("DRAFT") // DRAFT / APPROVED
+  id              Int     @id @default(autoincrement())
+  invoiceNumber   Int?    @unique // 🔹 Ei pakollinen – luodaan hyväksynnässä
+  referenceNumber String? // 🔹 Luodaan hyväksynnässä (viitenumero)
+  status          String  @default("DRAFT") // DRAFT / APPROVED
 
-  date            DateTime        @default(now())
-  dueDate         DateTime
-  paymentTerm     Int             @default(14)
-  notes           String?
+  date        DateTime @default(now())
+  dueDate     DateTime
+  paymentTerm Int      @default(14)
+  notes       String?
 
-  customerId      Int?
-  customer        Contact?        @relation(fields: [customerId], references: [id])
-  customCustomer  String?
+  customerId     Int?
+  customer       Contact? @relation(fields: [customerId], references: [id])
+  customCustomer String?
 
-  netAmount       Float           @default(0)
-  vatAmount       Float           @default(0)
-  totalAmount     Float           @default(0)
-  vatRate         Float?
+  netAmount   Float  @default(0)
+  vatAmount   Float  @default(0)
+  totalAmount Float  @default(0)
+  vatRate     Float?
 
-  lines           InvoiceLine[]
+  lines InvoiceLine[]
 
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model InvoiceCounter {
@@ -169,20 +168,31 @@ model InvoiceCounter {
 }
 
 model InvoiceLine {
-  id          Int       @id @default(autoincrement())
-  invoiceId   Int
-  invoice     Invoice   @relation(fields: [invoiceId], references: [id])
+  id        Int     @id @default(autoincrement())
+  invoiceId Int
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
 
-  productId   Int?
-  product     Product?  @relation(fields: [productId], references: [id])
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id])
 
   description String
-  quantity    Float      @default(1)
-  unitPrice   Float      @default(0)
-  vatRate     Float      @default(24)
+  quantity    Float  @default(1)
+  unitPrice   Float  @default(0)
+  vatRate     Float  @default(24)
 
-  vatHandling String?    // ⭐ UUSI
-  vatCode     String?    // ⭐ UUSI
+  vatHandling String? // ⭐ UUSI
+  vatCode     String? // ⭐ UUSI
 
-  total       Float      @default(0)
+  total Float @default(0)
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  type        String
+  defaultVat  Float
+  description String?
+  createdAt   DateTime @default(now())
+
+  entries BookkeepingEntry[]
 }

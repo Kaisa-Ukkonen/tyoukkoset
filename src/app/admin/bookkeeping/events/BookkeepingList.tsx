@@ -1,15 +1,6 @@
 "use client";
 
-type Entry = {
-  id: number;
-  date: string;
-  description: string | null;
-  type: string;
-  amount: number;
-  vatRate: number;
-  paymentMethod: string | null;
-  account: { name: string };
-};
+import type { Entry } from "./types/Entry";
 
 export default function BookkeepingList({
   entries = [],
@@ -34,11 +25,13 @@ export default function BookkeepingList({
         <thead>
           <tr className="border-b border-yellow-700/40 text-yellow-400 text-left">
             <th className="py-2 px-3">Päivämäärä</th>
-            <th className="py-2 px-3">Tili</th>
+            <th className="py-2 px-3">Kategoria</th>
+            <th className="py-2 px-3">Tyyppi</th>
             <th className="py-2 px-3">Kuvaus</th>
             <th className="py-2 px-3 text-right">Summa (€)</th>
             <th className="py-2 px-3 text-right">ALV (%)</th>
             <th className="py-2 px-3">Maksutapa</th>
+            <th className="py-2 px-3">Tosite</th>
           </tr>
         </thead>
 
@@ -53,19 +46,43 @@ export default function BookkeepingList({
                   ? new Date(entry.date).toLocaleDateString("fi-FI")
                   : "-"}
               </td>
+
               <td className="py-2 px-3 text-yellow-300 font-medium">
-                {entry.account?.name || "-"}
+                {entry.category?.name || "-"}
               </td>
+
+              {/* ⭐ UUSI — TULO / MENO */}
+              <td className="py-2 px-3 text-yellow-300">
+                {entry.type === "tulo" ? "Tulo" : "Meno"}
+              </td>
+
               <td className="py-2 px-3 text-gray-400">
                 {entry.description || "-"}
               </td>
+
               <td className="py-2 px-3 text-right">
                 {entry.amount ? Number(entry.amount).toFixed(2) : "-"}
               </td>
+
               <td className="py-2 px-3 text-right">{entry.vatRate}</td>
+
               <td className="py-2 px-3 text-gray-400">
                 {entry.paymentMethod || "-"}
               </td>
+<td className="py-2 px-3">
+  {entry.receipt?.fileUrl ? (
+    <a
+      href={entry.receipt.fileUrl}
+      target="_blank"
+      className="text-yellow-300 hover:text-yellow-200 underline"
+    >
+      Avaa
+    </a>
+  ) : (
+    "-"
+  )}
+</td>
+
             </tr>
           ))}
         </tbody>

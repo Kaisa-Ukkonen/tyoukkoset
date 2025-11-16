@@ -27,7 +27,7 @@ export default function AdminLayout({
   const bookkeepingLinks = [
     { label: "Etusivu", href: "/admin/bookkeeping" },
     { label: "Tapahtumat", href: "/admin/bookkeeping/events" },
-    { label: "Tilit", href: "/admin/bookkeeping/accounts" },
+{ label: "Kategoriat", href: "/admin/bookkeeping/categories" },
     { label: "Laskut", href: "/admin/bookkeeping/invoices" },
     { label: "Kontaktit", href: "/admin/bookkeeping/contacts" },
     { label: "Tuotteet", href: "/admin/bookkeeping/products" },

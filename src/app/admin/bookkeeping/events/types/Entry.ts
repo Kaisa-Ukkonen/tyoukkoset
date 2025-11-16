@@ -1,0 +1,21 @@
+export type Entry = {
+  id: number;
+  date: string | Date;
+  description: string | null;
+  type: string;
+  amount: number;
+  vatRate: number;
+  paymentMethod: string | null;
+  
+
+  category: {
+    id: number;
+    name: string;
+    type: string;
+    defaultVat: number;
+  } | null;
+  
+ receipt?: {
+    fileUrl: string;
+  } | null;
+};
