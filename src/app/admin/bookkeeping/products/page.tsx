@@ -18,7 +18,6 @@ export default function ProductsPage() {
   return (
     <main className="w-full text-gray-200 px-2 sm:px-4 lg:px-8">
       <div className="w-full max-w-4xl mx-auto mb-6">
-
         {/* 🔹 Otsikko */}
         <h1 className="text-2xl font-semibold text-yellow-400 mb-4">
           Tuotteet ja palvelut
@@ -27,7 +26,6 @@ export default function ProductsPage() {
         {/* 🔹 Haku + napit */}
         <div className="flex w-full justify-end mb-4">
           <div className="flex w-full sm:w-auto items-center gap-2">
-
             {/* Hakukenttä */}
             <input
               type="text"
@@ -66,21 +64,40 @@ export default function ProductsPage() {
               <span className="text-lg">＋</span>
               Lisää tuote
             </button>
-
           </div>
         </div>
 
-        {/* 🔹 Lista tai lomake */}
+        {/* 🔹 Lista tai lomake popupilla */}
         <AnimatePresence mode="wait">
           {showForm ? (
             <motion.div
-              key="product-form"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+              key="overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="
+        fixed inset-x-0 top-[72px] bottom-0 z-40
+        bg-black/60 backdrop-blur-sm
+        flex justify-center items-start
+        overflow-y-auto
+        px-4 pt-4 pb-4
+      "
             >
-              <ProductForm onSuccess={handleSuccess} />
+              <motion.div
+                key="product-form"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="
+  bg-black/90 border border-yellow-700/40 rounded-xl
+  w-full max-w-lg max-h-[80vh] overflow-y-auto
+  p-6 shadow-xl mt-4
+"
+              >
+                <ProductForm onSuccess={handleSuccess} />
+              </motion.div>
             </motion.div>
           ) : (
             <motion.div
@@ -90,14 +107,10 @@ export default function ProductsPage() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              <ProductList 
-                refreshKey={refreshKey}
-                searchTerm={searchTerm}
-              />
+              <ProductList refreshKey={refreshKey} searchTerm={searchTerm} />
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
     </main>
   );

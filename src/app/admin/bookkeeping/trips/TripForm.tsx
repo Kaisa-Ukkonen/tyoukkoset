@@ -83,8 +83,7 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 space-y-4 
-                 shadow-[0_0_15px_rgba(0,0,0,0.4)] max-w-3xl mx-auto"
+      className="space-y-4"
     >
       <h2 className="text-center text-yellow-400 text-lg font-semibold mb-4">
         Lisää keikkamatka
@@ -186,7 +185,7 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
           type="button"
           onClick={() => onSuccess()}
           className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 border border-yellow-700/40 
-                     font-semibold px-8 py-2 rounded-md transition"
+                     font-semibold px-7 py-2 rounded-md transition"
         >
           Peruuta
         </button>
@@ -195,7 +194,7 @@ export default function TripForm({ onSuccess }: { onSuccess: () => void }) {
           className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
                      px-6 py-2 rounded-md transition disabled:opacity-50"
         >
-          Tallenna matka
+          Tallenna
         </button>
       </div>
     </form>

@@ -20,16 +20,14 @@ export default function AccountsPage() {
   return (
     <main className="w-full text-gray-200 px-2 sm:px-4 lg:px-8">
       <div className="w-full max-w-4xl mx-auto mb-6">
-        
         {/* 🔹 Otsikko (keskitetty sisäalueeseen kuten laskut) */}
         <h1 className="text-2xl font-semibold text-yellow-400 mb-4">
           Tililuettelo
         </h1>
 
         {/* 🔹 Haku + nappi DESKTOP oikealle, mobiilissa pinottu */}
-        <div className="flex w-full justify-end">
+        <div className="flex w-full justify-end mb-4">
           <div className="flex w-full sm:w-auto items-center gap-2">
-
             {/* Hakukenttä */}
             <input
               type="text"
@@ -70,30 +68,49 @@ export default function AccountsPage() {
               <span className="text-lg">＋</span>
               Uusi tili
             </button>
-
           </div>
         </div>
 
         {/* 🔹 Lista tai lomake */}
         <AnimatePresence mode="wait">
           {showForm ? (
+            // 🔸 OVERLAY + POPUP
             <motion.div
-              key="account-form"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+              key="overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="
+  fixed inset-x-0 top-[72px] bottom-0 z-40 bg-black/60 backdrop-blur-sm 
+  flex justify-center items-start pt-24 pb-4
+  overflow-y-auto
+"
             >
-              <AccountForm
-                accountId={formAccountId}
-                onClose={() => {
-                  setShowForm(false);
-                  setFormAccountId(null);
-                }}
-                onSaved={handleSuccess}
-              />
+              <motion.div
+                key="account-form"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+               className="
+          bg-black/90 border border-yellow-700/40 rounded-xl
+          w-full max-w-lg max-h-[80vh] overflow-y-auto
+          p-6 shadow-xl mt-4
+        "
+              >
+                <AccountForm
+                  accountId={formAccountId}
+                  onClose={() => {
+                    setShowForm(false);
+                    setFormAccountId(null);
+                  }}
+                  onSaved={handleSuccess}
+                />
+              </motion.div>
             </motion.div>
           ) : (
+            // 🔸 Lista näkyy normaalisti
             <motion.div
               key="account-list"
               initial={{ opacity: 0, y: 10 }}
@@ -110,7 +127,6 @@ export default function AccountsPage() {
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
     </main>
   );

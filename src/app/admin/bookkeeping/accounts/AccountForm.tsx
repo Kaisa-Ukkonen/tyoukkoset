@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
+import CustomInputField from "@/components/common/CustomInputField";
+import CustomTextareaField from "@/components/common/CustomTextareaField";
 
 /////////////////////////////////////////////////////
 // ACCOUNT TYPE
@@ -145,30 +147,24 @@ export default function AccountForm({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Tilinumero */}
-          <div>
-            <label className="text-gray-300 text-sm">Tilinumero</label>
-            <input
-              type="number"
-              value={form.number}
-              onChange={(e) =>
-                setForm({ ...form, number: Number(e.target.value) })
-              }
-              className="w-full bg-black/40 border border-yellow-700/40 rounded-md p-2 text-white"
-              required
-            />
-          </div>
+          <CustomInputField
+            id="accountNumber"
+            label="Tilinumero"
+            type="number"
+            value={form.number?.toString() ?? ""}
+            onChange={(e) =>
+              setForm({ ...form, number: Number(e.target.value) })
+            }
+          />
 
           {/* Nimi */}
-          <div>
-            <label className="text-gray-300 text-sm">Nimi</label>
-            <input
-              type="text"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full bg-black/40 border border-yellow-700/40 rounded-md p-2 text-white"
-              required
-            />
-          </div>
+          <CustomInputField
+            id="accountName"
+            label="Nimi"
+            type="text"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
 
           {/* Tyyppi */}
           <CustomSelect
@@ -193,46 +189,35 @@ export default function AccountForm({
             onChange={(value) => setForm({ ...form, vatRate: value })}
             options={vatRateOptions}
           />
-          {/* Alkusaldo */}
-          <CustomSelect
-            label="Alkusaldo"
-            value={form.type}
-            onChange={(value) => setForm({ ...form, type: value })}
-            options={typeOptions}
-          />
 
           {/* Kirjausohje */}
-          <div>
-            <label className="text-gray-300 text-sm">Kirjausohje</label>
-            <textarea
-              value={form.instruction}
-              onChange={(e) =>
-                setForm({ ...form, instruction: e.target.value })
-              }
-              className="w-full bg-black/40 border border-yellow-700/40 rounded-md p-2 text-white h-24"
-            />
-          </div>
+          <CustomTextareaField
+            id="instruction"
+            label="Kirjausohje"
+            value={form.instruction ?? ""}
+            onChange={(e) => setForm({ ...form, instruction: e.target.value })}
+            rows={4}
+          />
 
           {/* Alkusaldo */}
-          <div>
-            <label className="text-gray-300 text-sm">Alkusaldo (€)</label>
-            <input
-              type="number"
-              step="0.01"
-              value={form.openingBalance}
-              onChange={(e) =>
-                setForm({ ...form, openingBalance: e.target.value })
-              }
-              className="w-full bg-black/40 border border-yellow-700/40 rounded-md p-2 text-white"
-            />
-          </div>
+          <CustomInputField
+            id="openingBalance"
+            label="Alkusaldo (€)"
+            type="number"
+            step="0.01"
+            value={form.openingBalance?.toString() ?? ""}
+            onChange={(e) =>
+              setForm({ ...form, openingBalance: e.target.value })
+            }
+          />
 
           {/* NAPPULAT */}
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 text-white"
+              className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 border border-yellow-700/40 
+         font-semibold px-7 py-2 rounded-md transition"
             >
               Peruuta
             </button>

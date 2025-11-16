@@ -245,7 +245,7 @@ export default function BookkeepingForm({
           onClick={() => window.location.reload()} // tai halutessasi voit sulkea lomakkeen eri tavalla
           className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 
                border border-yellow-700/40 font-semibold 
-               px-8 py-2 rounded-md transition"
+               px-7 py-2 rounded-md transition"
         >
           Peruuta
         </button>
@@ -254,9 +254,9 @@ export default function BookkeepingForm({
           type="submit"
           disabled={loading}
           className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold 
-               px-2 py-1.5 rounded-md transition disabled:opacity-50"
+               px-8 py-1.5 rounded-md transition disabled:opacity-50"
         >
-          Lisää tapahtuma
+          Lisää
         </button>
       </div>
     </form>

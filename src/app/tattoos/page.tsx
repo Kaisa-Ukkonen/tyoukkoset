@@ -158,9 +158,11 @@ export default function Tattoos() {
       </header>
 
       {/* --- SISÄLTÖ --- */}
-      <main className="relative w-full pt-20 sm:pt-28 z-10 
+      <main
+        className="relative w-full pt-20 sm:pt-28 z-10 
                  bg-[url('/savutausta.webp')] bg-cover bg-center 
-                 bg-scroll md:bg-fixed overflow-hidden">
+                 bg-scroll md:bg-fixed overflow-hidden"
+      >
         {/* Tumma kerros taustan päällä, ettei tekstit huku */}
         <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
 
@@ -202,13 +204,14 @@ export default function Tattoos() {
               viewport={{ once: true }}
             >
               <Image
-                src="/tattoo-icon.png"
-                alt="Jesse Ukkonen Tattoo Artist"
-                width={350}
-                height={350}
-                className="rounded-2xl shadow-[0_0_25px_rgba(255,215,0,0.3)] object-cover"
-                loading="lazy"
-              />
+  src="/tattoo-icon.png"        // tai dynaaminen kuva, jonka siihen laitoit
+  alt="Jesse Ukkonen Tattoo Artist"
+  width={350}
+  height={350}
+  priority          // ⭐ pakollinen
+  loading="eager"   // ⭐ pakollinen
+  className="rounded-2xl shadow-[0_0_25px_rgba(255,215,0,0.3)] object-cover"
+/>
             </motion.div>
           </motion.section>
 
@@ -246,7 +249,7 @@ export default function Tattoos() {
             {/* --- GALLERIA KUVA GRID --- */}
             {tattoos.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-                {tattoos.map((tattoo) => (
+                {tattoos.map((tattoo, index) => (
                   <motion.div
                     key={tattoo.id}
                     className="relative overflow-hidden rounded-xl aspect-3/4"
@@ -259,9 +262,14 @@ export default function Tattoos() {
                       src={tattoo.imageUrl}
                       alt={tattoo.title || "Tatuointi"}
                       fill
-                      className="object-cover object-center transition-transform duration-500"
-                      loading="lazy"
+                      sizes="(max-width: 640px) 50vw,
+         (max-width: 1024px) 33vw,
+         25vw"
+                      priority={index === 0}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      className="object-cover object-center rounded-lg"
                     />
+
                     {tattoo.title && (
                       <div className="absolute bottom-3 w-full text-center text-yellow-300 font-semibold bg-black/40 py-1">
                         {tattoo.title}

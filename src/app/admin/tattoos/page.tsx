@@ -178,8 +178,12 @@ export default function AdminTattoosPage() {
                 src={tattoo.imageUrl}
                 alt="Tatuointi"
                 fill
-                className="object-cover hover:scale-105 transition-transform duration-500"
-                loading="lazy"
+                sizes="(max-width: 640px) 50vw,
+         (max-width: 1024px) 33vw,
+         25vw"
+                priority={tattoo.imageUrl.includes("selka")} // 🔥 LCP-kuva eageriksi
+                loading={tattoo.imageUrl.includes("selka") ? "eager" : "lazy"}
+                className="object-cover"
               />
             </div>
 
@@ -192,6 +196,7 @@ export default function AdminTattoosPage() {
           </div>
         ))}
       </div>
+
       <ConfirmModal
         show={deleteId !== null}
         message="Haluatko varmasti poistaa tämän tatuointikuvan?"

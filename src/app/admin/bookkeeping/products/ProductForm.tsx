@@ -104,7 +104,7 @@ export default function ProductForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto"
+      className="space-y-4"
     >
       <h2 className="text-xl font-semibold text-yellow-400 text-start mb-4">
         Lisää uusi tuote
