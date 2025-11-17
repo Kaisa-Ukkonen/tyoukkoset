@@ -19,6 +19,12 @@ export default function BookkeepingForm({
     defaultVat: number;
     description?: string | null;
   };
+  type Contact = {
+    id: number;
+    name: string;
+  };
+
+  const [contacts, setContacts] = useState<Contact[]>([]);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -36,10 +42,11 @@ export default function BookkeepingForm({
     vatRate: "25.5",
     paymentMethod: "",
     receipt: null as File | null,
+    contactId: 0, // ⭐ UUSI
   });
 
-  // 🔹 Hae tilit tietokannasta
   // 🔹 Hae kategoriat tietokannasta
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -51,7 +58,18 @@ export default function BookkeepingForm({
       }
     };
 
+    const fetchContacts = async () => {
+      try {
+        const res = await fetch("/api/bookkeeping/contacts");
+        const data = await res.json();
+        setContacts(data);
+      } catch (err) {
+        console.error("Virhe kontaktien haussa:", err);
+      }
+    };
+
     fetchCategories();
+    fetchContacts();
   }, []);
 
   // 🔹 Lähetys
@@ -64,7 +82,7 @@ export default function BookkeepingForm({
     formData.append("date", form.date.toISOString().split("T")[0]);
     formData.append("description", form.description);
     formData.append("type", form.type);
-
+    formData.append("contactId", String(form.contactId));
     formData.append("amount", form.amount);
     formData.append("categoryId", String(form.categoryId));
     formData.append("vatRate", form.vatRate);
@@ -96,6 +114,7 @@ export default function BookkeepingForm({
           vatRate: "25.5",
           paymentMethod: "",
           receipt: null,
+          contactId: 0,
         });
       } else {
         setNotification({
@@ -116,7 +135,7 @@ export default function BookkeepingForm({
   };
 
   return (
-<form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <h2 className="text-xl font-semibold text-yellow-400 mb-4 text-center">
         Lisää kirjanpitotapahtuma
       </h2>
@@ -164,6 +183,18 @@ export default function BookkeepingForm({
             label: `${cat.name} (${cat.type === "TULO" ? "Tulo" : "Meno"})`,
           }))}
           placeholder="Valitse kategoria"
+        />
+        <CustomSelect
+          label="Kontakti"
+          value={String(form.contactId)}
+          onChange={(val) => setForm({ ...form, contactId: Number(val) })}
+          options={[
+            { value: "0", label: "Ei kontaktia" },
+            ...contacts.map((c) => ({
+              value: String(c.id),
+              label: c.name,
+            })),
+          ]}
         />
 
         {/* 🔹 Maksutapa */}
@@ -215,7 +246,7 @@ export default function BookkeepingForm({
 
       {/* Tosite */}
       <div>
-        <label className="block text-sm text-gray-300 mb-1">
+        <label className="block text-sm text-yellow-400 mb-1 font-semibold">
           Tosite (valinnainen)
         </label>
         <input

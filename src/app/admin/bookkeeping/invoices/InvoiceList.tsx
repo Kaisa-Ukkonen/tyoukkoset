@@ -161,10 +161,7 @@ export default function InvoiceList({
   };
 
   return (
-    
-    <div
-    
-      className="mt-6 mx-auto w-full lg:max-w-4xl lg:border lg:border-yellow-700/30 lg:rounded-xl lg:bg-black/30 lg:shadow-[0_0_15px_rgba(0,0,0,0.4)]">
+    <div className="mt-6 mx-auto w-full lg:max-w-4xl lg:border lg:border-yellow-700/30 lg:rounded-xl lg:bg-black/30 lg:shadow-[0_0_15px_rgba(0,0,0,0.4)]">
       <table className="hidden lg:table w-full text-sm text-left text-gray-300">
         <thead className="bg-yellow-700/10 text-yellow-300 uppercase text-xs">
           <tr>
@@ -426,7 +423,7 @@ export default function InvoiceList({
                                 {notification.message}
                               </div>
                             )}
-                             {/* 🔴 Poista lasku */}
+                            {/* 🔴 Poista lasku */}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -480,8 +477,6 @@ export default function InvoiceList({
                             >
                               Hyväksy
                             </button>
-
-
                           </div>
                         )}
                       </div>
@@ -519,7 +514,6 @@ export default function InvoiceList({
               key={invoice.id}
               className="bg-black/60 border border-yellow-700/30 rounded-xl p-4 shadow-lg"
             >
-              
               {/* Yläosa — perustiedot */}
               <div
                 className="flex justify-between items-start"
@@ -561,24 +555,23 @@ export default function InvoiceList({
                     ? "Hyväksytty"
                     : invoice.status}
                 </span>
-                
               </div>
 
               {/* Laajennettu näkymä */}
               {isOpen && (
                 <div className="mt-4 border-t border-yellow-700/30 pt-4 space-y-4">
                   {/* 🔹 Sulje-nappi – laajennetun laatikon yläreunaan */}
-<div className="flex justify-end -mt-2 -mb-2">
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      setExpandedInvoiceId(null);
-    }}
-    className="text-gray-400 hover:text-red-400 text-sm"
-  >
-    Sulje ×
-  </button>
-</div>
+                  <div className="flex justify-end -mt-2 -mb-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedInvoiceId(null);
+                      }}
+                      className="text-gray-400 hover:text-red-400 text-sm"
+                    >
+                      Sulje ×
+                    </button>
+                  </div>
                   {/* Asiakastiedot */}
                   <div className="text-sm text-gray-300 space-y-1">
                     {invoice.customer?.customerCode && (
@@ -593,10 +586,7 @@ export default function InvoiceList({
                         </span>{" "}
                         {invoice.customer.customerCode}
                       </p>
-                      
                     )}
-                    
-
 
                     {invoice.customer?.email && (
                       <p>
@@ -604,9 +594,7 @@ export default function InvoiceList({
                         {invoice.customer.email}
                       </p>
                     )}
-                    
                   </div>
-                  
 
                   {/* Laskurivit */}
                   {invoice.lines && invoice.lines.length > 0 ? (
@@ -644,9 +632,7 @@ export default function InvoiceList({
                           </div>
                         );
                       })}
-                      
                     </div>
-                    
                   ) : (
                     <p className="text-gray-400 italic">Ei laskurivejä.</p>
                   )}
@@ -676,15 +662,15 @@ export default function InvoiceList({
                   {invoice.status === "DRAFT" && (
                     <div className="flex justify-end gap-4">
                       {/* Poista */}
-                                                  <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setConfirmDelete(invoice.id);
-                              }}
-                              className="text-red-500 hover:text-red-400"
-                            >
-                              <Trash2 size={18} />
-                            </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setConfirmDelete(invoice.id);
+                        }}
+                        className="text-red-500 hover:text-red-400"
+                      >
+                        <Trash2 size={18} />
+                      </button>
 
                       {/* Hyväksy */}
                       <button

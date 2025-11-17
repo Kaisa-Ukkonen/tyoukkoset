@@ -53,10 +53,11 @@ export default function BookkeepingEventsPage() {
     const date = new Date(e.date);
 
     // 🔹 Hakusana
-    const matchesSearch =
-      e.description?.toLowerCase().includes(term) ||
-      e.category?.name?.toLowerCase().includes(term) ||
-      e.paymentMethod?.toLowerCase().includes(term);
+const matchesSearch =
+  e.description?.toLowerCase().includes(term) ||
+  e.category?.name?.toLowerCase().includes(term) ||
+  e.paymentMethod?.toLowerCase().includes(term) ||
+  e.contact?.name?.toLowerCase().includes(term); 
 
     // 🔹 Päivämäärärajaukset
     const matchesStart = startDate ? date >= startDate : true;
@@ -73,88 +74,83 @@ export default function BookkeepingEventsPage() {
           Tapahtumat
         </h1>
 
-       {/* 🔹 Haku + napit */}
-<div className="flex w-full justify-end mb-4">
-  <div className="flex w-full sm:w-auto items-center gap-2">
-    {/* Hakukenttä */}
-    <input
-      type="text"
-      placeholder="Hae tapahtumia..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      className="
+        {/* 🔹 Haku + napit */}
+        <div className="flex w-full justify-end mb-4">
+          <div className="flex w-full sm:w-auto items-center gap-2">
+            {/* Hakukenttä */}
+            <input
+              type="text"
+              placeholder="Hae tapahtumia..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="
         bg-black/40 border border-yellow-700/40 rounded-md 
         px-3 py-2 text-sm text-white 
         w-full sm:w-64
       "
-      disabled={showForm}
-    />
+              disabled={showForm}
+            />
 
-    {/* Mobiilin pieni plus */}
-    <button
-      onClick={() => setShowForm(true)}
-      className="
+            {/* Mobiilin pieni plus */}
+            <button
+              onClick={() => setShowForm(true)}
+              className="
         sm:hidden bg-yellow-600 text-black
         w-10 h-10 rounded-md flex items-center justify-center
         hover:bg-yellow-500 transition
       "
-    >
-      +
-    </button>
+            >
+              +
+            </button>
 
-    {/* Desktop-nappi */}
-    <button
-      onClick={() => setShowForm(true)}
-      className="
+            {/* Desktop-nappi */}
+            <button
+              onClick={() => setShowForm(true)}
+              className="
         hidden sm:flex items-center gap-2
         bg-yellow-600 hover:bg-yellow-500
         text-black px-4 py-1 rounded-md font-semibold
       "
-    >
-      <span className="text-lg">＋</span>
-      Lisää tapahtuma
-    </button>
-  </div>
-</div>
+            >
+              <span className="text-lg">＋</span>
+              Lisää tapahtuma
+            </button>
+          </div>
+        </div>
 
-{/* 🔹 Päivämäärärajaukset – oikeassa reunassa */}
-<div className="w-full flex justify-end mb-6">
-  <div className="
-    flex flex-col sm:flex-row 
-    items-start sm:items-center
-    gap-3 sm:gap-4
-  ">
-    
-    {/* Otsikko – näyttää mobiilissa rivin yläpuolella */}
-    <p className="text-yellow-400 text-base font-semibold sm:mr-2 sm:mt-0 mt-2">
-  Hae aikavälillä:
-</p>
+        {/* 🔹 Päivämäärärajaukset – oikeassa reunassa */}
+        {/* 🔹 Päivämäärärajaukset */}
+        <div className="w-full flex sm:justify-end mb-6">
+          <div className="w-full sm:w-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+            <p className="text-yellow-400 text-base font-semibold">
+              Hae aikavälillä:
+            </p>
 
-    <div className="w-full sm:w-56">
-      <DatePickerField
-        label="Alkaen"
-        selected={startDate}
-        onChange={(date) => setStartDate(date)}
-      />
-    </div>
+            {/* 🔸 Mobiili: kaikki yhdessä rivissä */}
+            <div className="flex flex-row gap-2 w-full sm:w-auto">
+              <div className="flex-1">
+                <DatePickerField
+                  label="Alkaen"
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                />
+              </div>
 
-    {/* Viiva näkyy vain desktopissa */}
-    <div className="hidden sm:block text-yellow-400 text-lg font-semibold -mt-3">
-      –
-    </div>
+              <div className="flex items-center justify-center text-yellow-400 font-bold px-1">
+                –
+              </div>
 
-    <div className="w-full sm:w-56">
-      <DatePickerField
-        label="Päättyen"
-        selected={endDate}
-        onChange={(date) => setEndDate(date)}
-      />
-    </div>
-  </div>
-</div>
+              <div className="flex-1">
+                <DatePickerField
+                  label="Päättyen"
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
-
-      
         {/* 🔹 Lista */}
         {!showForm && (
           <motion.div
@@ -170,30 +166,20 @@ export default function BookkeepingEventsPage() {
 
         {/* 🔹 Modal – lomake */}
         {showForm && (
-          <div
-            className="
-      fixed inset-0 bg-black/70 backdrop-blur-sm
-      flex items-center justify-center px-4 z-50
-    "
-          >
+<div
+  className="
+    fixed inset-0 bg-black/70 backdrop-blur-sm
+    flex justify-center px-4 z-50
+    items-start pt-24 sm:pt-32
+  "
+>
             <div
               className="
         bg-black/40 border border-yellow-700/40 rounded-xl 
         p-6 w-full max-w-xl shadow-[0_0_25px_rgba(0,0,0,0.6)]
       "
             >
-              {/* Header + Sulje */}
-              <div className="flex justify-between mb-4">
-                <h2 className="text-yellow-400 text-xl font-semibold">
-                  Lisää kirjanpitotapahtuma
-                </h2>
-                <button
-                  onClick={() => setShowForm(false)}
-                  className="text-yellow-400 hover:text-yellow-300 text-2xl leading-none"
-                >
-                  ×
-                </button>
-              </div>
+
 
               <BookkeepingForm
                 onSuccess={(newEntry) => {

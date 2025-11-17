@@ -6,6 +6,7 @@ import ConfirmModal from "@/components/common/ConfirmModal";
 import { Edit, Trash2 } from "lucide-react";
 import CustomInputField from "@/components/common/CustomInputField";
 import ContactEvents from "@/app/admin/bookkeeping/contacts/ContactEvents";
+import { useSearchParams } from "next/navigation";
 
 type Contact = {
   id: number;
@@ -35,6 +36,9 @@ export default function ContactList({
   const [contactToDelete, setContactToDelete] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Contact | null>(null);
+const searchParams = useSearchParams();
+const openIdParam = searchParams.get("open");
+const openId = openIdParam ? Number(openIdParam) : null;
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -48,6 +52,22 @@ export default function ContactList({
     };
     fetchContacts();
   }, [refreshKey]);
+
+  useEffect(() => {
+  if (!openId) return;
+
+  // Avaa kontakti
+  setExpandedId(openId);
+
+  // Scrollaa näkyviin
+  setTimeout(() => {
+    const row = document.getElementById(`contact-${openId}`);
+    if (row) {
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, 300);
+
+}, [openId, contacts]);
 
   const filtered = contacts.filter((c) => {
     const term = searchTerm.toLowerCase();
@@ -108,6 +128,7 @@ export default function ContactList({
             {filtered.map((c, idx) => (
               <React.Fragment key={c.id}>
                 <tr
+                  id={`contact-${c.id}`}
                   onClick={() =>
                     setExpandedId(expandedId === c.id ? null : c.id)
                   }
@@ -322,7 +343,18 @@ export default function ContactList({
                                   }
                                 />
 
-                                <div className="flex justify-center gap-4 mt-4">
+                                <div className="flex justify-end gap-4 mt-4">
+                                  <button
+                                    onClick={() => {
+                                      setEditingId(null);
+                                      setEditForm(null);
+                                    }}
+                                    className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 
+                     border border-yellow-700/40 font-semibold 
+                     px-6 py-2 rounded-md transition"
+                                  >
+                                    Peruuta
+                                  </button>
                                   <button
                                     onClick={async () => {
                                       const res = await fetch(
@@ -349,17 +381,7 @@ export default function ContactList({
                                     }}
                                     className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-6 py-2 rounded-md transition"
                                   >
-                                    Tallenna muutokset
-                                  </button>
-
-                                  <button
-                                    onClick={() => {
-                                      setEditingId(null);
-                                      setEditForm(null);
-                                    }}
-                                    className="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-6 py-2 rounded-md transition"
-                                  >
-                                    Peruuta
+                                    Tallenna
                                   </button>
                                 </div>
                               </div>

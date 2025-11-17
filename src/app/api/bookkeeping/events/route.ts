@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import * as fs from "fs";
 
-
+// =============================================
+// POST — Uusi kirjanpitotapahtuma
+// =============================================
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -16,6 +18,10 @@ export async function POST(request: Request) {
     const categoryId = Number(formData.get("categoryId"));
     const receiptFile = formData.get("receipt") as File | null;
 
+    // ⭐ UUSI: kontaktin ID (voi olla null)
+    const contactIdRaw = formData.get("contactId");
+    const contactId = contactIdRaw ? Number(contactIdRaw) : null;
+
     if (!date || !categoryId) {
       return NextResponse.json(
         { error: "Päivämäärä ja kategoria ovat pakollisia" },
@@ -26,7 +32,7 @@ export async function POST(request: Request) {
     // ALV euroina
     const vatAmount = amount - amount / (1 + vatRate / 100);
 
-    // 🔥 1. Tallenna tiedosto
+    // 🔥 1. Tallenna liitetiedosto levyyn
     let receiptUrl: string | null = null;
 
     if (receiptFile && receiptFile.size > 0) {
@@ -43,7 +49,7 @@ export async function POST(request: Request) {
       receiptUrl = `/receipts/${fileName}`;
     }
 
-    // 🔥 2. Tallenna kirjanpitotapahtuma + liite
+    // 🔥 2. Tallenna varsinainen kirjanpitotapahtuma
     const newEntry = await prisma.bookkeepingEntry.create({
       data: {
         date: new Date(date),
@@ -54,6 +60,11 @@ export async function POST(request: Request) {
         vatAmount,
         paymentMethod,
         categoryId,
+
+        // ⭐ Uusi suhde kontaktiin
+        contactId: contactId || null,
+
+        // ⭐ Liite luodaan vain jos annettu
         receipt: receiptUrl
           ? {
               create: {
@@ -65,6 +76,7 @@ export async function POST(request: Request) {
       include: {
         category: true,
         receipt: true,
+        contact: true, // ⭐ Palautetaan kontakti mukaan
       },
     });
 
@@ -78,16 +90,24 @@ export async function POST(request: Request) {
   }
 }
 
-// GET — listaa kaikki kirjaukset
+// =============================================
+// GET — Listaa kaikki tapahtumat
+// =============================================
 export async function GET() {
   try {
-const entries = await prisma.bookkeepingEntry.findMany({
-  orderBy: { date: "desc" },
-  include: {
-    category: true,
-    receipt: true,   // ⭐ OLTAVA TÄSSÄ
-  },
-});
+    const entries = await prisma.bookkeepingEntry.findMany({
+      orderBy: { date: "desc" },
+      include: {
+        category: true,
+        receipt: true,
+        contact: {      // ⭐ TÄRKEÄ!
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
 
     return NextResponse.json(entries);
   } catch (error) {
@@ -99,9 +119,9 @@ const entries = await prisma.bookkeepingEntry.findMany({
   }
 }
 
-// DELETE — poista kirjaus
-
-
+// =============================================
+// DELETE — Poista tapahtuma (+ liite)
+// =============================================
 export async function DELETE(request: Request) {
   try {
     const body = await request.json();
@@ -127,7 +147,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // 2️⃣ Poista tiedosto levyltä (jos löytyy)
+    // 2️⃣ Poista tosite levyltä
     if (existingEntry.receipt?.fileUrl) {
       const filePath = `./public${existingEntry.receipt.fileUrl}`;
       try {
@@ -140,7 +160,7 @@ export async function DELETE(request: Request) {
     // 3️⃣ Poista receipt-tietokantarivi
     if (existingEntry.receipt) {
       await prisma.receipt.delete({
-        where: { entryId: id },  // ⭐ OIKEA kenttä
+        where: { entryId: id },
       });
     }
 
@@ -158,6 +178,3 @@ export async function DELETE(request: Request) {
     );
   }
 }
-
-
-

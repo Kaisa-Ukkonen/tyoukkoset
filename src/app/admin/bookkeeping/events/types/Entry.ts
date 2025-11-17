@@ -6,7 +6,13 @@ export type Entry = {
   amount: number;
   vatRate: number;
   paymentMethod: string | null;
-  
+
+  // 🔥 Uusi suhde Kontaktiin
+  contactId?: number | null;
+  contact?: {
+    id: number;
+    name: string;
+  } | null;
 
   category: {
     id: number;
@@ -14,8 +20,8 @@ export type Entry = {
     type: string;
     defaultVat: number;
   } | null;
-  
- receipt?: {
+
+  receipt?: {
     fileUrl: string;
   } | null;
 };

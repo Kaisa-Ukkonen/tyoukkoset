@@ -75,7 +75,10 @@ model BookkeepingEntry {
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
 
-  receipt Receipt?
+  receipt   Receipt?
+  // ⭐ UUSI SUHDE KONTAKTIIN (valinnainen)
+  contactId Int?
+  contact   Contact? @relation(fields: [contactId], references: [id])
 }
 
 model Receipt {
@@ -108,18 +111,19 @@ model Product {
 
 //Kontaktit
 model Contact {
-  id           Int       @id @default(autoincrement())
-  name         String
-  type         String
-  customerCode String? // esim. asiakastunnus
-  email        String? // 🔹 sähköpostiosoite laskutusta varten
-  address      String? // 🔹 katuosoite
-  zip          String? // 🔹 postinumero
-  city         String? // 🔹 postitoimipaikka
-  notes        String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  invoices     Invoice[]
+  id                 Int                @id @default(autoincrement())
+  name               String
+  type               String
+  customerCode       String? // esim. asiakastunnus
+  email              String? // 🔹 sähköpostiosoite laskutusta varten
+  address            String? // 🔹 katuosoite
+  zip                String? // 🔹 postinumero
+  city               String? // 🔹 postitoimipaikka
+  notes              String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  invoices           Invoice[]
+  bookkeepingEntries BookkeepingEntry[]
 }
 
 //Keikkamatkat
