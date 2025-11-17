@@ -116,10 +116,7 @@ export default function BookkeepingForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-black/40 border border-yellow-700/40 rounded-xl p-6 space-y-4 max-w-2xl mx-auto shadow-[0_0_15px_rgba(0,0,0,0.4)]"
-    >
+<form onSubmit={handleSubmit} className="space-y-4">
       <h2 className="text-xl font-semibold text-yellow-400 mb-4 text-center">
         Lisää kirjanpitotapahtuma
       </h2>

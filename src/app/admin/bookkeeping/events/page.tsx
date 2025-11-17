@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 import BookkeepingForm from "@/app/admin/bookkeeping/events/BookkeepingForm";
 import BookkeepingList from "@/app/admin/bookkeeping/events/BookkeepingList";
+import DatePickerField from "@/components/common/DatePickerField";
 
 import type { Entry } from "./types/Entry";
 
@@ -12,6 +13,8 @@ export default function BookkeepingEventsPage() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   // 🔹 Hae tietokannasta
   const fetchEntries = async () => {
@@ -47,11 +50,19 @@ export default function BookkeepingEventsPage() {
   // 🔹 Suodatus hakusanalla
   const filteredEntries = entries.filter((e) => {
     const term = searchTerm.toLowerCase();
-    return (
+    const date = new Date(e.date);
+
+    // 🔹 Hakusana
+    const matchesSearch =
       e.description?.toLowerCase().includes(term) ||
       e.category?.name?.toLowerCase().includes(term) ||
-      e.paymentMethod?.toLowerCase().includes(term)
-    );
+      e.paymentMethod?.toLowerCase().includes(term);
+
+    // 🔹 Päivämäärärajaukset
+    const matchesStart = startDate ? date >= startDate : true;
+    const matchesEnd = endDate ? date <= endDate : true;
+
+    return matchesSearch && matchesStart && matchesEnd;
   });
 
   return (
@@ -62,79 +73,137 @@ export default function BookkeepingEventsPage() {
           Tapahtumat
         </h1>
 
-        {/* 🔹 Haku + napit */}
-        <div className="flex w-full justify-end mb-4">
-          <div className="flex w-full sm:w-auto items-center gap-2">
-            {/* Hakukenttä */}
-            <input
-              type="text"
-              placeholder="Hae tapahtumia..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="
-                bg-black/40 border border-yellow-700/40 rounded-md 
-                px-3 py-2 text-sm text-white 
-                w-full sm:w-64
-              "
-              disabled={showForm}
-            />
+       {/* 🔹 Haku + napit */}
+<div className="flex w-full justify-end mb-4">
+  <div className="flex w-full sm:w-auto items-center gap-2">
+    {/* Hakukenttä */}
+    <input
+      type="text"
+      placeholder="Hae tapahtumia..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="
+        bg-black/40 border border-yellow-700/40 rounded-md 
+        px-3 py-2 text-sm text-white 
+        w-full sm:w-64
+      "
+      disabled={showForm}
+    />
 
-            {/* Mobiilin pieni plus */}
-            <button
-              onClick={() => setShowForm(true)}
-              className="
-                sm:hidden bg-yellow-600 text-black
-                w-10 h-10 rounded-md flex items-center justify-center
-                hover:bg-yellow-500 transition
-              "
-            >
-              +
-            </button>
+    {/* Mobiilin pieni plus */}
+    <button
+      onClick={() => setShowForm(true)}
+      className="
+        sm:hidden bg-yellow-600 text-black
+        w-10 h-10 rounded-md flex items-center justify-center
+        hover:bg-yellow-500 transition
+      "
+    >
+      +
+    </button>
 
-            {/* Desktop-nappi */}
-            <button
-              onClick={() => setShowForm(true)}
-              className="
-                hidden sm:flex items-center gap-2
-                bg-yellow-600 hover:bg-yellow-500
-                text-black px-4 py-1 rounded-md font-semibold
-              "
-            >
-              <span className="text-lg">＋</span>
-              Lisää tapahtuma
-            </button>
-          </div>
-        </div>
+    {/* Desktop-nappi */}
+    <button
+      onClick={() => setShowForm(true)}
+      className="
+        hidden sm:flex items-center gap-2
+        bg-yellow-600 hover:bg-yellow-500
+        text-black px-4 py-1 rounded-md font-semibold
+      "
+    >
+      <span className="text-lg">＋</span>
+      Lisää tapahtuma
+    </button>
+  </div>
+</div>
 
-        {/* 🔹 Lomake tai lista */}
-        <AnimatePresence mode="wait">
-          {showForm ? (
-            <motion.div
-              key="events-form"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+{/* 🔹 Päivämäärärajaukset – oikeassa reunassa */}
+<div className="w-full flex justify-end mb-6">
+  <div className="
+    flex flex-col sm:flex-row 
+    items-start sm:items-center
+    gap-3 sm:gap-4
+  ">
+    
+    {/* Otsikko – näyttää mobiilissa rivin yläpuolella */}
+    <p className="text-yellow-400 text-base font-semibold sm:mr-2 sm:mt-0 mt-2">
+  Hae aikavälillä:
+</p>
+
+    <div className="w-full sm:w-56">
+      <DatePickerField
+        label="Alkaen"
+        selected={startDate}
+        onChange={(date) => setStartDate(date)}
+      />
+    </div>
+
+    {/* Viiva näkyy vain desktopissa */}
+    <div className="hidden sm:block text-yellow-400 text-lg font-semibold -mt-3">
+      –
+    </div>
+
+    <div className="w-full sm:w-56">
+      <DatePickerField
+        label="Päättyen"
+        selected={endDate}
+        onChange={(date) => setEndDate(date)}
+      />
+    </div>
+  </div>
+</div>
+
+
+      
+        {/* 🔹 Lista */}
+        {!showForm && (
+          <motion.div
+            key="events-list"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            <BookkeepingList entries={filteredEntries} />
+          </motion.div>
+        )}
+
+        {/* 🔹 Modal – lomake */}
+        {showForm && (
+          <div
+            className="
+      fixed inset-0 bg-black/70 backdrop-blur-sm
+      flex items-center justify-center px-4 z-50
+    "
+          >
+            <div
+              className="
+        bg-black/40 border border-yellow-700/40 rounded-xl 
+        p-6 w-full max-w-xl shadow-[0_0_25px_rgba(0,0,0,0.6)]
+      "
             >
+              {/* Header + Sulje */}
+              <div className="flex justify-between mb-4">
+                <h2 className="text-yellow-400 text-xl font-semibold">
+                  Lisää kirjanpitotapahtuma
+                </h2>
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="text-yellow-400 hover:text-yellow-300 text-2xl leading-none"
+                >
+                  ×
+                </button>
+              </div>
+
               <BookkeepingForm
                 onSuccess={(newEntry) => {
                   handleNewEntry(newEntry);
                   setShowForm(false);
                 }}
               />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="events-list"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-            >
-              <BookkeepingList entries={filteredEntries} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
