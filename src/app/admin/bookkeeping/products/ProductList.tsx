@@ -131,7 +131,8 @@ export default function ProductList({
 
   // 🔹 Apufunktio joka piirtää yhden listan (palvelut/tuotteet)
   const renderTable = (list: Product[], showStock: boolean) => (
-    <table className="hidden sm:table w-full text-sm text-gray-300 border-collapse mb-8">
+
+        <table className="w-full text-sm text-gray-300 border-collapse">
       <thead>
         {showStock ? (
           // 🔸 TUOTTEET (varastotiedot)
@@ -502,7 +503,7 @@ export default function ProductList({
   return (
     <>
       {/* 🔹 MOBIILI — kortit, ei taulukoita, ei kehystä */}
-      <div className="sm:hidden mt-6 px-2">
+      <div className="block lg:hidden space-y-6 mt-6">
         {/* PALVELUT – mobiilikortit */}
         <h3 className="text-yellow-400 text-lg mt-6 mb-2">Palvelut</h3>
         {services.length === 0 ? (

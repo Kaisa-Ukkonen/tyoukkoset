@@ -1,8 +1,9 @@
+//Kalenteri
+
 "use client";
 import { fi } from "date-fns/locale";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
 
 type DatePickerFieldProps = {
   selected: Date | null;
@@ -19,27 +20,20 @@ export default function DatePickerField({
   label,
   className = "",
 }: DatePickerFieldProps) {
-  // 🔹 Päätellään labelin tila suoraan valinnan mukaan, ilman useEffectiä
   const hasValue = !!selected;
 
   return (
     <div className={`relative w-full ${className}`}>
-      {/* 🔹 Päivämääräkenttä (yhtenäinen tyyli CustomInputFieldin kanssa) */}
       <DatePicker
-        selected={selected}
-        onChange={onChange}
-        dateFormat="dd.MM.yyyy"
-        placeholderText={placeholder}
-        locale={fi}
-        className="peer w-full bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-white 
-                   placeholder-transparent focus:border-yellow-400 focus:outline-none transition-all cursor-pointer"
-        calendarClassName="bg-[#111] border border-yellow-600/50 text-yellow-100 rounded-md shadow-lg"
-        dayClassName={() =>
-          'hover:bg-yellow-600/40 rounded-full transition text-center'
-        }
-        popperClassName="z-[9999]"
-        portalId="root-portal"
-      />
+  selected={selected}
+  onChange={onChange}
+  dateFormat="dd.MM.yyyy"
+  locale={fi}
+  placeholderText={placeholder}
+  className="peer w-full bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-white
+             placeholder-transparent focus:border-yellow-400 focus:outline-none transition-all cursor-pointer"
+  withPortal
+/>
 
       {/* 🔹 Liukuva otsikko */}
       {label && (

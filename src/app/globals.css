@@ -104,8 +104,9 @@ textarea:focus {
 
 .react-datepicker__header {
   background-color: #141414 !important;
-  border-bottom: 1px solid rgba(234, 179, 8, 0.3);
+
   color: #fff !important;
+  border-bottom: 1px solid rgba(234, 179, 8, 0.4) !important;
 }
 
 .react-datepicker__current-month,
@@ -280,4 +281,54 @@ select:focus option:checked {
 
 .listbox-scroll::-webkit-scrollbar-thumb:hover {
   background-color: #555;
+}
+
+
+.react-datepicker__portal {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.75) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  padding-top: 20vh !important;   /* ← Tämä nostaa popupia ylemmäs */
+  z-index: 99999 !important;
+}
+/* === Pienempi react-datepicker popup === */
+.react-datepicker {
+  transform: scale(0.85) !important;   /* ← pienentää koko kalenterin */
+  transform-origin: top center !important; /* ettei leikkaannu reunoista */
+}
+
+/* Desktopissa hieman suurempi */
+@media (min-width: 640px) {
+  .react-datepicker {
+    transform: scale(0.90) !important;
+  }
+}
+
+/* Mobiili: vielä pienempi */
+@media (max-width: 480px) {
+  .react-datepicker {
+    transform: scale(0.78) !important;
+  }
+}
+/* === Viikonpäivien otsikot selkeämmiksi === */
+.react-datepicker__day-name {
+  color: #facc15 !important;        /* kirkas keltainen */
+  font-weight: 600 !important;      /* hieman paksumpi */
+  text-transform: lowercase !important;  
+  font-size: 0.85rem !important;    /* hieman pienempi */
+  opacity: 0.9 !important;          /* parempi kontrasti */
+  letter-spacing: 0.5px !important; /* moderni */
+}
+/* Haaleat värit kuukauden ulkopuolisille päiville */
+.react-datepicker__day--outside-month {
+  color: rgba(255, 255, 255, 0.25) !important;  /* haalea valkoinen */
+}
+
+.react-datepicker__day--outside-month:hover {
+  background-color: rgba(250, 204, 21, 0.15) !important; 
+  color: #facc15 !important; /* hoverissa kirkastuu */
+  border-radius: 0.5rem;
 }

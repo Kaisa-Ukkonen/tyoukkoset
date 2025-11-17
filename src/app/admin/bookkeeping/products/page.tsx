@@ -128,10 +128,7 @@ export default function ProductsPage() {
                 setEditingProduct={setEditingProduct}
               />
 
-              <ProductForm
-                onSuccess={handleSuccess}
-                editingProduct={editingProduct}
-              />
+        
             </motion.div>
           )}
         </AnimatePresence>

@@ -28,18 +28,18 @@ export default function BookkeepingList({
     return acc;
   }, {} as Record<string, Entry[]>);
 
-  return (
-    <div
-      className="
-  max-w-4xl mx-auto mt-6 
-  sm:bg-black/40 
-  sm:border sm:border-yellow-700/40 
-  sm:rounded-xl sm:p-6 
-  sm:shadow-[0_0_15px_rgba(0,0,0,0.4)]
-"
-    >
+ return (
+  <div
+    className="
+      max-w-4xl mx-auto mt-6 
+      lg:bg-black/40 
+      lg:border lg:border-yellow-700/40 
+      lg:rounded-xl lg:p-6 
+      lg:shadow-[0_0_15px_rgba(0,0,0,0.4)]
+    "
+  >
       {/* 🔹 DESKTOP - TAULUKKO */}
-      <div className="hidden sm:block overflow-x-auto">
+      <div className="hidden lg:block overflow-x-auto">
         <table className="w-full text-sm text-gray-300 border-collapse">
           <tbody>
             {Object.entries(groups).map(([monthName, monthEntries]) => (
@@ -82,11 +82,11 @@ export default function BookkeepingList({
                     <td className="py-2 px-3 text-yellow-300 font-medium">
                       {entry.contact ? (
                         <a
-                        href={`/admin/bookkeeping/contacts?open=${entry.contact.id}`}
-                        className="text-yellow-300 hover:text-yellow-200 underline"
-                      >
-                        {entry.contact.name}
-                      </a>
+                          href={`/admin/bookkeeping/contacts?open=${entry.contact.id}`}
+                          className="text-yellow-300 hover:text-yellow-200 underline"
+                        >
+                          {entry.contact.name}
+                        </a>
                       ) : (
                         "-"
                       )}
@@ -145,7 +145,7 @@ export default function BookkeepingList({
       </div>
 
       {/* 🔹 MOBIILI - KORTIT */}
-      <div className="block sm:hidden space-y-6 mt-6">
+      <div className="block lg:hidden space-y-6 mt-6">
         {Object.entries(groups).map(([monthName, monthEntries]) => (
           <div key={monthName}>
             {/* Kuukauden otsikko */}

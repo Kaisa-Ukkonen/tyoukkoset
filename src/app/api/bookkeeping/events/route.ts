@@ -91,16 +91,25 @@ export async function POST(request: Request) {
 }
 
 // =============================================
-// GET — Listaa kaikki tapahtumat
+// GET — Listaa tapahtumat (kaikki tai kontaktin mukaan)
 // =============================================
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const contactIdParam = searchParams.get("contactId");
+    const contactId = contactIdParam ? Number(contactIdParam) : null;
+
+    const whereClause = contactId
+      ? { contactId: contactId }
+      : {};
+
     const entries = await prisma.bookkeepingEntry.findMany({
+      where: whereClause,
       orderBy: { date: "desc" },
       include: {
         category: true,
         receipt: true,
-        contact: {      // ⭐ TÄRKEÄ!
+        contact: {
           select: {
             id: true,
             name: true,

@@ -29,9 +29,7 @@ export default function ConfirmModal({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
           >
-    <p className="text-white text-base font-semibold mb-6">
-  {message}
-</p>
+            <p className="text-white text-base font-semibold mb-6">{message}</p>
 
             <div className="flex justify-center gap-4">
               {/* 🔹 Poista-nappi */}
