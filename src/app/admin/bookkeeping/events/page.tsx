@@ -26,6 +26,17 @@ export default function BookkeepingEventsPage() {
       console.error("Virhe tapahtumien haussa:", err);
     }
   };
+  useEffect(() => {
+    if (showForm) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showForm]);
 
   useEffect(() => {
     const loadEntries = async () => {
@@ -53,11 +64,11 @@ export default function BookkeepingEventsPage() {
     const date = new Date(e.date);
 
     // 🔹 Hakusana
-const matchesSearch =
-  e.description?.toLowerCase().includes(term) ||
-  e.category?.name?.toLowerCase().includes(term) ||
-  e.paymentMethod?.toLowerCase().includes(term) ||
-  e.contact?.name?.toLowerCase().includes(term); 
+    const matchesSearch =
+      e.description?.toLowerCase().includes(term) ||
+      e.category?.name?.toLowerCase().includes(term) ||
+      e.paymentMethod?.toLowerCase().includes(term) ||
+      e.contact?.name?.toLowerCase().includes(term);
 
     // 🔹 Päivämäärärajaukset
     const matchesStart = startDate ? date >= startDate : true;
@@ -93,24 +104,30 @@ const matchesSearch =
 
             {/* Mobiilin pieni plus */}
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                document.body.style.overflow = "hidden";
+                setShowForm(true);
+              }}
               className="
-        sm:hidden bg-yellow-600 text-black
-        w-10 h-10 rounded-md flex items-center justify-center
-        hover:bg-yellow-500 transition
-      "
+    sm:hidden bg-yellow-600 text-black
+    w-10 h-10 rounded-md flex items-center justify-center
+    hover:bg-yellow-500 transition
+  "
             >
               +
             </button>
 
             {/* Desktop-nappi */}
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                document.body.style.overflow = "hidden"; // 🔥 LISÄTTIIN
+                setShowForm(true);
+              }}
               className="
-        hidden sm:flex items-center gap-2
-        bg-yellow-600 hover:bg-yellow-500
-        text-black px-4 py-1 rounded-md font-semibold
-      "
+    hidden sm:flex items-center gap-2
+    bg-yellow-600 hover:bg-yellow-500
+    text-black px-4 py-1 rounded-md font-semibold
+  "
             >
               <span className="text-lg">＋</span>
               Lisää tapahtuma
@@ -118,7 +135,6 @@ const matchesSearch =
           </div>
         </div>
 
-        {/* 🔹 Päivämäärärajaukset – oikeassa reunassa */}
         {/* 🔹 Päivämäärärajaukset */}
         <div className="w-full flex sm:justify-end mb-6">
           <div className="w-full sm:w-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
@@ -166,24 +182,31 @@ const matchesSearch =
 
         {/* 🔹 Modal – lomake */}
         {showForm && (
-<div
-  className="
-    fixed inset-0 bg-black/70 backdrop-blur-sm
-    flex justify-center px-4 z-50
-    items-start pt-24 sm:pt-32
+          <div
+            className="
+    fixed top-0 left-0 right-0 bottom-0
+    h-screen
+    bg-black/70 backdrop-blur-sm
+    z-9999
+    flex justify-center px-4
+    items-start sm:items-center            
+    pt-28 sm:pt-0                           
+    pb-10
+    overflow-y-auto
   "
->
+          >
             <div
               className="
-        bg-black/40 border border-yellow-700/40 rounded-xl 
+        bg-black/40 border border-yellow-700/40 rounded-xl
         p-6 w-full max-w-xl shadow-[0_0_25px_rgba(0,0,0,0.6)]
+        max-h-[calc(100vh-180px)]
+        overflow-y-auto
       "
             >
-
-
               <BookkeepingForm
-                onSuccess={(newEntry) => {
-                  handleNewEntry(newEntry);
+                onSuccess={(entry) => {
+                  handleNewEntry(entry);
+                  document.body.style.overflow = "";
                   setShowForm(false);
                 }}
               />

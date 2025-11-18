@@ -102,10 +102,12 @@ export default function ProductsPage() {
                 exit={{ scale: 0.95, opacity: 0 }}
                 transition={{ duration: 0.25 }}
                 className="
-                  bg-black/90 border border-yellow-700/40 rounded-xl
-                  w-full max-w-lg max-h-[80vh] overflow-y-auto
-                  p-6 shadow-xl mt-4
-                "
+  bg-black/90 border border-yellow-700/40 rounded-xl
+  w-full max-w-lg
+  max-h-[90vh]                 
+  overflow-visible            
+  p-6 shadow-xl mt-4
+"
               >
                 <ProductForm
                   onSuccess={handleSuccess}
@@ -127,8 +129,6 @@ export default function ProductsPage() {
                 setShowForm={setShowForm}
                 setEditingProduct={setEditingProduct}
               />
-
-        
             </motion.div>
           )}
         </AnimatePresence>

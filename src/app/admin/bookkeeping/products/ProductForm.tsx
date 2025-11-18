@@ -136,7 +136,7 @@ export default function ProductForm({
 
       {message && <p className="text-center text-gray-300">{message}</p>}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div className="grid sm:grid-cols-[1.2fr_1fr] gap-4">
         {/* 🔹 Tuotteen nimi */}
         <div>
           <CustomInputField
@@ -161,6 +161,7 @@ export default function ProductForm({
         {/* 🔥 UUSI: ALV-käsittely */}
         <CustomSelect
           label="ALV-käsittely"
+          
           value={form.vatHandling}
           onChange={(value) => setForm({ ...form, vatHandling: value })}
           options={[

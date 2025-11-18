@@ -42,7 +42,7 @@ doc.on("error", (err: unknown) => {
 
 
   // 🔹 Logo
-  const logoPath = path.join(process.cwd(), "public/keltainenlogo.png");
+  const logoPath = path.join(process.cwd(), "public/logoMustaTeksti.png");
   if (fs.existsSync(logoPath)) doc.image(logoPath, 50, 40, { width: 120 });
 
   // 🔹 Otsikko
