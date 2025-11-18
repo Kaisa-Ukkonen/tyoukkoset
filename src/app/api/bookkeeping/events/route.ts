@@ -80,6 +80,34 @@ export async function POST(request: Request) {
       },
     });
 
+// =========================================================
+// 3. Tallenna käytetyt tuotteet (ProductUsage + varastosaldo)
+// =========================================================
+const usagesRaw = formData.get("usages")?.toString();
+
+if (usagesRaw && usagesRaw !== "null" && usagesRaw !== "undefined") {
+  const usages = JSON.parse(usagesRaw) as { productId: number; quantity: number }[];
+
+  for (const u of usages) {
+    // Luo ProductUsage-rivi
+    await prisma.productUsage.create({
+      data: {
+        productId: u.productId,
+        quantity: u.quantity,
+        entryId: newEntry.id,
+      },
+    });
+
+    // Vähennä saldo varastosta
+    await prisma.product.update({
+      where: { id: u.productId },
+      data: {
+        quantity: { decrement: u.quantity },
+      },
+    });
+  }
+}
+
     return NextResponse.json(newEntry);
   } catch (error) {
     console.error("POST /events error:", error);
@@ -129,7 +157,7 @@ export async function GET(request: Request) {
 }
 
 // =============================================
-// DELETE — Poista tapahtuma (+ liite)
+// DELETE — Poista tapahtuma (+ liite + varastosaldon palautus)
 // =============================================
 export async function DELETE(request: Request) {
   try {
@@ -143,10 +171,13 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // 1️⃣ Hae entry + mahdollinen tosite
+    // 1️⃣ Hae entry + receipt + käytetyt tuotteet
     const existingEntry = await prisma.bookkeepingEntry.findUnique({
       where: { id },
-      include: { receipt: true },
+      include: {
+        receipt: true,
+        productUsage: true, // 🔥 hae käytetyt tuotteet
+      },
     });
 
     if (!existingEntry) {
@@ -156,7 +187,39 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // 2️⃣ Poista tosite levyltä
+    // ------------------------------------------
+    // 2️⃣ Tarkista 30 päivän aikaraja
+    // ------------------------------------------
+    const eventDate = new Date(existingEntry.date);
+    const now = new Date();
+    const diffDays = (now.getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24);
+
+    const allowStockReturn = diffDays <= 30;
+
+    // ------------------------------------------
+    // 3️⃣ Jos tapahtuma on tuore (≤ 30 pv) → palauta varastosaldo
+    // ------------------------------------------
+    if (allowStockReturn && existingEntry.productUsage.length > 0) {
+      for (const usage of existingEntry.productUsage) {
+        await prisma.product.update({
+          where: { id: usage.productId },
+          data: {
+            quantity: { increment: usage.quantity }, // 🔥 palautus saldoon
+          },
+        });
+      }
+    }
+
+    // ------------------------------------------
+    // 4️⃣ Poista ProductUsage-rivit
+    // ------------------------------------------
+    await prisma.productUsage.deleteMany({
+      where: { entryId: id },
+    });
+
+    // ------------------------------------------
+    // 5️⃣ Poista tosite levyltä
+    // ------------------------------------------
     if (existingEntry.receipt?.fileUrl) {
       const filePath = `./public${existingEntry.receipt.fileUrl}`;
       try {
@@ -166,19 +229,25 @@ export async function DELETE(request: Request) {
       }
     }
 
-    // 3️⃣ Poista receipt-tietokantarivi
+    // Poista receipt DB:stä
     if (existingEntry.receipt) {
       await prisma.receipt.delete({
         where: { entryId: id },
       });
     }
 
-    // 4️⃣ Poista itse entry
+    // ------------------------------------------
+    // 6️⃣ Poista itse kirjanpitotapahtuma
+    // ------------------------------------------
     await prisma.bookkeepingEntry.delete({
       where: { id },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      stockRestored: allowStockReturn,
+    });
+
   } catch (error) {
     console.error("DELETE event error:", error);
     return NextResponse.json(

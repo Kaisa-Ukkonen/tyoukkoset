@@ -8,6 +8,8 @@ import DatePickerField from "@/components/common/DatePickerField";
 import CustomInputField from "@/components/common/CustomInputField";
 import { Plus, Trash2 } from "lucide-react";
 import FieldError from "@/components/common/FieldError";
+import ProductUsageSelector from "@/components/admin/ProductUsageSelector";
+import { ChevronDown } from "lucide-react";
 
 type Contact = {
   id: number;
@@ -22,6 +24,7 @@ type Product = {
   netPrice?: number; // ✅ lisätty kenttä (veroton hinta)
   vatIncluded: boolean;
   vatHandling: string;
+  category: string;
 };
 
 type InvoiceLine = {
@@ -54,6 +57,7 @@ export type InvoiceFormData = {
   vatAmount: number;
   totalAmount: number;
   vatRate: number;
+  usages: { productId: number; quantity: number }[];
 };
 
 export default function InvoiceForm({
@@ -63,6 +67,7 @@ export default function InvoiceForm({
   onSaved: () => void;
   onCancel: () => void;
 }) {
+  const [showUsage, setShowUsage] = useState(false);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [fieldErrors, setFieldErrors] = useState<{
@@ -81,6 +86,7 @@ export default function InvoiceForm({
     vatAmount: 0,
     totalAmount: 0,
     vatRate: 24,
+    usages: [],
   });
 
   // 🔹 Hae kontaktit ja tuotteet
@@ -299,10 +305,33 @@ export default function InvoiceForm({
           />
           <FieldError message={fieldErrors.customer} />
         </div>
+
+        {/* ⭐ Käytetyt tuotteet (collapsible) */}
+        <div className="mt-6">
+          <h3
+            onClick={() => setShowUsage(!showUsage)}
+            className="text-yellow-400 font-semibold mb-2 cursor-pointer flex items-center gap-2"
+          >
+            <span className="text-yellow-400">Käytetyt tuotteet</span>
+            <span className="text-gray-400 italic">(sisäinen kirjanpito)</span>
+
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${
+                showUsage ? "rotate-180" : ""
+              }`}
+            />
+          </h3>
+
+          {showUsage && (
+            <ProductUsageSelector
+              usages={form.usages}
+              setUsages={(u) => setForm({ ...form, usages: u })}
+            />
+          )}
+        </div>
       </div>
 
       {/* 🔹 Laskurivit */}
-
       <div>
         <h3 className="text-yellow-400 font-semibold mb-2">Laskurivit</h3>
 
@@ -316,7 +345,7 @@ export default function InvoiceForm({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Tuote */}
                 <CustomSelect
-                  label="Tuote"
+                  label="Palvelu"
                   value={line.productId ? String(line.productId) : ""}
                   onChange={(value) => {
                     const product = products.find(
@@ -346,11 +375,13 @@ export default function InvoiceForm({
                       vatHandling: product.vatHandling,
                     });
                   }}
-                  options={products.map((p) => ({
-                    value: String(p.id),
-                    label: p.name,
-                  }))}
-                />
+               options={products
+  .filter((p) => p.category === "Palvelu")
+  .map((p) => ({
+    value: String(p.id),
+    label: p.name,
+  }))}
+/>
 
                 <CustomSelect
                   label="ALV-käsittely"

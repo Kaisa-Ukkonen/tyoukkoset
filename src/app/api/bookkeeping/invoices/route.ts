@@ -146,6 +146,33 @@ export async function POST(req: Request) {
       },
     });
 
+    /* ============================================================
+   🔸 3. TALLENNA KÄYTETYT TUOTTEET (sisäinen käyttö)
+============================================================ */
+
+const usagesRaw = data.usages;  // huom — ei formData vaan data.usages, koska InvoiceForm käyttää JSONia
+
+if (usagesRaw && usagesRaw.length > 0) {
+  for (const u of usagesRaw) {
+    // Luo ProductUsage-rivi
+    await prisma.productUsage.create({
+      data: {
+        productId: u.productId,
+        quantity: u.quantity,
+        invoiceId: newInvoice.id, // 🔥 linkitetään laskuun
+      },
+    });
+
+    // Vähennetään varastosta
+    await prisma.product.update({
+      where: { id: u.productId },
+      data: {
+        quantity: { decrement: u.quantity },
+      },
+    });
+  }
+}
+
     return NextResponse.json(newInvoice);
   } catch (error) {
     console.error("Virhe tallennettaessa laskua:", error);
@@ -157,16 +184,60 @@ export async function POST(req: Request) {
 }
 
 /* ============================================================
-   🔹 POISTA LASKU
+   🔹 POISTA LASKU (palauttaa varaston jos lasku on luonnos)
 ============================================================ */
 export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
+    const invoiceId = Number(id);
 
-    await prisma.invoiceLine.deleteMany({ where: { invoiceId: id } });
-    await prisma.invoice.delete({ where: { id } });
+    if (!invoiceId) {
+      return NextResponse.json({ error: "Invalid invoice ID" }, { status: 400 });
+    }
+
+    // 🔎 Hae lasku + status
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId },
+    });
+
+    if (!invoice) {
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    }
+
+    // 🟡 Palauta varasto VAIN jos luonnos
+    if (invoice.status === "DRAFT") {
+
+      // 🔎 Hae kaikki käytetyt tuotteet ProductUsage-taulusta
+      const usages = await prisma.productUsage.findMany({
+        where: { invoiceId },
+      });
+
+      // ♻ Palauta saldo
+      for (const u of usages) {
+        await prisma.product.update({
+          where: { id: u.productId },
+          data: { quantity: { increment: u.quantity } },
+        });
+      }
+
+      // 🧹 Poista usage-rivit
+      await prisma.productUsage.deleteMany({
+        where: { invoiceId },
+      });
+    }
+
+    // 🧹 Poista laskurivit
+    await prisma.invoiceLine.deleteMany({
+      where: { invoiceId },
+    });
+
+    // 🧹 Poista itse lasku
+    await prisma.invoice.delete({
+      where: { id: invoiceId },
+    });
 
     return NextResponse.json({ success: true });
+
   } catch (error) {
     console.error("Virhe poistettaessa laskua:", error);
     return NextResponse.json(

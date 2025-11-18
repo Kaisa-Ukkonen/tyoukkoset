@@ -6,6 +6,7 @@ import CustomSelect from "@/components/common/CustomSelect";
 import CustomTextareaField from "@/components/common/CustomTextareaField";
 import CustomInputField from "@/components/common/CustomInputField";
 import type { Entry } from "./types/Entry";
+import ProductUsageSelector from "@/components/admin/ProductUsageSelector";
 
 export default function BookkeepingForm({
   onSuccess,
@@ -43,6 +44,7 @@ export default function BookkeepingForm({
     paymentMethod: "",
     receipt: null as File | null,
     contactId: 0, // ⭐ UUSI
+    usages: [] as { productId: number; quantity: number }[],
   });
 
   // 🔹 Hae kategoriat tietokannasta
@@ -115,6 +117,7 @@ export default function BookkeepingForm({
           paymentMethod: "",
           receipt: null,
           contactId: 0,
+          usages: [], // ⭐ RESETOI TÄMÄ
         });
       } else {
         setNotification({
@@ -233,7 +236,45 @@ export default function BookkeepingForm({
             { value: "0", label: "0 %" },
           ]}
         />
+        <h3 className="text-yellow-400 mt-6 mb-2 font-semibold">
+          Käytetyt tuotteet (vain sisäiseen käyttöön)
+        </h3>
+
+        <ProductUsageSelector
+          usages={form.usages}
+          setUsages={(u) => setForm({ ...form, usages: u })}
+        />
       </div>
+      {/* Näytä lisätyt tuotteet */}
+      {form.usages && form.usages.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {form.usages.map((u, index) => (
+            <div
+              key={index}
+              className="
+          bg-black/30 border border-yellow-700/40 rounded-md
+          px-3 py-2 flex justify-between items-center
+        "
+            >
+              <span className="text-gray-200">
+                🧩 Tuote ID {u.productId} — {u.quantity} kpl
+              </span>
+
+              <button
+                onClick={() =>
+                  setForm((f) => ({
+                    ...f,
+                    usages: f.usages.filter((_, i) => i !== index),
+                  }))
+                }
+                className="text-red-400 hover:text-red-300 text-sm"
+              >
+                Poista
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* 🔹 Kuvaus */}
       <CustomTextareaField
