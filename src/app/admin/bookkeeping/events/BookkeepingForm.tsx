@@ -7,6 +7,7 @@ import CustomTextareaField from "@/components/common/CustomTextareaField";
 import CustomInputField from "@/components/common/CustomInputField";
 import type { Entry } from "./types/Entry";
 import ProductUsageSelector from "@/components/admin/ProductUsageSelector";
+import { ChevronDown } from "lucide-react";
 
 export default function BookkeepingForm({
   onSuccess,
@@ -26,7 +27,7 @@ export default function BookkeepingForm({
   };
 
   const [contacts, setContacts] = useState<Contact[]>([]);
-
+  const [showUsage, setShowUsage] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<{
@@ -84,6 +85,7 @@ export default function BookkeepingForm({
     formData.append("date", form.date.toISOString().split("T")[0]);
     formData.append("description", form.description);
     formData.append("type", form.type);
+    formData.append("usages", JSON.stringify(form.usages));
     formData.append("contactId", String(form.contactId));
     formData.append("amount", form.amount);
     formData.append("categoryId", String(form.categoryId));
@@ -236,45 +238,9 @@ export default function BookkeepingForm({
             { value: "0", label: "0 %" },
           ]}
         />
-        <h3 className="text-yellow-400 mt-6 mb-2 font-semibold">
-          Käytetyt tuotteet (vain sisäiseen käyttöön)
-        </h3>
-
-        <ProductUsageSelector
-          usages={form.usages}
-          setUsages={(u) => setForm({ ...form, usages: u })}
-        />
       </div>
-      {/* Näytä lisätyt tuotteet */}
-      {form.usages && form.usages.length > 0 && (
-        <div className="mt-3 space-y-2">
-          {form.usages.map((u, index) => (
-            <div
-              key={index}
-              className="
-          bg-black/30 border border-yellow-700/40 rounded-md
-          px-3 py-2 flex justify-between items-center
-        "
-            >
-              <span className="text-gray-200">
-                🧩 Tuote ID {u.productId} — {u.quantity} kpl
-              </span>
 
-              <button
-                onClick={() =>
-                  setForm((f) => ({
-                    ...f,
-                    usages: f.usages.filter((_, i) => i !== index),
-                  }))
-                }
-                className="text-red-400 hover:text-red-300 text-sm"
-              >
-                Poista
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+     
 
       {/* 🔹 Kuvaus */}
       <CustomTextareaField
@@ -284,12 +250,34 @@ export default function BookkeepingForm({
         onChange={(e) => setForm({ ...form, description: e.target.value })}
         rows={3}
       />
+      {/* ⭐ Käytetyt tuotteet (collapsible) */}
+        <div className="mt-6">
+          <h3
+            onClick={() => setShowUsage(!showUsage)}
+            className="text-yellow-400 font-semibold mb-2 cursor-pointer flex items-center gap-2"
+          >
+            <span className="text-yellow-400">Käytetyt tuotteet</span>
+            <span className="text-gray-400 italic">(sisäinen kirjanpito)</span>
+
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${
+                showUsage ? "rotate-180" : ""
+              }`}
+            />
+          </h3>
+
+          {showUsage && (
+            <ProductUsageSelector
+              usages={form.usages}
+              setUsages={(u) => setForm({ ...form, usages: u })}
+            />
+          )}
+        </div>
 
       {/* Tosite */}
       <div>
-        <label className="block text-sm text-yellow-400 mb-1 font-semibold">
-          Tosite (valinnainen)
-        </label>
+        <span className="text-yellow-400">Tosite</span>
+            <span className="text-gray-400 italic"> (valinnainen)</span>
         <input
           type="file"
           accept=".jpg,.jpeg,.png,.pdf"

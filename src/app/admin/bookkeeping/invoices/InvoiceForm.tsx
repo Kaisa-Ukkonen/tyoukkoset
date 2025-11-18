@@ -375,13 +375,13 @@ export default function InvoiceForm({
                       vatHandling: product.vatHandling,
                     });
                   }}
-               options={products
-  .filter((p) => p.category === "Palvelu")
-  .map((p) => ({
-    value: String(p.id),
-    label: p.name,
-  }))}
-/>
+                  options={products
+                    .filter((p) => p.category === "Palvelu")
+                    .map((p) => ({
+                      value: String(p.id),
+                      label: p.name,
+                    }))}
+                />
 
                 <CustomSelect
                   label="ALV-käsittely"

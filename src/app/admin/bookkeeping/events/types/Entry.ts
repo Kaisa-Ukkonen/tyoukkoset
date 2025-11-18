@@ -24,4 +24,10 @@ export type Entry = {
   receipt?: {
     fileUrl: string;
   } | null;
+
+  productUsage?: {
+  productId: number;
+  quantity: number;
+  product: { id: number; name: string } | null;
+}[] | null;
 };

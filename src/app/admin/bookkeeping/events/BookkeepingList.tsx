@@ -1,13 +1,42 @@
 "use client";
 
 import type { Entry } from "./types/Entry";
-import React from "react";
+import React, { useState } from "react";
+import { MoreVertical } from "lucide-react";
+import ConfirmModal from "@/components/common/ConfirmModal";
+import EditEventModal from "./EditEventModal";
 
 export default function BookkeepingList({
   entries = [],
 }: {
   entries: Entry[];
 }) {
+  // ⛔ HUOM: HOOKIT AINA TÄSSÄ ALUSSA
+  const [menuOpen, setMenuOpen] = useState<number | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
+
+  async function handleDelete() {
+    if (!deleteId) return;
+
+    const res = await fetch("/api/bookkeeping/events", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: deleteId }),
+    });
+
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      alert("Virhe poistettaessa tapahtumaa.");
+    }
+
+    setShowDeleteModal(false);
+    setDeleteId(null);
+  }
+
+  // 🟡 Nyt vasta IF, koska kaikki hookit ovat jo määritelty
   if (entries.length === 0) {
     return (
       <p className="text-gray-500 text-center mt-6">
@@ -15,11 +44,12 @@ export default function BookkeepingList({
       </p>
     );
   }
-  // 🔹 Ryhmittele tapahtumat kuukausittain (YYYY-MM)
+
+  // 🔹 Ryhmittele tapahtumat kuukausittain
   const groups = entries.reduce((acc, entry) => {
     const d = new Date(entry.date);
     const year = d.getFullYear();
-    const month = d.toLocaleString("fi-FI", { month: "long" }); // esim. "marraskuu"
+    const month = d.toLocaleString("fi-FI", { month: "long" });
     const key = `${month.toUpperCase()} ${year}`;
 
     if (!acc[key]) acc[key] = [];
@@ -28,16 +58,16 @@ export default function BookkeepingList({
     return acc;
   }, {} as Record<string, Entry[]>);
 
- return (
-  <div
-    className="
+  return (
+    <div
+      className="
       max-w-4xl mx-auto mt-6 
       lg:bg-black/40 
       lg:border lg:border-yellow-700/40 
       lg:rounded-xl lg:p-6 
       lg:shadow-[0_0_15px_rgba(0,0,0,0.4)]
     "
-  >
+    >
       {/* 🔹 DESKTOP - TAULUKKO */}
       <div className="hidden lg:block overflow-x-auto">
         <table className="w-full text-sm text-gray-300 border-collapse">
@@ -136,6 +166,40 @@ export default function BookkeepingList({
                         "-"
                       )}
                     </td>
+
+                    <td className="py-2 px-3 text-right relative">
+                     <button
+  onClick={() => setMenuOpen(menuOpen === entry.id ? null : entry.id)}
+  className="p-1 hover:bg-yellow-700/20 rounded-md"
+>
+  <MoreVertical className="text-yellow-400" size={18} />
+</button>
+
+{menuOpen === entry.id && (
+  <div className="absolute right-0 mt-1 bg-black border border-yellow-700/40 rounded-md shadow-lg z-20">
+    <button
+      onClick={() => {
+        setEditingEntry(entry);
+        setMenuOpen(null);
+      }}
+      className="block w-full text-left px-4 py-2 hover:bg-yellow-700/20 text-gray-200"
+    >
+      Muokkaa
+    </button>
+
+    <button
+      onClick={() => {
+        setDeleteId(entry.id);
+        setShowDeleteModal(true);
+        setMenuOpen(null);
+      }}
+      className="block w-full text-left px-4 py-2 hover:bg-red-700/20 text-red-400"
+    >
+      Poista
+    </button>
+  </div>
+)}
+                    </td>
                   </tr>
                 ))}
               </React.Fragment>
@@ -222,12 +286,75 @@ export default function BookkeepingList({
                       "-"
                     )}
                   </p>
+
+                  <div className="flex justify-end mt-3 relative">
+                    <button
+                      onClick={() =>
+                        setMenuOpen(menuOpen === entry.id ? null : entry.id)
+                      }
+                      className="text-gray-300 hover:text-yellow-300"
+                    >
+                      <MoreVertical size={20} />
+                    </button>
+
+                    {menuOpen === entry.id && (
+                      <div
+                        className="
+        absolute right-0 mt-2 w-36 
+        bg-black border border-yellow-700/40 
+        rounded-md shadow-lg z-20
+      "
+                      >
+                        <button
+                          onClick={() => {
+                            setEditingEntry(entry);
+                            setMenuOpen(null);
+                          }}
+                          className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-yellow-700/10"
+                        >
+                          Muokkaa
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setDeleteId(entry.id);
+                            setShowDeleteModal(true);
+                            setMenuOpen(null);
+                          }}
+                          className="block w-full text-left px-4 py-2 text-red-400 hover:bg-yellow-700/10"
+                        >
+                          Poista
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         ))}
-      </div>
+       </div>
+
+      {/* 🔥 Poiston vahvistus */}
+      <ConfirmModal
+        show={showDeleteModal}
+        message="Haluatko varmasti poistaa tämän tapahtuman?"
+        onConfirm={handleDelete}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setDeleteId(null);
+        }}
+      />
+
+      {/* 🔥 Muokkaus-popup (lisätään myöhemmin) */}
+      {editingEntry && (
+        <EditEventModal
+          entry={editingEntry}
+          onClose={() => setEditingEntry(null)}
+          onSaved={() => window.location.reload()}
+        />
+      )}
+
     </div>
   );
 }

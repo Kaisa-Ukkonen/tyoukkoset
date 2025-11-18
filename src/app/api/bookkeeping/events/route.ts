@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import * as fs from "fs";
 
-// =============================================
-// POST — Uusi kirjanpitotapahtuma
-// =============================================
+// =======================================================
+// POST — Luo uusi kirjanpitotapahtuma + käytetyt tuotteet
+// =======================================================
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -16,40 +16,39 @@ export async function POST(request: Request) {
     const vatRate = parseFloat(formData.get("vatRate")?.toString() || "0");
     const paymentMethod = formData.get("paymentMethod")?.toString() || "";
     const categoryId = Number(formData.get("categoryId"));
-    const receiptFile = formData.get("receipt") as File | null;
-
-    // ⭐ UUSI: kontaktin ID (voi olla null)
     const contactIdRaw = formData.get("contactId");
     const contactId = contactIdRaw ? Number(contactIdRaw) : null;
+    const receiptFile = formData.get("receipt") as File | null;
 
     if (!date || !categoryId) {
       return NextResponse.json(
-        { error: "Päivämäärä ja kategoria ovat pakollisia" },
+        { error: "Päivämäärä ja kategoria ovat pakollisia." },
         { status: 400 }
       );
     }
 
-    // ALV euroina
     const vatAmount = amount - amount / (1 + vatRate / 100);
 
-    // 🔥 1. Tallenna liitetiedosto levyyn
+    // -----------------------------------------------
+    // 🔹 1. Tallenna liitetiedosto levyyn (jos annettu)
+    // -----------------------------------------------
     let receiptUrl: string | null = null;
 
     if (receiptFile && receiptFile.size > 0) {
       const arrayBuffer = await receiptFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
-      const fileName = `${Date.now()}_${receiptFile.name.replace(/\s+/g, "_")}`;
+      const safeName = receiptFile.name.replace(/\s+/g, "_");
+      const fileName = `${Date.now()}_${safeName}`;
       const filePath = `./public/receipts/${fileName}`;
 
-      await import("fs").then(fs => {
-        fs.writeFileSync(filePath, buffer);
-      });
-
+      fs.writeFileSync(filePath, buffer);
       receiptUrl = `/receipts/${fileName}`;
     }
 
-    // 🔥 2. Tallenna varsinainen kirjanpitotapahtuma
+    // -----------------------------------------------
+    // 🔹 2. Luo itse kirjanpitotapahtuma
+    // -----------------------------------------------
     const newEntry = await prisma.bookkeepingEntry.create({
       data: {
         date: new Date(date),
@@ -60,53 +59,65 @@ export async function POST(request: Request) {
         vatAmount,
         paymentMethod,
         categoryId,
-
-        // ⭐ Uusi suhde kontaktiin
         contactId: contactId || null,
 
-        // ⭐ Liite luodaan vain jos annettu
         receipt: receiptUrl
           ? {
-              create: {
-                fileUrl: receiptUrl,
-              },
+              create: { fileUrl: receiptUrl },
             }
           : undefined,
       },
-      include: {
-        category: true,
-        receipt: true,
-        contact: true, // ⭐ Palautetaan kontakti mukaan
+     include: {
+  category: true,
+  receipt: true,
+  contact: {
+    select: { id: true, name: true },
+  },
+
+  // ⭐ Lisää tämä
+  productUsage: {
+    include: {
+      product: {
+        select: {
+          id: true,
+          name: true,
+        },
       },
+    },
+  },
+},
     });
 
-// =========================================================
-// 3. Tallenna käytetyt tuotteet (ProductUsage + varastosaldo)
-// =========================================================
-const usagesRaw = formData.get("usages")?.toString();
+    // -----------------------------------------------
+    // 🔹 3. Tallennetaan käytetyt tuotteet (ProductUsage)
+    // -----------------------------------------------
+    const usagesRaw = formData.get("usages")?.toString();
 
-if (usagesRaw && usagesRaw !== "null" && usagesRaw !== "undefined") {
-  const usages = JSON.parse(usagesRaw) as { productId: number; quantity: number }[];
+    if (usagesRaw && usagesRaw !== "null" && usagesRaw !== "undefined") {
+      const usages = JSON.parse(usagesRaw) as {
+        productId: number;
+        quantity: number;
+      }[];
 
-  for (const u of usages) {
-    // Luo ProductUsage-rivi
-    await prisma.productUsage.create({
-      data: {
-        productId: u.productId,
-        quantity: u.quantity,
-        entryId: newEntry.id,
-      },
-    });
+      for (const u of usages) {
+        // Luo käyttömerkintä
+        await prisma.productUsage.create({
+          data: {
+            productId: u.productId,
+            quantity: u.quantity,
+            entryId: newEntry.id,
+          },
+        });
 
-    // Vähennä saldo varastosta
-    await prisma.product.update({
-      where: { id: u.productId },
-      data: {
-        quantity: { decrement: u.quantity },
-      },
-    });
-  }
-}
+        // Vähennä varastoa
+        await prisma.product.update({
+          where: { id: u.productId },
+          data: {
+            quantity: { decrement: u.quantity },
+          },
+        });
+      }
+    }
 
     return NextResponse.json(newEntry);
   } catch (error) {
@@ -118,31 +129,23 @@ if (usagesRaw && usagesRaw !== "null" && usagesRaw !== "undefined") {
   }
 }
 
-// =============================================
-// GET — Listaa tapahtumat (kaikki tai kontaktin mukaan)
-// =============================================
+// =======================================================
+// GET — Hae tapahtumat (+ mahdollisuus suodattaa kontaktilla)
+// =======================================================
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const contactIdParam = searchParams.get("contactId");
     const contactId = contactIdParam ? Number(contactIdParam) : null;
 
-    const whereClause = contactId
-      ? { contactId: contactId }
-      : {};
-
     const entries = await prisma.bookkeepingEntry.findMany({
-      where: whereClause,
+      where: contactId ? { contactId } : {},
       orderBy: { date: "desc" },
       include: {
         category: true,
         receipt: true,
-        contact: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
+        contact: { select: { id: true, name: true } },
+        productUsage: true, // 🔥 lisätty mukaan GET:iin
       },
     });
 
@@ -166,17 +169,17 @@ export async function DELETE(request: Request) {
 
     if (!id) {
       return NextResponse.json(
-        { error: "No event ID provided" },
+        { error: "Invalid entry ID" },
         { status: 400 }
       );
     }
 
-    // 1️⃣ Hae entry + receipt + käytetyt tuotteet
+    // 🔹 1. Hae tapahtuma + liite + käytetyt tuotteet
     const existingEntry = await prisma.bookkeepingEntry.findUnique({
       where: { id },
       include: {
         receipt: true,
-        productUsage: true, // 🔥 hae käytetyt tuotteet
+        productUsage: true, // käytetyt tuotteet
       },
     });
 
@@ -187,39 +190,22 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // ------------------------------------------
-    // 2️⃣ Tarkista 30 päivän aikaraja
-    // ------------------------------------------
-    const eventDate = new Date(existingEntry.date);
-    const now = new Date();
-    const diffDays = (now.getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24);
-
-    const allowStockReturn = diffDays <= 30;
-
-    // ------------------------------------------
-    // 3️⃣ Jos tapahtuma on tuore (≤ 30 pv) → palauta varastosaldo
-    // ------------------------------------------
-    if (allowStockReturn && existingEntry.productUsage.length > 0) {
-      for (const usage of existingEntry.productUsage) {
-        await prisma.product.update({
-          where: { id: usage.productId },
-          data: {
-            quantity: { increment: usage.quantity }, // 🔥 palautus saldoon
-          },
-        });
-      }
+    // 🔹 2. Palauta varasto AINA
+    for (const usage of existingEntry.productUsage) {
+      await prisma.product.update({
+        where: { id: usage.productId },
+        data: {
+          quantity: { increment: usage.quantity },
+        },
+      });
     }
 
-    // ------------------------------------------
-    // 4️⃣ Poista ProductUsage-rivit
-    // ------------------------------------------
+    // 🔹 3. Poista ProductUsage-rivit
     await prisma.productUsage.deleteMany({
       where: { entryId: id },
     });
 
-    // ------------------------------------------
-    // 5️⃣ Poista tosite levyltä
-    // ------------------------------------------
+    // 🔹 4. Poista liitetiedosto levyltä
     if (existingEntry.receipt?.fileUrl) {
       const filePath = `./public${existingEntry.receipt.fileUrl}`;
       try {
@@ -227,25 +213,21 @@ export async function DELETE(request: Request) {
       } catch (error) {
         console.warn("Tiedoston poistaminen epäonnistui:", error);
       }
-    }
 
-    // Poista receipt DB:stä
-    if (existingEntry.receipt) {
+      // Poista liite tietokannasta
       await prisma.receipt.delete({
         where: { entryId: id },
       });
     }
 
-    // ------------------------------------------
-    // 6️⃣ Poista itse kirjanpitotapahtuma
-    // ------------------------------------------
+    // 🔹 5. Poista itse tapahtuma
     await prisma.bookkeepingEntry.delete({
       where: { id },
     });
 
     return NextResponse.json({
       success: true,
-      stockRestored: allowStockReturn,
+      stockRestored: true,
     });
 
   } catch (error) {
