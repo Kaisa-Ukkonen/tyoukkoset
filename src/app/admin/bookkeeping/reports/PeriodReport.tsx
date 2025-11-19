@@ -90,7 +90,7 @@ export default function PeriodReport() {
   return (
     <div className="max-w-4xl mx-auto mt-8 text-gray-200">
       <h1 className="text-2xl font-bold text-yellow-400 mb-4">
-        Aikaväliraportti
+        Tapahtumaraportti
       </h1>
 
       {/* Päivämäärät */}

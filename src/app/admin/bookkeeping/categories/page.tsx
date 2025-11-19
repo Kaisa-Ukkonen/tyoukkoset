@@ -59,13 +59,19 @@ export default function CategoriesPage() {
         <AnimatePresence mode="wait">
           {showForm ? (
             <motion.div
-              key="overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-x-0 top-[72px] bottom-0 z-40 bg-black/60 backdrop-blur-sm flex justify-center items-start pt-24 pb-4 overflow-y-auto"
-            >
+  key="overlay"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  transition={{ duration: 0.2 }}
+  className="
+    fixed inset-0 z-40
+    bg-black/70 backdrop-blur-sm
+    flex justify-center items-start
+    overflow-y-auto
+    px-4 pt-28 pb-10
+  "
+>
               <motion.div
                 key="form"
                 initial={{ scale: 0.95, opacity: 0 }}

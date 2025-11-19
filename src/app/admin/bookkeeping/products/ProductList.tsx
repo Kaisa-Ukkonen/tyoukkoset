@@ -1,3 +1,5 @@
+//tuottaa tuotteiden ja palveluiden listauksen admin-sivulle – sekä mobiilin korttinäkymän että desktopin taulukkonäkymän – ja hallitsee niihin liittyvät toiminnot (muokkaus, arkistointi, saldon muutos ja modaalit).
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -127,17 +129,14 @@ export default function ProductList({
             <th className="py-2 px-3">Nimi</th>
             <th className="py-2 px-3">Tuotekoodi</th>
             <th className="py-2 px-3 text-right">Saldo</th>
-            <th className="py-2 px-3 text-right">
-              Kappalehinta <br />
+            <th className="py-2 px-3 text-right">Kappalehinta <br />
               <span className="text-xs">(sis. ALV)</span>
             </th>
             <th className="py-2 px-3 text-right">Veroton</th>
             <th className="py-2 px-3 text-right">ALV-osuus</th>
             <th className="py-2 px-3">ALV-käsittely</th>
             <th className="py-2 px-3 text-right">ALV-%</th>
-            <th className="py-2 px-3 text-right text-yellow-400">
-              Varaston arvo
-            </th>
+            <th className="py-2 px-3 text-right text-yellow-400">Varaston arvo</th>
           </tr>
         ) : (
           <tr className="border-b border-yellow-700/40 text-yellow-400 text-left">
@@ -475,9 +474,21 @@ export default function ProductList({
                   <p>Kappalehinta: {p.price.toFixed(2)} €</p>
                   <p>ALV: {p.vatRate} %</p>
                   <p>ALV-käsittely: {p.vatHandling}</p>
-                  <p>
-                    Varaston arvo: {(p.quantity ?? 0 * p.price).toFixed(2)} €
-                  </p>
+                  {(() => {
+  const qty = p.quantity ?? 0;
+
+  const netPrice = p.vatIncluded
+    ? p.price / (1 + p.vatRate / 100)
+    : p.price;
+
+  const stockValue = netPrice * qty;
+
+  return (
+    <p>
+      Varaston arvo: {stockValue.toFixed(2)} €
+    </p>
+  );
+})()}
                 </div>
               </div>
             ))}

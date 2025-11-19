@@ -20,18 +20,21 @@ export default function AdminLayout({
     { name: "Stand Up", path: "/admin/standup" },
   ];
 
-  const bookkeepingLinks = [
-    { label: "Etusivu", href: "/admin/bookkeeping" },
-    { label: "Tapahtumat", href: "/admin/bookkeeping/events" },
-    { label: "Kategoriat", href: "/admin/bookkeeping/categories" },
-    { label: "Laskut", href: "/admin/bookkeeping/invoices" },
-    { label: "Kontaktit", href: "/admin/bookkeeping/contacts" },
-    { label: "Tuotteet", href: "/admin/bookkeeping/products" },
-    { label: "Keikkamatkat", href: "/admin/bookkeeping/trips" },
-    { label: "Tilikaudet", href: "/admin/bookkeeping/financial-years" },
-    { label: "ALV-kaudet", href: "/admin/bookkeeping/vat-periods" },
-    { label: "Raportit", href: "/admin/bookkeeping/reports" },
-  ];
+ const bookkeepingLinks = [
+  { label: "Etusivu", href: "/admin/bookkeeping" },
+  { label: "Tapahtumat", href: "/admin/bookkeeping/events" },
+  { label: "Kategoriat", href: "/admin/bookkeeping/categories" },
+  { label: "Laskut", href: "/admin/bookkeeping/invoices" },
+  { label: "Kontaktit", href: "/admin/bookkeeping/contacts" },
+  { label: "Tuotteet", href: "/admin/bookkeeping/products" },
+  { label: "Keikkamatkat", href: "/admin/bookkeeping/trips" },
+
+  // Nämä eivät ole vielä valmiit → piilotetaan nyt:
+  // { label: "Tilikaudet", href: "/admin/bookkeeping/financial-years" },
+  // { label: "ALV-kaudet", href: "/admin/bookkeeping/vat-periods" },
+
+  { label: "Raportit", href: "/admin/bookkeeping/reports" },
+];
 
   return (
     <div className="relative min-h-screen text-gray-200 flex flex-col overflow-hidden">

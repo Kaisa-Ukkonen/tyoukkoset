@@ -181,20 +181,20 @@ export default function ProductsPage() {
         <AnimatePresence mode="wait">
           {showForm ? (
             // ⭐ POPUP MODAALI
-            <motion.div
-              key="overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="
-        fixed inset-x-0 top-[72px] bottom-0 z-40
-        bg-black/60 backdrop-blur-sm
-        flex justify-center items-start
-        overflow-y-auto
-        px-4 pt-4 pb-4
-      "
-            >
+           <motion.div
+  key="overlay"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  transition={{ duration: 0.2 }}
+  className="
+    fixed inset-0 z-40
+    bg-black/70 backdrop-blur-sm
+    flex justify-center items-start
+    overflow-y-auto
+    px-4 pt-24 pb-10
+  "
+>
               <motion.div
                 key="product-form"
                 initial={{ scale: 0.95, opacity: 0 }}

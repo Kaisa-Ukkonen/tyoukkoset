@@ -1,47 +1,44 @@
 "use client";
 
 import { useState } from "react";
-
 import PeriodReport from "./PeriodReport";
-//import YearlyReport from "./YearlyReport";
-//import VATReport from "./VATReport";
+import VATReport from "./VATReport";
 import TripReport from "./TripReport";
 import StockReport from "./StockReport";
 
+import CustomSelect from "@/components/common/CustomSelect";
+
 export default function ReportsPage() {
-  // Näytetään oletuksena aikaväliraportti
   const [selected, setSelected] = useState("period");
+
+  const reportOptions = [
+    { value: "period", label: "Tapahtumaraportti" },
+    { value: "vat", label: "ALV-raportti" },
+    { value: "trips", label: "Matkaraportti" },
+    { value: "stock", label: "Varastoraportti" },
+  ];
 
   return (
     <div className="max-w-4xl mx-auto mt-8">
+      <h1 className="text-2xl text-yellow-400 font-bold mb-7">
+  Raportit
+</h1>
 
-      <h1 className="text-2xl text-yellow-400 font-bold mb-4">
-        Raportit
-      </h1>
-
-      {/* Alasvetovalikko */}
       <div className="mb-6">
-        <select
+        <CustomSelect
+          label="Valitse raportti"
+          options={reportOptions}
           value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-          className="bg-black/60 border border-yellow-700/40 text-gray-200 p-2 rounded-md w-full"
-        >
-          <option value="period">Tapahtumaraportti</option>
-          <option value="vat">ALV-raportti</option>      
-          <option value="trips">Matkaraportti</option>
-          <option value="stock">Varastoraportti</option>
-        </select>
+          onChange={(val) => setSelected(val)}
+        />
       </div>
 
-      {/* Renderöidään valittu raportti */}
       <div>
         {selected === "period" && <PeriodReport />}
-        {/* {selected === "yearly" && <YearlyReport />} */}
-        {/* {selected === "vat" && <VATReport />} */}
+        {selected === "vat" && <VATReport />} 
         {selected === "trips" && <TripReport />} 
         {selected === "stock" && <StockReport />} 
       </div>
-
     </div>
   );
 }
