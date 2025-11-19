@@ -94,23 +94,25 @@ model Receipt {
 
 //Tuotteet
 model Product {
-  id           Int            @id @default(autoincrement())
-  name         String
-  code         String? // Tuotekoodi
-  category     String // Tatuointi / Stand Up
-  hours        Int?
-  minutes      Int?
-  price        Float
-  vatIncluded  Boolean        @default(false)
-  vatRate      Float // esim. 25.5
-  vatHandling  String         @default("Kotimaan verollinen myynti")
-  description  String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  quantity     Int?           @default(0)
-  type         String         @default("Palvelu")
-  invoiceLines InvoiceLine[]
-  usages       ProductUsage[]
+  id             Int             @id @default(autoincrement())
+  name           String
+  code           String? // Tuotekoodi
+  category       String // Tatuointi / Stand Up
+  hours          Int?
+  minutes        Int?
+  price          Float
+  vatIncluded    Boolean         @default(false)
+  vatRate        Float // esim. 25.5
+  vatHandling    String          @default("Kotimaan verollinen myynti")
+  description    String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  quantity       Int?            @default(0)
+  type           String          @default("Palvelu")
+  archived       Boolean         @default(false)
+  invoiceLines   InvoiceLine[]
+  usages         ProductUsage[]
+  stockMovements StockMovement[]
 }
 
 model ProductUsage {
@@ -128,6 +130,16 @@ model ProductUsage {
 
   invoice   Invoice? @relation(fields: [invoiceId], references: [id])
   invoiceId Int?
+}
+
+model StockMovement {
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  change    Int // +x = lisäys, -x = poisto
+  note      String?
+  createdAt DateTime @default(now())
 }
 
 //Kontaktit

@@ -5,10 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Product } from "@/app/admin/bookkeeping/products/ProductList";
 import ProductForm from "@/app/admin/bookkeeping/products/ProductForm";
 import ProductList from "@/app/admin/bookkeeping/products/ProductList";
+import { Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { Archive } from "lucide-react";
 
 export default function ProductsPage() {
   const [showForm, setShowForm] = useState(false);
-
+  const [showMenu, setShowMenu] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -44,36 +48,132 @@ export default function ProductsPage() {
               disabled={showForm}
             />
 
-            {/* Mobiilin pieni plus */}
-            <button
-              onClick={() => {
-                setEditingProduct(null); // ⭐ Uusi tuote → tyhjä lomake
-                setShowForm(true);
-              }}
-              className="
-                sm:hidden bg-yellow-600 text-black
-                w-10 h-10 rounded-md flex items-center justify-center
-                hover:bg-yellow-500 transition
-              "
-            >
-              +
-            </button>
+            {/* 📱 Mobiili – pieni nuolivalikko */}
+            <div className="sm:hidden relative">
+              <button
+                onClick={() => setShowMenu((prev) => !prev)}
+                className="
+      bg-yellow-600 hover:bg-yellow-500
+      text-black w-10 h-10
+      rounded-md flex items-center justify-center
+      text-lg font-bold
+    "
+              >
+                ▾
+              </button>
 
-            {/* Desktop-nappi */}
-            <button
-              onClick={() => {
-                setEditingProduct(null); // ⭐ uusi tuote
-                setShowForm(true);
-              }}
-              className="
-                hidden sm:flex items-center gap-2
-                bg-yellow-600 hover:bg-yellow-500
-                text-black px-4 py-1 rounded-md font-semibold
-              "
-            >
-              <span className="text-lg">＋</span>
-              Lisää tuote
-            </button>
+              {showMenu && (
+                <div
+                  className="
+        absolute right-0 mt-2 w-48
+        bg-black border border-yellow-700/40 
+        rounded-md shadow-lg z-20
+      "
+                >
+                  {!showArchived ? (
+                    <>
+                      <button
+                        className="flex items-center gap-2 w-full text-left px-4 py-2 text-yellow-400 hover:bg-yellow-700/20"
+                        onClick={() => {
+                          setEditingProduct(null);
+                          setShowForm(true);
+                          setShowMenu(false);
+                        }}
+                      >
+                        <Plus className="w-4 h-4 text-white" />
+                        Lisää tuote/palvelu
+                      </button>
+
+                      <button
+                        className="flex items-center gap-2 w-full text-left px-4 py-2 text-yellow-400 hover:bg-yellow-700/20"
+                        onClick={() => {
+                          setShowArchived(true);
+                          setShowMenu(false);
+                        }}
+                      >
+                        <Archive className="w-4 h-4 text-white" />
+                        Näytä arkistoidut
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-yellow-400 hover:bg-yellow-700/20"
+                      onClick={() => {
+                        setShowArchived(false);
+                        setShowMenu(false);
+                      }}
+                    >
+                      <ArrowLeft className="w-4 h-4 text-white" />
+                      Takaisin aktiivisiin
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Desktop dropdown */}
+            <div className="hidden sm:block relative">
+              <button
+                onClick={() => setShowMenu((prev) => !prev)}
+                className="
+      bg-yellow-600 hover:bg-yellow-500
+      text-black px-4 py-1.5 rounded-md font-semibold
+      flex items-center gap-2
+    "
+              >
+                Valinnat ▾
+              </button>
+
+              {showMenu && (
+                <div
+                  className="
+        absolute right-0 mt-2 w-56
+        bg-black border border-yellow-700/40 rounded-md shadow-lg z-20
+      "
+                >
+                  {/* ⭐ Ei arkistotilassa → näytetään nämä */}
+                  {!showArchived && (
+                    <>
+                      <button
+                        className="flex items-center gap-2 w-full text-left px-4 py-2 text-yellow-400 hover:bg-yellow-700/20"
+                        onClick={() => {
+                          setEditingProduct(null);
+                          setShowForm(true);
+                          setShowMenu(false);
+                        }}
+                      >
+                        <Plus className="w-4 h-4 text-white" />
+                        Lisää tuote/palvelu
+                      </button>
+
+                      <button
+                        className="flex items-center gap-2 w-full text-left px-4 py-2 text-yellow-400 hover:bg-yellow-700/20"
+                        onClick={() => {
+                          setShowArchived(true);
+                          setShowMenu(false);
+                        }}
+                      >
+                        <Archive className="w-4 h-4 text-white" />
+                        Näytä arkistoidut
+                      </button>
+                    </>
+                  )}
+
+                  {showArchived && (
+                    <button
+                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-yellow-400 hover:bg-yellow-700/20"
+                      onClick={() => {
+                        setShowArchived(false);
+                        setShowMenu(false);
+                      }}
+                    >
+                      <ArrowLeft className="w-4 h-4 text-white" />
+                      Takaisin aktiivisiin
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -88,12 +188,12 @@ export default function ProductsPage() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="
-                fixed inset-x-0 top-[72px] bottom-0 z-40
-                bg-black/60 backdrop-blur-sm
-                flex justify-center items-start
-                overflow-y-auto
-                px-4 pt-4 pb-4
-              "
+        fixed inset-x-0 top-[72px] bottom-0 z-40
+        bg-black/60 backdrop-blur-sm
+        flex justify-center items-start
+        overflow-y-auto
+        px-4 pt-4 pb-4
+      "
             >
               <motion.div
                 key="product-form"
@@ -102,16 +202,16 @@ export default function ProductsPage() {
                 exit={{ scale: 0.95, opacity: 0 }}
                 transition={{ duration: 0.25 }}
                 className="
-  bg-black/90 border border-yellow-700/40 rounded-xl
-  w-full max-w-lg
-  max-h-[90vh]                 
-  overflow-visible            
-  p-6 shadow-xl mt-4
-"
+          bg-black/90 border border-yellow-700/40 rounded-xl
+          w-full max-w-lg
+          max-h-[90vh]
+          overflow-visible
+          p-6 shadow-xl mt-4
+        "
               >
                 <ProductForm
                   onSuccess={handleSuccess}
-                  editingProduct={editingProduct} // ⭐ Viedään lomakkeeseen
+                  editingProduct={editingProduct}
                 />
               </motion.div>
             </motion.div>
@@ -123,12 +223,26 @@ export default function ProductsPage() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              <ProductList
-                refreshKey={refreshKey}
-                searchTerm={searchTerm}
-                setShowForm={setShowForm}
-                setEditingProduct={setEditingProduct}
-              />
+              {/* ⭐ Näytä normaalit tai arkistoidut tuotteet */}
+              {!showArchived ? (
+                <ProductList
+                  refreshKey={refreshKey}
+                  searchTerm={searchTerm}
+                  setShowForm={setShowForm}
+                  setEditingProduct={setEditingProduct}
+                  setRefreshKey={setRefreshKey}
+                  archived={false} // ⭐ tärkeä!
+                />
+              ) : (
+                <ProductList
+                  refreshKey={refreshKey}
+                  searchTerm={searchTerm}
+                  setShowForm={setShowForm}
+                  setEditingProduct={setEditingProduct}
+                  setRefreshKey={setRefreshKey} // ⭐ lisää tämä!
+                  archived={true}
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>

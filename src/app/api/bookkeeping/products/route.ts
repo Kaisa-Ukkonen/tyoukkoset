@@ -8,12 +8,20 @@ const validVatHandling = [
   "Nollaverokannan myynti",
 ];
 
-// 🔹 HAE kaikki tuotteet
-export async function GET() {
+// 🔹 HAE tuotteet (arkistoidut tai ei-arkistoidut URL-parametrin mukaan)
+export async function GET(req: Request) {
   try {
+    const url = new URL(req.url);
+    const archivedParam = url.searchParams.get("archived");
+
+    const showArchived = archivedParam === "1";
+
     const products = await prisma.product.findMany({
+      where: { archived: showArchived },
+      
       orderBy: { name: "asc" },
     });
+
     return NextResponse.json(products);
   } catch (error) {
     console.error("❌ Virhe tuotteiden haussa:", error);
@@ -29,17 +37,20 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
 
-    // 🛡 VARMISTUS: ALV-käsittely on oikeassa muodossa
     if (!validVatHandling.includes(data.vatHandling)) {
       data.vatHandling = "Kotimaan verollinen myynti";
     }
 
-    // 🛡 Jos ei verollinen → ALV 0 %
     if (data.vatHandling !== "Kotimaan verollinen myynti") {
       data.vatRate = 0;
     }
 
-    const newProduct = await prisma.product.create({ data });
+    const newProduct = await prisma.product.create({
+      data: {
+        ...data,
+        archived: false, // ⭐ Varmistetaan että uusi tuote ei ole arkistoitu
+      },
+    });
 
     return NextResponse.json(newProduct, { status: 201 });
   } catch (error) {
@@ -57,12 +68,10 @@ export async function PUT(req: Request) {
     const data = await req.json();
     const { id, ...updateData } = data;
 
-    // 🛡 Sama varmistus päivityksessä
     if (!validVatHandling.includes(updateData.vatHandling)) {
       updateData.vatHandling = "Kotimaan verollinen myynti";
     }
 
-    // 🛡 Päivitä ALV arvo
     if (updateData.vatHandling !== "Kotimaan verollinen myynti") {
       updateData.vatRate = 0;
     }
@@ -82,17 +91,33 @@ export async function PUT(req: Request) {
   }
 }
 
-// 🔹 POISTA tuote
-export async function DELETE(req: Request) {
+// 🔹 ARKISTOI tuote (EI poista!)
+export async function PATCH(req: Request) {
   try {
     const { id } = await req.json();
-    await prisma.product.delete({ where: { id } });
-    return NextResponse.json({ message: "Tuote poistettu" });
+
+    await prisma.product.update({
+      where: { id },
+      data: { archived: true }, // ⭐ Tuote arkistoidaan
+    });
+
+    return NextResponse.json({ message: "Tuote arkistoitu" });
   } catch (error) {
-    console.error("❌ Virhe tuotteen poistossa:", error);
+    console.error("❌ Virhe arkistoinnissa:", error);
     return NextResponse.json(
-      { error: "Virhe tuotteen poistossa" },
+      { error: "Virhe arkistoinnissa" },
       { status: 500 }
     );
   }
+}
+
+// ❌ POISTO ON ESTETTY – ilmoita käyttäjälle miksi
+export async function DELETE() {
+  return NextResponse.json(
+    {
+      error:
+        "Tuotetta ei voi poistaa, koska se voi liittyä laskuihin tai kirjanpidon tapahtumiin. Käytä 'Arkistoi' toimintoa.",
+    },
+    { status: 400 }
+  );
 }

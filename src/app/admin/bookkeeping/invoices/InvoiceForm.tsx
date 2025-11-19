@@ -353,25 +353,20 @@ export default function InvoiceForm({
                     );
                     if (!product) return;
 
-                    const vatIncluded = product.vatIncluded;
                     const isVerollinen =
                       product.vatHandling === "Kotimaan verollinen myynti";
+                    const vatRate = isVerollinen ? product.vatRate : 0;
 
-                    // 🔹 Lasketaan yksikköhinta Yhteensä-kenttää varten
-                    const unitPrice = vatIncluded
-                      ? product.price / (1 + product.vatRate / 100)
-                      : product.price;
-
-                    const total = vatIncluded
-                      ? product.price
-                      : product.price * (1 + product.vatRate / 100);
+                    // 🔹 Tallennettu hinta on BRUTTO — muutetaan verottomaksi yksikköhinnaksi
+                    const brutto = product.price;
+                    const netto = brutto / (1 + vatRate / 100);
 
                     updateLine(index, {
                       productId: product.id,
                       description: product.name,
-                      unitPrice: unitPrice,
-                      vatRate: isVerollinen ? product.vatRate : 0,
-                      total,
+                      unitPrice: Number(netto.toFixed(2)), // veroton yksikköhinta
+                      vatRate: vatRate,
+                      total: Number(brutto.toFixed(2)), // bruttohinta
                       vatHandling: product.vatHandling,
                     });
                   }}

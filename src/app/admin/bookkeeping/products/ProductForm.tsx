@@ -1,7 +1,10 @@
+// Lomake tuotteiden ja palveluiden lisäämiseen ja muokkaamiseen.
+
 "use client";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
 import FieldError from "@/components/common/FieldError";
+import CustomTextareaField from "@/components/common/CustomTextareaField";
 import CustomInputField from "@/components/common/CustomInputField";
 
 type Product = {
@@ -14,7 +17,7 @@ type Product = {
   quantity?: number;
   price: number | string;
   vatRate: number;
-  vatIncluded: boolean;
+
   description?: string;
   vatHandling: string;
 };
@@ -26,9 +29,10 @@ export default function ProductForm({
   onSuccess: () => void;
   editingProduct?: Product | null;
 }) {
-   useEffect(() => {
+  useEffect(() => {
     if (editingProduct) {
       setForm({
+        id: editingProduct.id,
         name: editingProduct.name,
         code: editingProduct.code || "",
         category: editingProduct.category,
@@ -37,7 +41,7 @@ export default function ProductForm({
         quantity: editingProduct.quantity || 0,
         price: editingProduct.price.toString(),
         vatRate: editingProduct.vatRate,
-        vatIncluded: editingProduct.vatIncluded,
+
         description: editingProduct.description || "",
         vatHandling: editingProduct.vatHandling,
       });
@@ -45,6 +49,7 @@ export default function ProductForm({
   }, [editingProduct]);
 
   const [form, setForm] = useState<Product>({
+    id: undefined,
     name: "",
     code: "",
     category: "",
@@ -53,7 +58,7 @@ export default function ProductForm({
     quantity: 0,
     price: "",
     vatRate: 25.5,
-    vatIncluded: true,
+
     description: "",
     vatHandling: "Kotimaan verollinen myynti",
   });
@@ -83,11 +88,14 @@ export default function ProductForm({
     setMessage(null);
 
     try {
+      const method = form.id ? "PUT" : "POST";
+
       const res = await fetch("/api/bookkeeping/products", {
-        method: "POST",
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          id: form.id, // ⭐ varmistetaan että id menee PUT:lle
           hours: parseInt(form.hours?.toString() || "0"),
           minutes: parseInt(form.minutes?.toString() || "0"),
           quantity: parseInt(form.quantity?.toString() || "0"),
@@ -95,7 +103,7 @@ export default function ProductForm({
           vatRate:
             form.vatHandling === "Kotimaan verollinen myynti"
               ? parseFloat(form.vatRate.toString())
-              : 0, // 🔥 UUSI: jos veroton → ALV 0 %
+              : 0,
         }),
       });
 
@@ -108,9 +116,9 @@ export default function ProductForm({
           hours: 0,
           minutes: 0,
           quantity: 0,
-          price: 0,
+          price: "",
           vatRate: 25.5,
-          vatIncluded: true,
+
           description: "",
           vatHandling: "Kotimaan verollinen myynti",
         });
@@ -126,17 +134,14 @@ export default function ProductForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4"
-    >
+    <form onSubmit={handleSubmit} className="space-y-4">
       <h2 className="text-xl font-semibold text-yellow-400 text-start mb-4">
-        Lisää uusi tuote tai palvelu
+        {form.id ? "Muokkaa tuotetta/palvelua" : "Lisää uusi tuote tai palvelu"}
       </h2>
 
       {message && <p className="text-center text-gray-300">{message}</p>}
 
-<div className="grid sm:grid-cols-[1.2fr_1fr] gap-4">
+      <div className="grid sm:grid-cols-[1.2fr_1fr] gap-4">
         {/* 🔹 Tuotteen nimi */}
         <div>
           <CustomInputField
@@ -161,7 +166,6 @@ export default function ProductForm({
         {/* 🔥 UUSI: ALV-käsittely */}
         <CustomSelect
           label="ALV-käsittely"
-          
           value={form.vatHandling}
           onChange={(value) => setForm({ ...form, vatHandling: value })}
           options={[
@@ -194,24 +198,6 @@ export default function ProductForm({
             placeholder="Valitse tyyppi"
           />
           <FieldError message={errors.category} />
-        </div>
-
-        {/* 🔹 ALV sisältyy hintaan */}
-        <div className="flex items-center gap-3">
-          <label className="text-gray-300">ALV sisältyy hintaan</label>
-          <button
-            type="button"
-            onClick={() => setForm({ ...form, vatIncluded: !form.vatIncluded })}
-            className={`w-12 h-6 rounded-full transition-colors duration-300 ${
-              form.vatIncluded ? "bg-yellow-500" : "bg-gray-600"
-            } relative`}
-          >
-            <span
-              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform duration-300 ${
-                form.vatIncluded ? "translate-x-6" : "translate-x-0"
-              }`}
-            />
-          </button>
         </div>
 
         {/* 🔹 Hinta */}
@@ -282,27 +268,29 @@ export default function ProductForm({
         </div>
       )}
 
-      {/* 🔹 Varasto (vain tuote) */}
-      {form.category === "Tuote" && (
-        <input
+      {/* Tuotteen määrä – vain kun LUODAAN uusi tuote */}
+      {!editingProduct && form.category === "Tuote" && (
+        <CustomInputField
+          id="quantity"
           type="number"
-          min="0"
-          placeholder="Varasto (kpl)"
-          value={form.quantity || ""}
+          label="Tuotteen määrä"
+          value={String(form.quantity ?? "")}
           onChange={(e) =>
             setForm({ ...form, quantity: parseInt(e.target.value) || 0 })
           }
-          className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:border-yellow-400"
         />
       )}
 
       {/* 🔹 Kuvaus (vain palvelu) */}
       {form.category === "Palvelu" && (
-        <textarea
+        <CustomTextareaField
+          id="edit-description"
+          label="Kuvaus"
+          value={form.description || ""}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+            setForm({ ...form, description: e.target.value })
+          }
           placeholder="Kuvaus"
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="w-full bg-transparent border border-yellow-700/40 rounded-md px-3 py-2 text-white focus:border-yellow-400"
         />
       )}
 

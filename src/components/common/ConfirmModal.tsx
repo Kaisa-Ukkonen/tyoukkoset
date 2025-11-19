@@ -6,6 +6,10 @@ type ConfirmModalProps = {
   message: string;
   onConfirm: () => void;
   onCancel: () => void;
+
+  // ⭐ Lisätty mutta valinnainen
+  confirmLabel?: string;
+  confirmColor?: "red" | "yellow" | "orange";
 };
 
 export default function ConfirmModal({
@@ -13,6 +17,8 @@ export default function ConfirmModal({
   message,
   onConfirm,
   onCancel,
+  confirmLabel = "Poista",       // ⭐ Oletus: Poista
+  confirmColor = "red",          // ⭐ Oletus: punainen
 }: ConfirmModalProps) {
   return (
     <AnimatePresence>
@@ -29,20 +35,29 @@ export default function ConfirmModal({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
           >
-            <p className="text-white text-base font-semibold mb-6">{message}</p>
+            <p className="text-white text-base font-semibold mb-6">
+              {message}
+            </p>
 
-            <div className="flex justify-center gap-4">
-              {/* 🔹 Poista-nappi */}
-              <button
-                onClick={onConfirm}
-                className="bg-black/40 hover:bg-red-700/20 text-red-400 
-                           border border-red-700/40 font-semibold 
-                           px-7 py-2 rounded-md transition"
-              >
-                Poista
-              </button>
+<div className="flex justify-center gap-4">
+  {/* ✔ Joustava vahvistusnappi */}
+  <button
+    onClick={onConfirm}
+    className={`
+      font-semibold px-7 py-2 rounded-md transition border bg-black/40
+      ${
+        confirmColor === "red"
+          ? "hover:bg-red-700/20 text-red-400 border-red-700/40"
+          : confirmColor === "orange"
+          ? "hover:bg-orange-700/20 text-orange-400 border-orange-700/20"
+          : "hover:bg-yellow-700/20 text-yellow-400 border-yellow-700/40"
+      }
+    `}
+  >
+    {confirmLabel}
+  </button>
 
-              {/* 🔹 Peruuta-nappi (yhtenäinen muun teeman kanssa) */}
+              {/* ✔ Peruuta-nappi */}
               <button
                 onClick={onCancel}
                 className="bg-black/40 hover:bg-yellow-700/20 text-yellow-400 

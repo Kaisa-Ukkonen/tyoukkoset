@@ -31,23 +31,23 @@ export default function EditEventModal({
   onSaved: () => void;
 }) {
   const [form, setForm] = useState({
-  id: entry.id,
-  date: new Date(entry.date),
-  type: entry.type,                     // ⭐ LISÄÄ
-  paymentMethod: entry.paymentMethod || "", // ⭐ LISÄÄ
-  description: entry.description || "",
-  amount: String(entry.amount),
-  vatRate: String(entry.vatRate),
-  contactId: entry.contact?.id ?? 0,
-  categoryId: entry.category?.id ?? 0,
+    id: entry.id,
+    date: new Date(entry.date),
+    type: entry.type, // ⭐ LISÄÄ
+    paymentMethod: entry.paymentMethod || "", // ⭐ LISÄÄ
+    description: entry.description || "",
+    amount: String(entry.amount),
+    vatRate: String(entry.vatRate),
+    contactId: entry.contact?.id ?? 0,
+    categoryId: entry.category?.id ?? 0,
 
-  // ⭐ Nyt productUsage tulee datasta
-  usages:
-    entry.productUsage?.map(u => ({
-      productId: u.productId,
-      quantity: u.quantity,
-    })) ?? [],
-});
+    // ⭐ Nyt productUsage tulee datasta
+    usages:
+      entry.productUsage?.map((u) => ({
+        productId: u.productId,
+        quantity: u.quantity,
+      })) ?? [],
+  });
 
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -102,14 +102,14 @@ export default function EditEventModal({
             onChange={(date) => date && setForm({ ...form, date })}
           />
           <CustomSelect
-  label="Tyyppi"
-  value={form.type}
-  onChange={(val) => setForm({ ...form, type: val })}
-  options={[
-    { value: "tulo", label: "Tulo" },
-    { value: "meno", label: "Meno" },
-  ]}
-/>
+            label="Tyyppi"
+            value={form.type}
+            onChange={(val) => setForm({ ...form, type: val })}
+            options={[
+              { value: "tulo", label: "Tulo" },
+              { value: "meno", label: "Meno" },
+            ]}
+          />
 
           <CustomSelect
             label="Kategoria"
@@ -131,16 +131,16 @@ export default function EditEventModal({
             ]}
           />
           <CustomSelect
-  label="Maksutapa"
-  value={form.paymentMethod}
-  onChange={(val) => setForm({ ...form, paymentMethod: val })}
-  options={[
-    { value: "SumUp", label: "SumUp" },
-    { value: "Käteinen", label: "Käteinen" },
-    { value: "Yrityskortti", label: "Yrityskortti" },
-    { value: "Yrittäjän maksu", label: "Yrittäjän maksu" },
-  ]}
-/>
+            label="Maksutapa"
+            value={form.paymentMethod}
+            onChange={(val) => setForm({ ...form, paymentMethod: val })}
+            options={[
+              { value: "SumUp", label: "SumUp" },
+              { value: "Käteinen", label: "Käteinen" },
+              { value: "Yrityskortti", label: "Yrityskortti" },
+              { value: "Yrittäjän maksu", label: "Yrittäjän maksu" },
+            ]}
+          />
 
           <CustomInputField
             id="edit-summa"
