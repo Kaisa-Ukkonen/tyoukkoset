@@ -1,12 +1,12 @@
 //näyttää laskurivit valmiista laskuista, toimii vain listaus- ja tarkastelunäkymässä, EI vaikuta laskun luontiin
 
 "use client";
-
+export type { Invoice };
 import { useEffect, useState } from "react";
 import React from "react";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import { useSearchParams } from "next/navigation";
-import { Trash2 } from "lucide-react";
+import { Trash2, FileText, Send } from "lucide-react";
 import type { InvoiceLine, Product } from "@prisma/client";
 
 type InvoiceLineExtended = InvoiceLine & {
@@ -28,25 +28,34 @@ type CustomerData = {
 
 type Invoice = {
   id: number;
-  invoiceNumber: string;
+invoiceNumber: number | null;
   date: string;
   dueDate: string;
   totalAmount: number;
   status: string;
+sentAt?: string | null;
   lines?: InvoiceLine[];
   customer?: CustomerData | null;
   customCustomer?: string | null;
+};
+
+type InvoiceListProps = {
+  refreshKey: number;
+  searchTerm?: string;
+  contactId?: number;
+
+  // 🔥 Uudet propsit
+  setSendModalInvoice: (invoice: Invoice) => void;
+  setShowSendModal: (show: boolean) => void;
 };
 
 export default function InvoiceList({
   refreshKey,
   searchTerm = "",
   contactId,
-}: {
-  refreshKey: number;
-  searchTerm?: string;
-  contactId?: number;
-}) {
+  setSendModalInvoice,
+  setShowSendModal,
+}: InvoiceListProps) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(
@@ -400,14 +409,43 @@ export default function InvoiceList({
                           </div>
                         )}
 
-                        <a
-                          href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-yellow-400 hover:text-yellow-300"
-                        >
-                          📄 Näytä PDF-lasku
-                        </a>
+               <div className="flex items-center gap-4 mt-2">
+  <a
+    href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-center gap-1 text-yellow-400 hover:text-yellow-300"
+  >
+    <FileText size={18} />
+  </a>
+
+  {/* 👉 Lähetysnappi näkyy APPROVED ja SENT tiloissa */}
+  {(invoice.status === "APPROVED" || invoice.status === "SENT") && (
+    <button
+      onClick={() => {
+        setSendModalInvoice(invoice);
+        setShowSendModal(true);
+      }}
+      className="flex items-center gap-1 text-yellow-400 hover:text-yellow-300"
+    >
+      <Send size={18} />
+      {/* Desktopissa näkyy teksti, mobiilissa ei */}
+      <span className="hidden sm:inline">
+        {invoice.sentAt ? "Lähetä uudelleen" : " "}
+      </span>
+    </button>
+  )}
+</div>
+
+                        {invoice.sentAt && (
+                          <span className="text-yellow-500 text-xs ml-3">
+                            Lähetetty:{" "}
+                            {new Date(invoice.sentAt).toLocaleDateString(
+                              "fi-FI"
+                            )}
+                          </span>
+                        )}
+
                         {/* 🔹 Toimintopainikkeet (vain luonnoksille) */}
                         {invoice.status === "DRAFT" && (
                           <div className="pt-4 flex justify-end gap-4">
@@ -649,14 +687,36 @@ export default function InvoiceList({
                     </p>
                   )}
 
-                  {/* PDF-linkki */}
-                  <a
-                    href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
-                    target="_blank"
-                    className="text-yellow-400 hover:text-yellow-300 text-sm"
-                  >
-                    📄 Näytä PDF-lasku
-                  </a>
+                 <div className="flex items-center gap-4 mt-2 sm:hidden">
+  {/* PDF-ikoni */}
+  <a
+    href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
+    target="_blank"
+    className="text-yellow-400 hover:text-yellow-300"
+  >
+    <FileText size={22} />
+  </a>
+
+  {/* Lähetä / Lähetä uudelleen -ikoni */}
+  {(invoice.status === "APPROVED" || invoice.sentAt) && (
+    <button
+      onClick={() => {
+        setSendModalInvoice(invoice);
+        setShowSendModal(true);
+      }}
+      className="text-yellow-400 hover:text-yellow-300"
+    >
+      <Send size={22} />
+    </button>
+  )}
+
+  {/* Lähetetty-päivämäärä (mobiilissa tosi pienellä ja kevyenä) */}
+  {invoice.sentAt && (
+    <span className="text-yellow-500 text-[10px] ml-2">
+      {new Date(invoice.sentAt).toLocaleDateString("fi-FI")}
+    </span>
+  )}
+</div>
 
                   {/* Toimintopainikkeet */}
                   {invoice.status === "DRAFT" && (

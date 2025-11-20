@@ -1,5 +1,6 @@
 "use client";
-
+import SendInvoiceModal from "@/app/admin/bookkeeping/invoices/SendInvoiceModal";
+import type { Invoice } from "@/app/admin/bookkeeping/invoices/InvoiceList";
 import { useState, useEffect } from "react";
 import InvoiceList from "@/app/admin/bookkeeping/invoices/InvoiceList";
 import InvoiceForm from "@/app/admin/bookkeeping/invoices/InvoiceForm";
@@ -11,6 +12,11 @@ export default function InvoicesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const searchParams = useSearchParams();
   const invoiceParam = searchParams.get("invoice");
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [sendModalInvoice, setSendModalInvoice] = useState<Invoice | null>(
+    null
+  );
+  const [notification, setNotification] = useState<string | null>(null);
 
   useEffect(() => {
     if (invoiceParam) {
@@ -75,7 +81,12 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        <InvoiceList refreshKey={refreshKey} searchTerm={searchTerm} />
+        <InvoiceList
+          refreshKey={refreshKey}
+          searchTerm={searchTerm}
+          setSendModalInvoice={setSendModalInvoice}
+          setShowSendModal={setShowSendModal}
+        />
       </div>
       {/* 🔹 Uusi lasku – popup */}
       {showForm && (
@@ -88,6 +99,34 @@ export default function InvoicesPage() {
           </div>
         </div>
       )}
+      {showSendModal && (
+        <SendInvoiceModal
+          invoiceId={sendModalInvoice?.id || null}
+          defaultEmail={sendModalInvoice?.customer?.email || ""}
+          onClose={() => setShowSendModal(false)}
+          onSuccess={() => {
+            setNotification("Lasku lähetetty onnistuneesti!");
+            setRefreshKey(prev => prev + 1);
+            setTimeout(() => setNotification(null), 3000);
+          }}
+        />
+      )}
+
+     {notification && (
+  <div
+    className="
+      absolute left-1/2 top-10
+      -translate-x-1/2
+      bg-yellow-600 text-black
+      px-2 py-1 rounded-lg
+      shadow-lg z-50
+      font-semibold text-center
+      animate-fadeInOut
+    "
+  >
+    {notification}
+  </div>
+)}
     </main>
   );
 }

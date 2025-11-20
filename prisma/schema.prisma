@@ -192,6 +192,8 @@ model Invoice {
   totalAmount Float  @default(0)
   vatRate     Float?
 
+  sentAt DateTime? 
+
   lines  InvoiceLine[]
   usages ProductUsage[]
 
