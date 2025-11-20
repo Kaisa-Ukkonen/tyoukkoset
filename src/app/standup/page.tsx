@@ -22,6 +22,7 @@ export default function StandUpPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrollDirection, setScrollDirection] = useState("up");
   const [gigs, setGigs] = useState<Gig[]>([]);
+ 
 
   useEffect(() => {
     const fetchGigs = async () => {
@@ -171,21 +172,9 @@ export default function StandUpPage() {
         {/* Varsinainen sisältö – tämä osa pysyy keskellä */}
         <div className="relative z-10 flex flex-col items-center px-4">
           {/* Koomikkoesittely */}
-          <motion.section
-            className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-8 text-gray-300 mb-16"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-            viewport={{ once: true, amount: 0.3 }}
-          >
-            {/* Teksti */}
-            <motion.div
-              className="md:w-1/2 text-left leading-relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-              viewport={{ once: true }}
-            >
+          <section className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-8 text-gray-300 mb-16">
+            {/* Teksti – ilman liukuanimaatiota */}
+            <div className="md:w-1/2 text-left leading-relaxed">
               {/* --- OTSIKKO + INSTAGRAM-LINKKI --- */}
               <div className="flex items-center gap-3 mb-4">
                 <h2 className="text-2xl font-semibold text-yellow-400">
@@ -217,21 +206,24 @@ export default function StandUpPage() {
                 laiskottelevaan työnvieroksujaan kuin yrittäjähenkiseen
                 ylisuorittajaan.
               </p>
+
               <p className="mb-4">
                 Teini-isyyden kokeneena, monialayrittäjänä ja itsepäisenä oman
                 tiensä kulkijana Jesse tietää, ettei elämä mene aina
                 käsikirjoituksen mukaan – ja juuri siitä ne parhaat tarinat
                 syntyvät.
               </p>
+
               <p className="italic text-yellow-400 mb-4">
                 Elämän mottona: Muut tekkee mitä osaa. Mää teen mitä kehtoon.
               </p>
+
               <p>
                 Jessen tyyli on rento, rehellinen ja sopivasti itseironinen.
                 Täydellinen kattaus niille, jotka tunnistavat itsensä arkisista
                 mokista ja elämän pienistä yllätyksistä.
               </p>
-            </motion.div>
+            </div>
 
             {/* Kuva */}
             <motion.div
@@ -245,17 +237,19 @@ export default function StandUpPage() {
               }}
               viewport={{ once: true }}
             >
-              <Image
-                src="/kolmoset-9.webp"
-                alt="Koomikko Jesse Ukkonen"
-                width={350}
-                height={350}
-                className="rounded-2xl shadow-lg shadow-yellow-700/40 transition-transform duration-500 hover:scale-[1.03]"
-                loading="lazy"
-                decoding="async"
-              />
+              <div className="relative w-[350px] h-[350px] rounded-2xl shadow-lg shadow-yellow-700/40 transition-transform duration-500 hover:scale-[1.03]">
+                <Image
+                  src="/kolmoset-9.webp"
+                  alt="Koomikko Jesse Ukkonen"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 350px"
+                  className="object-cover rounded-2xl"
+                  priority
+                 
+                />
+              </div>
             </motion.div>
-          </motion.section>
+          </section>
 
           {/* Kolmoset-esittely */}
           <motion.section
@@ -272,14 +266,15 @@ export default function StandUpPage() {
               transition={{ duration: 0.9, delay: 0.15 }}
               viewport={{ once: true }}
             >
-              <Image
-                src="/kolmoset-33.webp"
-                alt="Kolmoset stand up -ryhmä"
-                width={400}
-                height={400}
-                className="rounded-2xl shadow-lg shadow-yellow-700/40 hover:scale-105 transition-transform duration-500"
-                loading="lazy"
-              />
+              <div className="relative w-[350px] h-[350px] rounded-2xl shadow-lg shadow-yellow-700/40 hover:scale-105 transition-transform duration-500">
+                <Image
+                  src="/kolmoset-33.webp"
+                  alt="Kolmoset stand up -ryhmä"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 350px"
+                  className="object-cover rounded-2xl"
+                />
+              </div>
             </motion.div>
 
             <div className="md:w-1/2 text-left leading-relaxed">

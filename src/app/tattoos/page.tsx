@@ -203,15 +203,16 @@ export default function Tattoos() {
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <Image
-  src="/tattoo-icon.png"        // tai dynaaminen kuva, jonka siihen laitoit
-  alt="Jesse Ukkonen Tattoo Artist"
-  width={350}
-  height={350}
-  priority          // ⭐ pakollinen
-  loading="eager"   // ⭐ pakollinen
-  className="rounded-2xl shadow-[0_0_25px_rgba(255,215,0,0.3)] object-cover"
-/>
+          <div className="relative w-[350px] h-[350px]">
+  <Image
+    src="/tattoo-icon.png"
+    alt="Jesse Ukkonen Tattoo Artist"
+    fill
+    sizes="(max-width: 768px) 100vw, 350px"
+    loading="eager"
+    className="object-cover rounded-2xl shadow-[0_0_25px_rgba(255,215,0,0.3)]"
+  />
+</div>
             </motion.div>
           </motion.section>
 

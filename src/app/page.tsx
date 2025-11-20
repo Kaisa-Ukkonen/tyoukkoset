@@ -196,6 +196,7 @@ export default function Home() {
               alt="Tattoos"
               fill
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, 300px"
               loading="lazy"
             />
             <div className="absolute bottom-3 w-full text-center text-sm sm:text-base md:text-lg font-bold bg-black/40 text-white">
@@ -221,6 +222,7 @@ export default function Home() {
               alt="Stand Up"
               fill
               className="object-cover object-top"
+              sizes="(max-width: 768px) 100vw, 300px"
               loading="lazy"
             />
             <div className="absolute bottom-3 w-full text-center text-sm sm:text-base md:text-lg font-bold bg-black/40 text-white">
