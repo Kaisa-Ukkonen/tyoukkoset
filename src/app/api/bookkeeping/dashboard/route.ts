@@ -89,12 +89,12 @@ export async function GET() {
                 .filter((e) => e.type === "tulo")
                 .reduce((sum, e) => sum + e.amount, 0);
 
-            financeByMonth.push({
-                month: key,
-                expenses: Number(expenses.toFixed(2)),
-                income: Number(income.toFixed(2)),
-                profit: Number((income - expenses).toFixed(2)),
-            });
+           financeByMonth.push({
+    month: key,
+    expenses: Number((-Math.abs(expenses)).toFixed(2)), // 🔴 NEGATIIVINEN
+    income: Number(income.toFixed(2)),                  // 🟡 POSITIIVINEN
+    profit: Number((income - expenses).toFixed(2)),     // 🔵 TULOS
+});
         }
 
         // Käytämme BookkeepingEntry + amount arvoa

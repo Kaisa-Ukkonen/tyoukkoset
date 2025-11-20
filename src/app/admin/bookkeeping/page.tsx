@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  LineChart,
   Line,
   XAxis,
   YAxis,
@@ -11,8 +10,7 @@ import {
   BarChart,
   Bar,
   Legend,
- ComposedChart,   // ← tämä oli puuttuva
-  CartesianGrid,   // ← tarvitaan myös
+  ComposedChart, // ← tämä oli puuttuva
 } from "recharts";
 
 type DashboardTotals = {
@@ -111,7 +109,7 @@ export default function BookkeepingDashboard() {
     <main className="text-white p-6 max-w-4xl mx-auto">
       {/* Otsikko */}
       <h1 className="text-3xl font-bold text-yellow-400 mb-2 text-center">
-        Kirjanpidon dashboard
+        Tervetuloa Jesse!
       </h1>
       <p className="text-gray-400 mb-10 text-center">
         Yleiskatsaus yrityksen tilanteeseen yhdellä silmäyksellä.
@@ -175,8 +173,18 @@ export default function BookkeepingDashboard() {
               labelStyle={{ color: "#fff" }}
             />
 
-            <Bar dataKey="expenses" fill="#ef4444" name="Menot" />
-            <Bar dataKey="income" fill="#facc15" name="Tuotot" />
+            <Bar
+              dataKey="expenses"
+              fill="#ef4444"
+              name="Menot"
+              radius={[6, 6, 6, 6]} 
+            />
+            <Bar
+              dataKey="income"
+              fill="#facc15"
+              name="Tuotot"
+              radius={[6, 6, 6, 6]} 
+            />
 
             <Line
               type="monotone"

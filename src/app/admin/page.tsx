@@ -21,8 +21,8 @@ export default function AdminDashboard() {
       </h1>
 
       <p className="text-gray-400 max-w-xl mx-auto mb-10">
-        Tervetuloa Jesse! Tästä voit hallita tatuointigalleriaa, keikkoja,
-        kirjanpitoa ja laskutusta.
+        Tervetuloa Jesse! Tästä voit hallita tatuointigalleriaa, keikkoja ja
+        kirjanpitoa.
       </p>
 
       {/* 🔹 Kortit / linkit */}

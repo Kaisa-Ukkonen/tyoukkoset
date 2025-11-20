@@ -19,31 +19,35 @@ export default function StockMovementModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const [change, setChange] = useState<string>("");
+
   const [note, setNote] = useState("");
+  const [newQuantity, setNewQuantity] = useState<string>(String(product.quantity));
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const numericChange = Number(change);
+  const numericNew = Number(newQuantity);
 
-    const res = await fetch("/api/bookkeeping/stock", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        productId: product.id,
-        change: numericChange,
-        note,
-      }),
-    });
+  // 🔥 Laske muutos automaattisesti
+  const change = numericNew - product.quantity;
 
-    if (res.ok) {
-      onSaved();
-      onClose();
-    } else {
-      alert("Varaston päivitys epäonnistui.");
-    }
+  const res = await fetch("/api/bookkeeping/stock", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      productId: product.id,
+      change,
+      note,
+    }),
+  });
+
+  if (res.ok) {
+    onSaved();
+    onClose();
+  } else {
+    alert("Varaston päivitys epäonnistui.");
   }
+}
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
@@ -70,12 +74,12 @@ export default function StockMovementModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* 🔹 Määrän muutos */}
           <CustomInputField
-            id="stock-change"
-            type="number"
-            label="Määrä"
-            value={change}
-            onChange={(e) => setChange(e.target.value)}
-            
+  id="stock-change"
+  type="number"
+  label="Uusi saldo"
+  value={newQuantity}
+  onChange={(e) => setNewQuantity(e.target.value)}
+
           />
           {/* 🔹 Selite */}
           <CustomTextareaField
