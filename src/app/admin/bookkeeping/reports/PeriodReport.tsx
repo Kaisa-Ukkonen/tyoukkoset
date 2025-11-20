@@ -96,7 +96,11 @@ export default function PeriodReport() {
       {/* Päivämäärät */}
       <div className="bg-black/30 border border-yellow-700/40 p-4 rounded-lg mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <DatePickerField selected={start} onChange={setStart} label="Alkaen" />
+          <DatePickerField
+            selected={start}
+            onChange={setStart}
+            label="Alkaen"
+          />
 
           <DatePickerField selected={end} onChange={setEnd} label="Päättyen" />
         </div>
@@ -140,6 +144,17 @@ export default function PeriodReport() {
                 {data.profit.toFixed(2)} €
               </span>
             </div>
+            {/* 🔥 Lataa PDF -nappi */}
+            <button
+              onClick={() => {
+                if (!start || !end) return;
+                const url = `/api/bookkeeping/reports/period/pdf?start=${start.toISOString()}&end=${end.toISOString()}`;
+                window.open(url, "_blank");
+              }}
+              className="bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-2 rounded-md font-semibold"
+            >
+              Lataa PDF
+            </button>
           </div>
 
           {/* ============= MYNNIN ALV ============= */}
@@ -164,9 +179,15 @@ export default function PeriodReport() {
                   {Object.entries(data.salesVat).map(([rate, row]) => (
                     <tr key={rate} className="border-b border-yellow-700/20">
                       <td className="py-2">{rate} %</td>
-                      <td className="py-2 text-right">{row.net.toFixed(2)} €</td>
-                      <td className="py-2 text-right">{row.vat.toFixed(2)} €</td>
-                      <td className="py-2 text-right">{row.total.toFixed(2)} €</td>
+                      <td className="py-2 text-right">
+                        {row.net.toFixed(2)} €
+                      </td>
+                      <td className="py-2 text-right">
+                        {row.vat.toFixed(2)} €
+                      </td>
+                      <td className="py-2 text-right">
+                        {row.total.toFixed(2)} €
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -180,9 +201,7 @@ export default function PeriodReport() {
                   key={rate}
                   className="border border-yellow-700/30 bg-black/20 p-3 rounded-lg"
                 >
-                  <p className="text-yellow-400 font-semibold mb-1">
-                    {rate} %
-                  </p>
+                  <p className="text-yellow-400 font-semibold mb-1">{rate} %</p>
 
                   <p>Veroton: {row.net.toFixed(2)} €</p>
                   <p>ALV: {row.vat.toFixed(2)} €</p>
@@ -214,9 +233,15 @@ export default function PeriodReport() {
                   {Object.entries(data.purchaseVat).map(([rate, row]) => (
                     <tr key={rate} className="border-b border-yellow-700/20">
                       <td className="py-2">{rate} %</td>
-                      <td className="py-2 text-right">{row.net.toFixed(2)} €</td>
-                      <td className="py-2 text-right">{row.vat.toFixed(2)} €</td>
-                      <td className="py-2 text-right">{row.total.toFixed(2)} €</td>
+                      <td className="py-2 text-right">
+                        {row.net.toFixed(2)} €
+                      </td>
+                      <td className="py-2 text-right">
+                        {row.vat.toFixed(2)} €
+                      </td>
+                      <td className="py-2 text-right">
+                        {row.total.toFixed(2)} €
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -230,9 +255,7 @@ export default function PeriodReport() {
                   key={rate}
                   className="border border-yellow-700/30 bg-black/20 p-3 rounded-lg"
                 >
-                  <p className="text-yellow-400 font-semibold mb-1">
-                    {rate} %
-                  </p>
+                  <p className="text-yellow-400 font-semibold mb-1">{rate} %</p>
 
                   <p>Veroton: {row.net.toFixed(2)} €</p>
                   <p>ALV: {row.vat.toFixed(2)} €</p>
