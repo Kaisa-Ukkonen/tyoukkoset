@@ -11,8 +11,9 @@ import {
   BarChart,
   Bar,
   Legend,
+ ComposedChart,   // ← tämä oli puuttuva
+  CartesianGrid,   // ← tarvitaan myös
 } from "recharts";
-
 
 type DashboardTotals = {
   inventoryCount: number;
@@ -35,11 +36,19 @@ type TopProduct = {
 type DashboardCharts = {
   salesByMonth: SalesByMonth[];
   topProducts: TopProduct[];
+  financeByMonth: FinanceMonth[]; // ← tämä puuttui
 };
 
 type DashboardResponse = {
   totals: DashboardTotals;
   charts: DashboardCharts;
+};
+
+type FinanceMonth = {
+  month: string;
+  income: number;
+  expenses: number;
+  profit: number;
 };
 
 const CustomTooltip = (props: unknown) => {
@@ -146,25 +155,40 @@ export default function BookkeepingDashboard() {
         </div>
       </div>
 
-      {/* Myyntikaavio */}
+      {/* Tulot / Menot / Tulos yhdistelmäkaavio */}
       <div className="bg-black/40 border border-yellow-700/40 p-5 rounded-xl shadow-lg mb-10">
         <h2 className="text-xl font-semibold text-yellow-400 mb-4">
-          Myynti viimeisen 12 kuukauden aikana
+          Tulot ja menot viimeisen 12 kuukauden aikana
         </h2>
 
-        <ResponsiveContainer width="100%" height={260}>
-          <LineChart data={charts.salesByMonth}>
+        <ResponsiveContainer width="100%" height={320}>
+          <ComposedChart data={charts.financeByMonth}>
             <XAxis dataKey="month" stroke="#aaa" />
             <YAxis stroke="#aaa" />
-           <Tooltip content={<CustomTooltip />} />
-            <Legend />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "rgba(0,0,0,0.8)",
+                border: "1px solid #facc15",
+                borderRadius: "6px",
+                color: "#fff",
+              }}
+              labelStyle={{ color: "#fff" }}
+            />
+
+            <Bar dataKey="expenses" fill="#ef4444" name="Menot" />
+            <Bar dataKey="income" fill="#facc15" name="Tuotot" />
+
             <Line
               type="monotone"
-              dataKey="total"
-              stroke="#facc15"
+              dataKey="profit"
+              stroke="#38bdf8"
               strokeWidth={3}
+              dot={{ r: 5, stroke: "#38bdf8", strokeWidth: 2 }}
+              strokeDasharray="5 5"
+              name="Tulos"
             />
-          </LineChart>
+            <Legend />
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
 
@@ -179,10 +203,10 @@ export default function BookkeepingDashboard() {
             <XAxis dataKey="name" stroke="#aaa" />
             <YAxis stroke="#aaa" />
             <Tooltip
-  content={<CustomTooltip />}
-  cursor={{ fill: "rgba(0,0,0,0.25)" }}   // tumma hover
-/>
-<Bar dataKey="Varastosaldo" fill="#facc15" radius={[8,8,0,0]} />
+              content={<CustomTooltip />}
+              cursor={{ fill: "rgba(0,0,0,0.25)" }} // tumma hover
+            />
+            <Bar dataKey="Varastosaldo" fill="#facc15" radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
