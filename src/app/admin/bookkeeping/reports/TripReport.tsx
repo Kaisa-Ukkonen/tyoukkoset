@@ -96,6 +96,20 @@ export default function TripReport() {
                 {data.totalAllowance.toFixed(2)} €
               </span>
             </div>
+
+            {/* Lataa PDF -nappi */}
+<div className="mt-4">
+  <button
+    onClick={async () => {
+      if (!start || !end) return;
+      const url = `/api/bookkeeping/reports/trips/pdf?start=${start.toISOString()}&end=${end.toISOString()}`;
+      window.open(url, "_blank");
+    }}
+    className="bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-2 rounded-md font-semibold"
+  >
+    Lataa PDF
+  </button>
+</div>
           </div>
 
           {/* Matkat */}
