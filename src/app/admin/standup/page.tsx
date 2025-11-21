@@ -1,3 +1,4 @@
+//Tämä sivu hakee keikkatiedot Next.js API-routeilta, hallitsee gigien CRUD-toiminnot (luonti, päivitys, poisto), ylläpitää lomake- ja editointitiloja React-statella sekä välittää datan StandupForm- ja StandupList-komponenteille.
 "use client";
 
 import { useState, useEffect } from "react";
@@ -115,15 +116,16 @@ export default function AdminStandupPage() {
       placeDetails: gig.placeDetails || "",
       address: gig.address,
       date: gig.date ? new Date(gig.date) : null,
-      time:
-        gig.time && gig.time.includes(":")
-          ? (() => {
-              const [h, m] = gig.time.split(":").map(Number);
-              const d = new Date();
-              d.setHours(h, m, 0, 0);
-              return d;
-            })()
-          : null,
+time:
+  gig.time
+    ? (() => {
+        const clean = gig.time.replace(".", ":");
+        const [h, m] = clean.split(":").map(Number);
+        const d = new Date();
+        d.setHours(h || 0, m || 0, 0, 0);
+        return d;
+      })()
+    : null,
     });
   };
 

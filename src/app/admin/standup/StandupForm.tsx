@@ -1,3 +1,4 @@
+//Lomake uuden Stand Up -keikan lisäämiseen, sisältäen keikan perustiedot, päivämäärän ja kellonajan syötön sekä peruutus- ja tallennuspainikkeet.
 import DatePickerField from "@/components/common/DatePickerField";
 import DatePicker from "react-datepicker";
 
@@ -57,9 +58,7 @@ export default function StandupForm({
         <input
           type="text"
           value={form.placeDetails}
-          onChange={(e) =>
-            setForm({ ...form, placeDetails: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, placeDetails: e.target.value })}
           placeholder="Esim. Pannuhuoneella"
           className="w-full p-3 bg-black/40 border border-yellow-600/40 rounded-md 
             focus:border-yellow-400 text-white placeholder-gray-400 outline-none transition"
@@ -85,10 +84,13 @@ export default function StandupForm({
       {/* 🔹 Päivämäärä + kellonaika */}
       <div className="flex flex-col sm:flex-row gap-3 text-left">
         <div className="sm:w-[32%]">
+          
           <DatePickerField
             label="Päivämäärä"
             selected={form.date}
             onChange={(date) => setForm({ ...form, date })}
+            className="overflow-visible"
+            
           />
         </div>
 
@@ -96,6 +98,7 @@ export default function StandupForm({
           <label className="absolute -top-2.5 left-3 px-1 text-xs text-yellow-400 bg-black rounded-sm z-10">
             Kellonaika
           </label>
+
           <DatePicker
             selected={form.time}
             onChange={(time) => setForm({ ...form, time })}
@@ -105,8 +108,9 @@ export default function StandupForm({
             dateFormat="HH:mm"
             placeholderText="Valitse kellonaika"
             locale="fi"
-            className="w-full p-3 bg-black/40 border border-yellow-600/40 rounded-md 
-              text-white placeholder-gray-400 outline-none focus:border-yellow-400 transition"
+            wrapperClassName="!h-12 w-full" // 👈 tärkeä
+            className="w-full h-11! py-1! px-3 bg-black/40 border border-yellow-600/40 
+rounded-md text-white placeholder-gray-400 outline-none focus:border-yellow-400 transition"
           />
         </div>
       </div>

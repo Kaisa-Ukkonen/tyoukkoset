@@ -406,6 +406,7 @@ export default function StandUpPage() {
                             </span>{" "}
                             – {gig.title}
                             <br />
+                            
                             {/* 🔹 Tarkempi paikka ennen osoitetta */}
                             {gig.placeDetails && (
                               <p className="text-white text-sm mt-1">
@@ -419,7 +420,9 @@ export default function StandUpPage() {
                               )}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex items-center gap-1 transition-all duration-300 hover:-translate-y-0,5 hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
+                              className="text-yellow-300 hover:text-yellow-400 text-sm inline-flex 
+                              items-center gap-1 transition-all duration-300 hover:-translate-y-0,5 
+                              hover:[text-shadow:0_0_8px_rgba(255,215,0,0.6)]"
                             >
                               📍 {gig.address}
                             </a>

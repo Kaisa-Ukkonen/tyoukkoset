@@ -15,7 +15,7 @@ export default function AdminLayout({
   const [openDropdown, setOpenDropdown] = useState(false);
 
   const links = [
-    { name: "Dashboard", path: "/admin" },
+    { name: "Etusivu", path: "/admin" },
     { name: "Tatuoinnit", path: "/admin/tattoos" },
     { name: "Stand Up", path: "/admin/standup" },
   ];

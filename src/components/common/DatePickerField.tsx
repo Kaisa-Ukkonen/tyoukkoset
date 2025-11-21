@@ -25,15 +25,15 @@ export default function DatePickerField({
   return (
     <div className={`relative w-full ${className}`}>
       <DatePicker
-  selected={selected}
-  onChange={onChange}
-  dateFormat="dd.MM.yyyy"
-  locale={fi}
-  placeholderText={placeholder}
-  className="peer w-full bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-white
+        selected={selected}
+        onChange={onChange}
+        dateFormat="dd.MM.yyyy"
+        locale={fi}
+        placeholderText={placeholder}
+        className="peer w-full bg-black/40 border border-yellow-700/40 rounded-md px-3 py-2 text-white
              placeholder-transparent focus:border-yellow-400 focus:outline-none transition-all cursor-pointer"
-  withPortal
-/>
+        
+      />
 
       {/* 🔹 Liukuva otsikko */}
       {label && (

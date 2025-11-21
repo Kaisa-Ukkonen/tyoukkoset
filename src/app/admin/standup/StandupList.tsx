@@ -1,3 +1,5 @@
+//Tämä komponentti näyttää kaikki Stand Up -keikat listana ja mahdollistaa yksittäisten keikkojen muokkaamisen ja poistamisen inline-muokkaustilassa eli muokkaus tapahtuu suoraan listan sisällä.
+
 import DatePicker from "react-datepicker";
 import DatePickerField from "@/components/common/DatePickerField";
 
@@ -69,6 +71,7 @@ export default function StandupList({
               </div>
 
               {/* Tarkempi paikka */}
+
               <div className="relative">
                 <label className="absolute -top-2.5 left-3 px-1 text-xs text-yellow-400 bg-black rounded-sm z-10">
                   Tarkempi paikka
@@ -103,8 +106,8 @@ export default function StandupList({
               </div>
 
               {/* Päivämäärä + aika */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="sm:w-[35%]">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="w-full sm:w-auto sm:max-w-[200px]">
                   <DatePickerField
                     label="Päivämäärä"
                     selected={editForm.date}
@@ -112,10 +115,11 @@ export default function StandupList({
                   />
                 </div>
 
-                <div className="sm:w-[25%] relative">
+                <div className="w-full sm:w-auto sm:max-w-[150px] relative">
                   <label className="absolute -top-2.5 left-3 px-1 text-xs text-yellow-400 bg-black rounded-sm z-10">
                     Kellonaika
                   </label>
+
                   <DatePicker
                     selected={editForm.time}
                     onChange={(t) => setEditForm({ ...editForm, time: t })}
@@ -123,8 +127,12 @@ export default function StandupList({
                     showTimeSelectOnly
                     timeIntervals={15}
                     dateFormat="HH:mm"
+                    placeholderText="Valitse kellonaika"
                     locale="fi"
-                    className="w-full p-3 bg-black/40 border border-yellow-600/40 rounded-md text-white focus:border-yellow-400"
+                    wrapperClassName="w-full !h-12"
+                    className="w-full h-11! py-1! px-3 bg-black/40 border border-yellow-600/40 
+      rounded-md text-white placeholder-gray-400 outline-none 
+      focus:border-yellow-400 transition"
                   />
                 </div>
               </div>

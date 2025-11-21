@@ -1,3 +1,6 @@
+//Tämä API-reitti toteuttaa Stand Up -keikkojen CRUD-toiminnot hyödyntämällä Next.js Server Routeja ja Prisma ORM:ää: GET palauttaa julkiset keikat MySQL-tietokannasta, 
+// POST luo uuden keikan, PUT päivittää olemassa olevan ja DELETE poistaa sen annetun ID:n perusteella.
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 

@@ -332,3 +332,19 @@ select:focus option:checked {
   color: #facc15 !important; /* hoverissa kirkastuu */
   border-radius: 0.5rem;
 }
+
+.custom-datepicker-input {
+  height: 48px !important;
+  padding: 0 12px !important;
+  display: flex;
+  align-items: center;
+  background-color: rgba(0,0,0,0.4);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  border-radius: 6px;
+  color: white;
+}
+
+.react-datepicker-wrapper,
+.react-datepicker__input-container {
+  height: 48px !important;
+}
