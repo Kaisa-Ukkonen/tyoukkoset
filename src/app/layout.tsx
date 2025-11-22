@@ -1,8 +1,9 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "TyöUkkoset",
-  description: "Tatuointia ja Stand Upia asenteella",
+  title: "TyöUkkoset – Tatuoinnit ja Stand Up | Jesse Ukkonen",
+  description:
+    "TyöUkkoset – Siilinjärveläinen tatuointitaiteilija ja stand up -koomikko Jesse Ukkonen. Tutustu tatuointeihin, varaa aika ja nauti stand up -esityksistä.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -150,24 +150,28 @@ export default function Home() {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <div className="max-w-6xl mx-auto px-6 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-6">
               TyöUkkoset –{" "}
-              <span className="text-yellow-400">
-                Tatuointia ja Stand Upia asenteella
+              <span className="text-yellow-400">Rennolla otteella!</span>
+            </h1>
+
+            <p className="text-gray-200 leading-relaxed space-y-2">
+              <span className="block">Tervetuloa meidän maailmaan!</span>
+              <span className="block">
+                Sivuston takana kirjoittelee Jesse Ukkonen, ehkä suomen ainoa
+                tatuoiva koomikko.
               </span>
-            </h2>
-            <p className="text-gray-300 text-lg leading-relaxed max-w-3xl mx-auto">
-              Tervetuloa TyöUkkosten maailmaan. Jesse Ukkonen yhdistää luovan
-              tatuointitaiteen ja stand up -komiikan samaan intensiiviseen
-              pakettiin.
-              <br className="hidden sm:block" />
-              Valitse alta polkusi:{" "}
-              <span className="text-yellow-400 font-semibold">
-                Tatuoinnit
-              </span>{" "}
-              vai <span className="text-yellow-400 font-semibold">Naurut</span>{" "}
-              ja astu sisään.
+              <span className="block">
+                Valitseppa alta haluamasi{" "}
+                <span className="text-yellow-400 font-semibold">palvelu</span>{" "}
+                ja tutustu lisää.
+              </span>
             </p>
+
+            <span className="block mt-4 text-gray-400 text-sm">
+              Tatuointistudio Siilinjärvellä • Stand up -koomikko
+              Pohjois-Savossa
+            </span>
           </div>
         </motion.section>
 
