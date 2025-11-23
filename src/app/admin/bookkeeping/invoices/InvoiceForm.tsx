@@ -481,7 +481,7 @@ export default function InvoiceForm({
                   }}
                 />
                 {/* 🔹 Näytä ALV 0 % -syykoodi vain verottomille riveille */}
-                {line.vatHandling === "Veroton" && (
+               {(line.vatHandling === "Veroton" || line.vatHandling === "Nollaverokannan myynti") && (
                   <div className="col-span-full mt-2">
                     <CustomSelect
                       label="ALV 0 % -syy"

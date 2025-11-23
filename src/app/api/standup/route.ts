@@ -5,6 +5,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 
+// 🔹 Hae kaikki keikat
+export async function GET() {
+  const gigs = await prisma.standupGig.findMany({
+    where: { isPublic: true },
+    orderBy: { date: "asc" },
+  });
+  return NextResponse.json(gigs);
+}
 
 // 🔹 Lisää uusi keikka
 export async function POST(req: Request) {

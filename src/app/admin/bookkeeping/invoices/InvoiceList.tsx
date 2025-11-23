@@ -28,12 +28,12 @@ type CustomerData = {
 
 type Invoice = {
   id: number;
-invoiceNumber: number | null;
+  invoiceNumber: number | null;
   date: string;
   dueDate: string;
   totalAmount: number;
   status: string;
-sentAt?: string | null;
+  sentAt?: string | null;
   lines?: InvoiceLine[];
   customer?: CustomerData | null;
   customCustomer?: string | null;
@@ -409,33 +409,34 @@ export default function InvoiceList({
                           </div>
                         )}
 
-               <div className="flex items-center gap-4 mt-2">
-  <a
-    href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="flex items-center gap-1 text-yellow-400 hover:text-yellow-300"
-  >
-    <FileText size={18} />
-  </a>
+                        <div className="flex items-center gap-4 mt-2">
+                          <a
+                            href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-yellow-400 hover:text-yellow-300"
+                          >
+                            <FileText size={18} />
+                          </a>
 
-  {/* 👉 Lähetysnappi näkyy APPROVED ja SENT tiloissa */}
-  {(invoice.status === "APPROVED" || invoice.status === "SENT") && (
-    <button
-      onClick={() => {
-        setSendModalInvoice(invoice);
-        setShowSendModal(true);
-      }}
-      className="flex items-center gap-1 text-yellow-400 hover:text-yellow-300"
-    >
-      <Send size={18} />
-      {/* Desktopissa näkyy teksti, mobiilissa ei */}
-      <span className="hidden sm:inline">
-        {invoice.sentAt ? "Lähetä uudelleen" : " "}
-      </span>
-    </button>
-  )}
-</div>
+                          {/* 👉 Lähetysnappi näkyy APPROVED ja SENT tiloissa */}
+                          {(invoice.status === "APPROVED" ||
+                            invoice.status === "SENT") && (
+                            <button
+                              onClick={() => {
+                                setSendModalInvoice(invoice);
+                                setShowSendModal(true);
+                              }}
+                              className="flex items-center gap-1 text-yellow-400 hover:text-yellow-300"
+                            >
+                              <Send size={18} />
+                              {/* Desktopissa näkyy teksti, mobiilissa ei */}
+                              <span className="hidden sm:inline">
+                                {invoice.sentAt ? "Lähetä uudelleen" : " "}
+                              </span>
+                            </button>
+                          )}
+                        </div>
 
                         {invoice.sentAt && (
                           <span className="text-yellow-500 text-xs ml-3">
@@ -687,36 +688,36 @@ export default function InvoiceList({
                     </p>
                   )}
 
-                 <div className="flex items-center gap-4 mt-2 sm:hidden">
-  {/* PDF-ikoni */}
-  <a
-    href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
-    target="_blank"
-    className="text-yellow-400 hover:text-yellow-300"
-  >
-    <FileText size={22} />
-  </a>
+                  <div className="flex items-center gap-4 mt-2 sm:hidden">
+                    {/* PDF-ikoni */}
+                    <a
+                      href={`/api/bookkeeping/invoices/${invoice.id}/pdf`}
+                      target="_blank"
+                      className="text-yellow-400 hover:text-yellow-300"
+                    >
+                      <FileText size={22} />
+                    </a>
 
-  {/* Lähetä / Lähetä uudelleen -ikoni */}
-  {(invoice.status === "APPROVED" || invoice.sentAt) && (
-    <button
-      onClick={() => {
-        setSendModalInvoice(invoice);
-        setShowSendModal(true);
-      }}
-      className="text-yellow-400 hover:text-yellow-300"
-    >
-      <Send size={22} />
-    </button>
-  )}
+                    {/* Lähetä / Lähetä uudelleen -ikoni */}
+                    {(invoice.status === "APPROVED" || invoice.sentAt) && (
+                      <button
+                        onClick={() => {
+                          setSendModalInvoice(invoice);
+                          setShowSendModal(true);
+                        }}
+                        className="text-yellow-400 hover:text-yellow-300"
+                      >
+                        <Send size={22} />
+                      </button>
+                    )}
 
-  {/* Lähetetty-päivämäärä (mobiilissa tosi pienellä ja kevyenä) */}
-  {invoice.sentAt && (
-    <span className="text-yellow-500 text-[10px] ml-2">
-      {new Date(invoice.sentAt).toLocaleDateString("fi-FI")}
-    </span>
-  )}
-</div>
+                    {/* Lähetetty-päivämäärä (mobiilissa tosi pienellä ja kevyenä) */}
+                    {invoice.sentAt && (
+                      <span className="text-yellow-500 text-[10px] ml-2">
+                        {new Date(invoice.sentAt).toLocaleDateString("fi-FI")}
+                      </span>
+                    )}
+                  </div>
 
                   {/* Toimintopainikkeet */}
                   {invoice.status === "DRAFT" && (
