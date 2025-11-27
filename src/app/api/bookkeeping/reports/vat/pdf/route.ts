@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import PDFDocument from "pdfkit";
+import { NextResponse } from "next/server";
+
 
 export async function GET(req: Request) {
   try {
@@ -59,20 +61,24 @@ export async function GET(req: Request) {
     //
 
     // 🔹 Otsikko
-    doc.font("Times-Bold").fontSize(18).text("ALV-laskelma", { align: "left" });
-    doc.moveDown(0.3);
+    doc.font("Times-Bold").fontSize(18).text("ALV-laskelma", { align: "center" });
+    doc.moveDown(1);
+
+    doc.font("Times-Roman").fontSize(12).text("Yritys: Jesse Kalevo Ukkonen / Tmi TyöUkkoset");
+    doc.text("Y-tunnus: 3518481-5");
+    doc.moveDown();
 
     doc.font("Times-Roman").fontSize(12).text(
       `Aikaväli: ${start.toLocaleDateString("fi-FI")} — ${end.toLocaleDateString("fi-FI")}`
     );
     doc.moveDown();
 
-    doc.font("Times-Roman").fontSize(12).text("Yritys: Jesse Kalevo Ukkonen / Tmi TyöUkkoset");
-    doc.moveDown(2);
+
 
     // 🔹 Yhteenveto
     doc.font("Times-Bold").fontSize(14).text("ALV-yhteenveto", { underline: true });
     doc.moveDown(0.5);
+
 
     doc.font("Times-Roman").fontSize(12).text(
       `Myyntien ALV (25,5 %): ${salesVat.toFixed(2)} €`
@@ -84,78 +90,78 @@ export async function GET(req: Request) {
     doc.font("Times-Roman");
     doc.moveDown(1.5);
 
-   // --------------------------
-// 🔹 Taulukon otsikot (tasasarakkeet)
-// --------------------------
-const renderTableHeader = (title: string) => {
-doc.font("Times-Bold").fontSize(13).text(title, 50, doc.y);
-  doc.moveDown(0.4);
+    // --------------------------
+    // 🔹 Taulukon otsikot (tasasarakkeet)
+    // --------------------------
+    const renderTableHeader = (title: string) => {
+      doc.font("Times-Bold").fontSize(13).text(title, 50, doc.y);
+      doc.moveDown(0.4);
 
-  const headerY = doc.y;
+      const headerY = doc.y;
 
-  doc.font("Times-Bold").fontSize(11);
-  doc.text("Pvm", 50, headerY);
-  doc.text("Kuvaus", 120, headerY);
-  doc.text("Summa €", 300, headerY, { width: 80, align: "right" });
-  doc.text("ALV %", 390, headerY, { width: 40, align: "right" });
-  doc.text("ALV €", 450, headerY, { width: 80, align: "right" });
+      doc.font("Times-Bold").fontSize(11);
+      doc.text("Pvm", 50, headerY);
+      doc.text("Kuvaus", 120, headerY);
+      doc.text("Summa €", 300, headerY, { width: 80, align: "right" });
+      doc.text("ALV %", 390, headerY, { width: 40, align: "right" });
+      doc.text("ALV €", 450, headerY, { width: 80, align: "right" });
 
-  doc.moveDown(0.6);
-  doc.font("Times-Roman");
-};
+      doc.moveDown(0.6);
+      doc.font("Times-Roman");
+    };
 
-// --------------------------
-// 🔹 Taulukon rivit
-// --------------------------
-const renderTableLines = (rows: typeof entries) => {
-  if (rows.length === 0) {
-    doc.text("Ei tapahtumia", 50, doc.y);
-    doc.moveDown();
-    return;
-  }
+    // --------------------------
+    // 🔹 Taulukon rivit
+    // --------------------------
+    const renderTableLines = (rows: typeof entries) => {
+      if (rows.length === 0) {
+        doc.text("Ei tapahtumia", 50, doc.y);
+        doc.moveDown();
+        return;
+      }
 
-  rows.forEach((e) => {
-    const rowY = doc.y;
+      rows.forEach((e) => {
+        const rowY = doc.y;
 
-    doc.text(
-      new Date(e.date).toLocaleDateString("fi-FI"),
-      50,
-      rowY
-    );
+        doc.text(
+          new Date(e.date).toLocaleDateString("fi-FI"),
+          50,
+          rowY
+        );
 
-    doc.text(
-      e.description ?? "-",
-      120,
-      rowY,
-      { width: 160 }
-    );
+        doc.text(
+          e.description ?? "-",
+          120,
+          rowY,
+          { width: 160 }
+        );
 
-    doc.text(
-      e.amount.toFixed(2),
-      300,
-      rowY,
-      { width: 80, align: "right" }
-    );
+        doc.text(
+          e.amount.toFixed(2),
+          300,
+          rowY,
+          { width: 80, align: "right" }
+        );
 
-    doc.text(
-      e.vatRate.toString(),
-      390,
-      rowY,
-      { width: 40, align: "right" }
-    );
+        doc.text(
+          e.vatRate.toString(),
+          390,
+          rowY,
+          { width: 40, align: "right" }
+        );
 
-    doc.text(
-      e.vatAmount.toFixed(2),
-      450,
-      rowY,
-      { width: 80, align: "right" }
-    );
+        doc.text(
+          e.vatAmount.toFixed(2),
+          450,
+          rowY,
+          { width: 80, align: "right" }
+        );
 
-    doc.moveDown(0.5);
-  });
+        doc.moveDown(0.5);
+      });
 
-  doc.moveDown();
-};
+      doc.moveDown();
+    };
 
     // -------------------------------------------------
     // 🔹 Taulukot
@@ -183,14 +189,21 @@ const renderTableLines = (rows: typeof entries) => {
       doc.on("end", () => resolve(Buffer.concat(bufs)));
     });
 
-    return new Response(new Uint8Array(pdfBuffer), {
+
+
+
+    return new NextResponse(new Uint8Array(pdfBuffer), {
+      status: 200,
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="alv-laskelma.pdf"`,
       },
     });
-  } catch (err) {
-    console.error("PDF VAT error:", err);
-    return new Response("Internal Server Error", { status: 500 });
+   } catch (err) {
+      console.error(err);
+      return NextResponse.json(
+        { error: "PDF generation failed" },
+        { status: 500 }
+      );
+    }
   }
-}

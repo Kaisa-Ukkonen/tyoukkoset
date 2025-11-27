@@ -30,12 +30,12 @@ type VATReportData = {
 // 🔸 Komponentti
 // --------------------
 export default function VATReport() {
-// Oletuksena: kuluvan kuukauden alku → tänään
-const today = new Date();
-const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  // Oletuksena: kuluvan kuukauden alku → tänään
+  const today = new Date();
+  const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-const [from, setFrom] = useState<Date | null>(firstOfMonth);
-const [to, setTo] = useState<Date | null>(today);
+  const [from, setFrom] = useState<Date | null>(firstOfMonth);
+  const [to, setTo] = useState<Date | null>(today);
 
   const [data, setData] = useState<VATReportData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -65,9 +65,9 @@ const [to, setTo] = useState<Date | null>(today);
   // --------------------
   const renderTable = (rows: VatLine[], title: string) => (
     <div className="mt-10">
-<h4 className="hidden sm:block text-lg text-yellow-400 font-semibold mb-3">
-  {title}
-</h4>
+      <h4 className="hidden sm:block text-lg text-yellow-400 font-semibold mb-3">
+        {title}
+      </h4>
 
       <div className="overflow-x-auto hidden sm:block">
         <table className="w-full text-sm text-gray-300 border-collapse">
@@ -201,32 +201,47 @@ const [to, setTo] = useState<Date | null>(today);
             ALV-yhteenveto
           </h3>
 
-          <p className="text-gray-300">
-            <span className="text-yellow-400">Myyntien ALV (25,5 %):</span>
-            &nbsp; {data.salesVat.toFixed(2)} €
-          </p>
+          {/* Myyntien ALV */}
+          <div className="flex justify-between py-1">
+            <span className="text-gray-200 font-medium">
+              Myyntien ALV (25,5 %):
+            </span>
+            <span className="text-yellow-400 font-semibold">
+              {data.salesVat.toFixed(2)} €
+            </span>
+          </div>
 
-          <p className="text-gray-300">
-            <span className="text-yellow-400">Ostojen ALV:</span>
-            &nbsp; {data.purchasesVat.toFixed(2)} €
-          </p>
+          {/* Ostojen ALV */}
+          <div className="flex justify-between py-1">
+            <span className="text-gray-200 font-medium">Ostojen ALV:</span>
+            <span className="text-yellow-400 font-semibold">
+              {data.purchasesVat.toFixed(2)} €
+            </span>
+          </div>
 
-          <p className="text-gray-300 font-semibold mt-3">
-            <span className="text-yellow-400">Maksettava ALV:</span>
-            &nbsp; {data.payableVat.toFixed(2)} €
-          </p>
+          {/* Erotusviiva */}
+          <div className="border-t border-yellow-700/20 my-2"></div>
+
+          {/* Maksettava ALV */}
+          <div className="flex justify-between py-1">
+            <span className="text-gray-200 font-semibold">Maksettava ALV:</span>
+            <span className="text-yellow-400 font-bold">
+              {data.payableVat.toFixed(2)} €
+            </span>
+          </div>
 
           {/* PDF */}
           <button
-            onClick={() =>
-              window.open(
-                `/api/bookkeeping/reports/vat/pdf?from=${from?.toISOString()}&to=${to?.toISOString()}`
-              )
-            }
-            className="mt-6 bg-yellow-600 hover:bg-yellow-500 text-black px-5 py-2 rounded-md font-semibold"
-          >
-            Lataa PDF
-          </button>
+  onClick={() =>
+    window.open(
+      `/api/bookkeeping/reports/vat/pdf?from=${from?.toISOString()}&to=${to?.toISOString()}`,
+      "_blank"
+    )
+  }
+  className="mt-6 bg-yellow-600 hover:bg-yellow-500 text-black px-5 py-2 rounded-md font-semibold"
+>
+  Lataa PDF
+</button>
         </div>
       )}
 

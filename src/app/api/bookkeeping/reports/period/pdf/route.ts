@@ -123,6 +123,10 @@ export async function GET(req: Request) {
         doc.fontSize(20).text("Tapahtumaraportti", { align: "center" });
         doc.moveDown();
 
+        doc.font("Times-Roman").fontSize(12).text("Yritys: Jesse Kalevo Ukkonen / Tmi TyöUkkoset");
+doc.text("Y-tunnus: 1234567-8");
+doc.moveDown(1);
+
         doc.fontSize(12).text(
             `Ajanjakso: ${startDate.toLocaleDateString(
                 "fi-FI"

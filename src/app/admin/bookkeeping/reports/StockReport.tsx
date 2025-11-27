@@ -44,39 +44,39 @@ export default function StockReport() {
 
       {/* YHTEENVETO */}
       <div className="bg-black/30 border border-yellow-700/40 p-4 rounded-lg mb-6">
-        <h3 className="text-lg font-semibold text-yellow-400 mb-1">
-          Varaston kokonaisarvo (brutto, ALV sis.)
+        <h3 className="text-lg font-semibold text-yellow-400 mb-4">
+          Yhteenveto
         </h3>
-        <p className="text-xl font-bold text-yellow-300">
-          {data.totalGross.toFixed(2)} €
-        </p>
 
-        <h3 className="text-lg font-semibold text-yellow-400 mt-3 mb-1">
-          Varaston arvo (veroton)
-        </h3>
-        <p className="text-xl font-bold text-yellow-300">
-          {data.totalNet.toFixed(2)} €
-        </p>
-        {/* PDF-lataus */}
-        <div className="mt-4">
-          <button
-            onClick={() =>
-              window.open("/api/bookkeeping/reports/stock/pdf", "_blank")
-            }
-            className="
-      text-sm 
-      px-4 py-2 
-      bg-yellow-600 hover:bg-yellow-500 
-      text-black 
-      rounded-md 
-      font-semibold
-      shadow 
-      transition
-    "
-          >
-            Lataa PDF
-          </button>
+        {/* Bruttoarvo */}
+        <div className="flex justify-between py-1">
+          <span className="text-gray-200 font-medium">
+            Varaston kokonaisarvo (brutto, ALV sis.):
+          </span>
+          <span className="text-yellow-400 font-bold">
+            {data.totalGross.toFixed(2)} €
+          </span>
         </div>
+
+        {/* Nettoarvo */}
+        <div className="flex justify-between py-1">
+          <span className="text-gray-200 font-medium">
+            Varaston arvo (veroton):
+          </span>
+          <span className="text-yellow-400 font-bold">
+            {data.totalNet.toFixed(2)} €
+          </span>
+        </div>
+
+        {/* PDF-lataus */}
+        <button
+          onClick={() =>
+            window.open("/api/bookkeeping/reports/stock/pdf", "_blank")
+          }
+          className="mt-6 bg-yellow-600 hover:bg-yellow-500 text-black px-5 py-2 rounded-md font-semibold"
+        >
+          Lataa PDF
+        </button>
       </div>
 
       {/* TAULUKKO */}

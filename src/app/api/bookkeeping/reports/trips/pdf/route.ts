@@ -69,6 +69,10 @@ export async function GET(req: Request) {
     doc.fontSize(20).text("Matkaraportti", { align: "center" });
     doc.moveDown();
 
+    doc.font("Times-Roman").fontSize(12).text("Yritys: Jesse Kalevo Ukkonen / Tmi TyöUkkoset");
+    doc.text("Y-tunnus: 3518481-5");
+    doc.moveDown();
+
     doc
       .fontSize(12)
       .text(
@@ -78,12 +82,16 @@ export async function GET(req: Request) {
       );
     doc.moveDown();
 
-    doc.fontSize(14).text("Yhteenveto");
+    
+
+   doc.font("Times-Bold").fontSize(14).text("Yhteenveto");
+doc.font("Times-Roman");
     doc.fontSize(12).text(`Kilometrit yhteensä: ${totalKm} km`);
     doc.text(`Päivärahat yhteensä: ${totalAllowance.toFixed(2)} €`);
     doc.moveDown();
 
-    doc.fontSize(14).text("Matkat");
+   doc.font("Times-Bold").fontSize(14).text("Matkat");
+doc.font("Times-Roman");
     doc.moveDown(0.5);
 
     parsedTrips.forEach((t) => {

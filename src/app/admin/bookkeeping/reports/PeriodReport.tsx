@@ -54,6 +54,21 @@ export default function PeriodReport() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<PeriodReportData | null>(null);
   const [error, setError] = useState("");
+  let profitLabel = "";
+  let profitColor = "";
+  let profitValue = 0;
+
+  if (data) {
+    profitValue = data.profit ?? 0;
+
+    profitLabel = profitValue >= 0 ? "Voitto:" : "Tappio:";
+    profitColor =
+      profitValue > 0
+        ? "text-yellow-400"
+        : profitValue < 0
+        ? "text-red-400"
+        : "text-gray-300";
+  }
 
   function formatDate(dateStr: string) {
     const d = new Date(dateStr);
@@ -139,9 +154,9 @@ export default function PeriodReport() {
             </div>
 
             <div className="flex justify-between py-1 border-t border-yellow-700/20 mt-2 pt-2">
-              <span className="font-semibold">Voitto / tappio:</span>
-              <span className="font-semibold text-yellow-400">
-                {data.profit.toFixed(2)} €
+              <span className="font-semibold">{profitLabel}</span>
+              <span className={`font-semibold ${profitColor}`}>
+                {profitValue.toFixed(2)} €
               </span>
             </div>
             {/* 🔥 Lataa PDF -nappi */}
@@ -151,7 +166,7 @@ export default function PeriodReport() {
                 const url = `/api/bookkeeping/reports/period/pdf?start=${start.toISOString()}&end=${end.toISOString()}`;
                 window.open(url, "_blank");
               }}
-              className="bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-2 rounded-md font-semibold"
+              className="mt-6 bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-2 rounded-md font-semibold"
             >
               Lataa PDF
             </button>

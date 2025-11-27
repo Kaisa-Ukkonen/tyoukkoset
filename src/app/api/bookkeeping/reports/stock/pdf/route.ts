@@ -36,13 +36,25 @@ export async function GET() {
     const chunks: Buffer[] = [];
 
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
-    doc.on("end", () => {});
+    doc.on("end", () => { });
 
-    //
-    // 🔸 OTSIKKO
-    //
-    doc.fontSize(20).text("Varastosaldoraportti");
+    // OTSIKKO
+    doc.fontSize(20).text("Varastosaldoraportti", { align: "center" });
+        doc.moveDown();
+
+    doc.font("Times-Roman").fontSize(12).text("Yritys: Jesse Kalevo Ukkonen / Tmi TyöUkkoset");
+    doc.text("Y-tunnus: 3518481-5");
     doc.moveDown();
+
+    // 🔸 Päivämäärä (luontipäivä)
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("fi-FI");
+    doc.fontSize(10).fillColor("#555").text(`Luotu: ${dateStr}`);
+    doc.fillColor("#000"); // palauta tekstiväri takaisin mustaksi
+
+    doc.moveDown();
+
+
 
     //
     // 🔸 YHTEENVETO
@@ -55,47 +67,47 @@ export async function GET() {
     doc.fontSize(14).text(`${totalNet.toFixed(2)} €`);
     doc.moveDown(1.5);
 
-   //
-// TAULUKON OTSIKOT – täysin vakioidulla rivikorkeudella
-//
-doc.moveDown(1);                 // pieni väli yhteenvetoon
-const startY = doc.y;            // muista alku-y
+    //
+    // TAULUKON OTSIKOT – täysin vakioidulla rivikorkeudella
+    //
+    doc.moveDown(1);                 // pieni väli yhteenvetoon
+    const startY = doc.y;            // muista alku-y
 
-doc.fontSize(12).fillColor("#000000");
+    doc.fontSize(12).fillColor("#000000");
 
-doc.text("Tuote", 50, startY);
-doc.text("Saldo", 150, startY);
-doc.text("Hinta (ALV)", 220, startY);
-doc.text("ALV %", 320, startY);
-doc.text("Netto", 380, startY);
-doc.text("ALV €", 450, startY);
-doc.text("Arvo", 520, startY);
+    doc.text("Tuote", 40, startY);
+    doc.text("Saldo", 150, startY);
+    doc.text("Hinta (ALV)", 220, startY);
+    doc.text("ALV %", 300, startY);
+    doc.text("Netto", 360, startY);
+    doc.text("ALV €", 430, startY);
+    doc.text("Arvo", 495, startY);
 
-doc.moveTo(50, startY + 18)
+  doc.moveTo(40, startY + 18)
    .lineTo(560, startY + 18)
-   .strokeColor("#000")
    .stroke();
+
+    doc.moveDown(0.5);
 
     //
     // 🔸 RIVIT
     //
-   rows.forEach((r) => {
-  const y = doc.y + 5;
+    rows.forEach((r) => {
+      const y = doc.y + 5;
 
-  doc.fillColor("#000000").fontSize(11);
-  doc.text(r.name, 50, y);
-  doc.text(String(r.qty), 150, y);
-  doc.text(r.gross.toFixed(2) + " €", 220, y);
-  doc.text(r.vat + " %", 320, y);
-  doc.text(r.net.toFixed(3) + " €", 380, y);
-  doc.text(r.vatPart.toFixed(3) + " €", 450, y);
-  doc.text(r.grossValue.toFixed(2) + " €", 520, y);
+      doc.text(r.name, 40, y);
+      doc.text(String(r.qty), 150, y);
+      doc.text(r.gross.toFixed(2) + " €", 220, y);
+      doc.text(r.vat + " %", 300, y);
+      doc.text(r.net.toFixed(3) + " €", 360, y);
+      doc.text(r.vatPart.toFixed(3) + " €", 430, y);
+      doc.text(r.grossValue.toFixed(2) + " €", 495, y);
 
-  doc.moveDown(1);
+      doc.moveDown(1);
 
-  // rivien väli
-  doc.moveTo(50, doc.y).lineTo(560, doc.y).strokeColor("#aaa").stroke();
-});
+      // rivien väli
+      doc.moveTo(40, doc.y).lineTo(560, doc.y).strokeColor("#aaa").stroke();
+    });
 
     doc.end();
 
