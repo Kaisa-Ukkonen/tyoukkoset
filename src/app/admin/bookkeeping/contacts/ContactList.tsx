@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import React from "react";
 import ConfirmModal from "@/components/common/ConfirmModal";
@@ -6,7 +7,8 @@ import ConfirmModal from "@/components/common/ConfirmModal";
 import { Edit, Trash2 } from "lucide-react";
 import CustomInputField from "@/components/common/CustomInputField";
 import ContactEvents from "@/app/admin/bookkeeping/contacts/ContactEvents";
-import { useSearchParams } from "next/navigation";
+
+import ContactOpenId from "./ContactOpenId";
 
 
 type Contact = {
@@ -37,9 +39,7 @@ export default function ContactList({
   const [contactToDelete, setContactToDelete] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Contact | null>(null);
-  const searchParams = useSearchParams();
-  const openIdParam = searchParams.get("open");
-  const openId = openIdParam ? Number(openIdParam) : null;
+const openId = ContactOpenId();
 
   useEffect(() => {
     const fetchContacts = async () => {

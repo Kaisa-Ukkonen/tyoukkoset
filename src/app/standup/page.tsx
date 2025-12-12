@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import StandUpClient from "./StandUpClient";
 
-export const revalidate = 60; // ISR – päivittyy 1 min välein
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0; // 🔥 estää prerenderöinnin kokonaan
 
 export default async function StandUpPage() {
   const gigs = await prisma.standupGig.findMany({

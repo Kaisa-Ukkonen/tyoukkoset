@@ -1,6 +1,6 @@
-// Lomake tuotteiden ja palveluiden lisäämiseen ja muokkaamiseen.
-
 "use client";
+
+// Lomake tuotteiden ja palveluiden lisäämiseen ja muokkaamiseen.
 import { useState, useEffect } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
 import FieldError from "@/components/common/FieldError";

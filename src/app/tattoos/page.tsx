@@ -2,6 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import TattoosClient from "./TattoosClient";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export const revalidate = 60; // ISR – päivittyy kerran minuutissa
 

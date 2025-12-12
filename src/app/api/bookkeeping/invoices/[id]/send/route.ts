@@ -6,16 +6,16 @@ import path from "path";
 
 // 🔹 Lue SMTP asetukset .env:stä
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: Number(process.env.SMTP_PORT) === 465, // true for Gmail 465
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
-    tls: {
-        rejectUnauthorized: false, // 🔥 SALLI SELF-SIGNED certificates (korjaa virheen)
-    },
+  host: process.env.SMTP_HOST!,
+  port: Number(process.env.SMTP_PORT),
+  secure: true,  // koska käytät porttia 465
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false, // 🔥 korjaa self-signed virheen kehitysympäristössä
+  },
 });
 
 export async function POST(

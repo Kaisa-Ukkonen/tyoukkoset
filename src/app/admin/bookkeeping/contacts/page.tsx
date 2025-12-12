@@ -1,7 +1,11 @@
 "use client";
+
 import { useState } from "react";
+import { Suspense } from "react";
 import ContactForm from "./ContactForm";
 import ContactList from "./ContactList";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 
 export default function ContactsPage() {
@@ -68,10 +72,12 @@ export default function ContactsPage() {
         </div>
 
         {/* Lista */}
-        <ContactList
-          refreshKey={refreshKey}
-          searchTerm={searchTerm}
-        />
+    <Suspense fallback={<div>Ladataan...</div>}>
+  <ContactList
+    refreshKey={refreshKey}
+    searchTerm={searchTerm}
+  />
+</Suspense>
       </div>
 
       {/* 🔹 Popup-lomake */}

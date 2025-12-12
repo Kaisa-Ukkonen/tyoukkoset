@@ -4,21 +4,20 @@ import nodemailer from "nodemailer";
 export async function POST(req: Request) {
   const { name, email, phone, service, message } = await req.json();
 
-  // Luo sähköpostiviesti
+  // 🔧 Luo Tietoketun SMTP-asetuksilla sähköpostiyhteys
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "mail.tyoukkoset.fi",
+    port: 465,
+    secure: true, // SSL
     auth: {
-      user: "tyoukkoset@gmail.com",
-      pass: process.env.GMAIL_APP_PASSWORD, // luo tähän oma Gmail App Password
-    },
-    tls: {
-      rejectUnauthorized: false, // 🔹 Tämä sallii yhteyden kehityksessä
+      user: "jesse@tyoukkoset.fi",
+      pass: process.env.SMTP_PASS, // laitetaan .env -tiedostoon
     },
   });
 
   const mailOptions = {
-    from: email,
-    to: "tyoukkoset@gmail.com",
+    from: `"Yhteydenottolomake" <jesse@tyoukkoset.fi>`,
+    to: "jesse@tyoukkoset.fi",
     subject: `Uusi yhteydenottopyyntö: ${service}`,
     text: `
 Nimi: ${name}
@@ -26,9 +25,10 @@ Sähköposti: ${email}
 Puhelin: ${phone}
 Palvelu: ${service}
 
-Viesti:
+ViestI:
 ${message}
     `,
+    replyTo: email, // Vastaukset menevät asiakkaalle
   };
 
   try {

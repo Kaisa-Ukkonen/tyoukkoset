@@ -8,7 +8,7 @@ type Tattoo = {
   id: string;
   imageUrl: string;
 };
-
+export const dynamic = "force-dynamic";
 export default function AdminTattoosPage() {
   const [tattoos, setTattoos] = useState<Tattoo[]>([]);
   const [file, setFile] = useState<File | null>(null);

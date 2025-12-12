@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
-
+export const dynamic = "force-dynamic";
 export default function AdminDashboard() {
   const sections = [
     { name: "Tatuoinnit", href: "/admin/tattoos", color: "border-yellow-500/40" },

@@ -1,6 +1,6 @@
-//tuottaa tuotteiden ja palveluiden listauksen admin-sivulle – sekä mobiilin korttinäkymän että desktopin taulukkonäkymän – ja hallitsee niihin liittyvät toiminnot (muokkaus, arkistointi, saldon muutos ja modaalit).
-
 "use client";
+
+//tuottaa tuotteiden ja palveluiden listauksen admin-sivulle – sekä mobiilin korttinäkymän että desktopin taulukkonäkymän – ja hallitsee niihin liittyvät toiminnot (muokkaus, arkistointi, saldon muutos ja modaalit).
 
 import { useEffect, useState } from "react";
 import { MoreVertical } from "lucide-react";

@@ -1,6 +1,6 @@
-//Tämä sivu hakee keikkatiedot Next.js API-routeilta, hallitsee gigien CRUD-toiminnot (luonti, päivitys, poisto), ylläpitää lomake- ja editointitiloja React-statella sekä välittää datan StandupForm- ja StandupList-komponenteille.
 "use client";
 
+//Tämä sivu hakee keikkatiedot Next.js API-routeilta, hallitsee gigien CRUD-toiminnot (luonti, päivitys, poisto), ylläpitää lomake- ja editointitiloja React-statella sekä välittää datan StandupForm- ja StandupList-komponenteille.
 import { useState, useEffect } from "react";
 import { registerLocale } from "react-datepicker";
 import { fi } from "date-fns/locale";

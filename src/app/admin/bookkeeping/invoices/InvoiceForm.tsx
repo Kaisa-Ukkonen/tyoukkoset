@@ -1,7 +1,6 @@
-//Laskun luonti, Laskun muokkaus, Laskurivien lisääminen / poistaminen, Tuotevalinnat ja hintalogiikka, Lopullinen tallennus backendille
-
 "use client";
 
+//Laskun luonti, Laskun muokkaus, Laskurivien lisääminen / poistaminen, Tuotevalinnat ja hintalogiikka, Lopullinen tallennus backendille
 import { useState, useEffect } from "react";
 import CustomSelect from "@/components/common/CustomSelect";
 import DatePickerField from "@/components/common/DatePickerField";

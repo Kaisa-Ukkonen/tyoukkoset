@@ -1,6 +1,9 @@
-//näyttää laskurivit valmiista laskuista, toimii vain listaus- ja tarkastelunäkymässä, EI vaikuta laskun luontiin
-
 "use client";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
+//näyttää laskurivit valmiista laskuista, toimii vain listaus- ja tarkastelunäkymässä, EI vaikuta laskun luontiin
 export type { Invoice };
 import { useEffect, useState } from "react";
 import React from "react";

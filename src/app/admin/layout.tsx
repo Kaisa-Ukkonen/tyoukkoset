@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export default function AdminLayout({
   children,
