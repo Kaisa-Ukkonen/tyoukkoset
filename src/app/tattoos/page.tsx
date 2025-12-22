@@ -1,17 +1,23 @@
-//Sivua generoidaan staattisesti -SSG (Static Site Generation) -Sivua päivitetään automaattisesti minuutin välein -ISR (Incremental Static Regeneration) -Google saa aina tuoreen sisällön mutta lataus on yhtä nopea kuin staattisilla sivuilla
-
-import { prisma } from "@/lib/prisma";
+// page.tsx (Server Component)
 import TattoosClient from "./TattoosClient";
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
+import { prisma } from "@/lib/prisma";
 
-export const revalidate = 60; // ISR – päivittyy kerran minuutissa
+export const dynamic = "force-dynamic"; // 🔥 TÄRKEIN RIVI
+export const revalidate = 0;             // 🔒 varmistaa ettei prerenderöidä
 
-export default async function TattoosPage() {
+
+export default async function Page() {
   const tattoos = await prisma.tattoo.findMany({
     where: { isPublic: true },
     orderBy: { createdAt: "desc" },
   });
 
-  return <TattoosClient tattoos={tattoos} />;
+  // 🔑 TÄMÄ ON KORJAUS
+  const serializedTattoos = tattoos.map((t) => ({
+    ...t,
+    createdAt: t.createdAt?.toISOString(),
+    updatedAt: t.updatedAt?.toISOString(),
+  }));
+
+  return <TattoosClient tattoos={serializedTattoos} />;
 }

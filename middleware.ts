@@ -1,34 +1,25 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import jwt from "jsonwebtoken";
 
-export function middleware(req: Request) {
-  const authHeader = req.headers.get("authorization");
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get("admin_token")?.value;
 
-  const username = process.env.ADMIN_USER;
-  const password = process.env.ADMIN_PASS;
-
-  if (!username || !password) {
-    console.error("❌ ADMIN_USER tai ADMIN_PASS puuttuu .env-tiedostosta!");
-    return new NextResponse("Server error", { status: 500 });
+  // Ei tokenia → ei pääsyä adminiin
+  if (!token) {
+    return NextResponse.redirect(new URL("/admin/login", req.url));
   }
 
-  const validAuth = "Basic " + Buffer.from(`${username}:${password}`).toString("base64");
-
-  // Jos authorization header ei ole oikea → kysytään salasanaa
-  if (authHeader !== validAuth) {
-    return new NextResponse("Unauthorized", {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": 'Basic realm="Restricted Area"',
-      },
-    });
+  try {
+    jwt.verify(token, process.env.JWT_SECRET!);
+    return NextResponse.next(); // ✅ OK
+  } catch (err) {
+    // Token virheellinen / vanhentunut
+    return NextResponse.redirect(new URL("/admin/login", req.url));
   }
-
-  return NextResponse.next();
 }
 
-// Suojataan KAIKKI polut alkaen /admin
+// Suojataan kaikki /admin-polut PÄÄSÄÄNTÖISESTI
 export const config = {
-  matcher: [
-    "/admin/:path*",
-  ],
+  matcher: ["/admin/:path*"],
 };

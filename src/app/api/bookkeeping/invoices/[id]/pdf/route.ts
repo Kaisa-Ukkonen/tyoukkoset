@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import PDFDocument from "pdfkit";
 import { prisma } from "@/lib/prisma";
 
 import fs from "fs";
 import path from "path";
 
 
-import JsBarcode from "jsbarcode";
-import svg2img from "svg2img";
-import { JSDOM } from "jsdom";
-
-
-
 export async function GET(
+  
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+
+    // 🔥 LAZY IMPORTIT — tehdään vasta kun tämä API kutsutaan
+  const PDFDocument = (await import("pdfkit")).default;
+  const JsBarcode = (await import("jsbarcode")).default;
+  const svg2img = (await import("svg2img")).default;
+  const { JSDOM } = await import("jsdom");
   const { id } = await context.params;
   const invoiceId = Number(id);
 

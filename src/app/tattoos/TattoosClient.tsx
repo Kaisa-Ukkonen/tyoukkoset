@@ -12,8 +12,8 @@ export type Tattoo = {
   style: string | null;
   description: string | null;
   isPublic: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+   createdAt?: string;
+  updatedAt?: string;
 };
 
 export default function TattoosClient({ tattoos }: { tattoos: Tattoo[] }) {

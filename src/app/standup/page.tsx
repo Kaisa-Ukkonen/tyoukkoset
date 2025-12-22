@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import StandUpClient from "./StandUpClient";
 
+// ISR
+export const revalidate = 60;
 export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-export const revalidate = 0; // 🔥 estää prerenderöinnin kokonaan
 
 export default async function StandUpPage() {
   const gigs = await prisma.standupGig.findMany({
@@ -11,5 +11,11 @@ export default async function StandUpPage() {
     orderBy: { date: "asc" },
   });
 
-  return <StandUpClient gigs={gigs} />;
+  // 🔑 TÄMÄ ON RATKAISEVA
+  const safeGigs = gigs.map((gig) => ({
+    ...gig,
+    date: gig.date.toISOString(), // Date → string
+  }));
+
+  return <StandUpClient gigs={safeGigs} />;
 }

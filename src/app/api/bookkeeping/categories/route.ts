@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";   // ⭐ OIKEA
+import { prisma } from "@/lib/prisma";  
 
 // GET /api/bookkeeping/categories
 export async function GET() {

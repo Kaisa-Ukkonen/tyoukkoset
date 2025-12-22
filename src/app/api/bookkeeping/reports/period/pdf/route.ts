@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import PDFDocument from "pdfkit";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
+    const PDFDocument = (await import("pdfkit")).default;
     try {
         const { searchParams } = new URL(req.url);
         const start = searchParams.get("start");

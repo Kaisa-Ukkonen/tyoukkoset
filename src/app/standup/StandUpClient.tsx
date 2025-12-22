@@ -10,7 +10,7 @@ export type Gig = {
   title: string;
   placeDetails: string | null;
   address: string;
-  date: Date;             // <- TÄMÄ!!!
+ date: string;           // <- TÄMÄ!!!
   isPublic: boolean;
   time: string | null;
 };
