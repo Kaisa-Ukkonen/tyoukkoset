@@ -417,7 +417,7 @@ export default function StandUpClient({ gigs }: { gigs: Gig[] }) {
         >
           <div className="flex justify-center items-center gap-3">
             <p className="text-sm text-gray-400">
-              © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
+              © {new Date().getFullYear()} Tmi TyöUkkoset
             </p>
             <a
               href="https://www.instagram.com/jesseukkonen?igsh=MXg2b2U4bWlkM3h0dA=="
