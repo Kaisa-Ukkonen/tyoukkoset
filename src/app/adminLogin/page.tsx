@@ -38,7 +38,7 @@ export default function AdminLogin() {
         className="bg-gray-900 p-6 rounded-lg border border-yellow-700 w-full max-w-sm shadow-xl"
       >
         <h1 className="text-xl mb-4 text-yellow-400 text-center">
-          Admin login
+          Kirjaudu
         </h1>
 
         <input
