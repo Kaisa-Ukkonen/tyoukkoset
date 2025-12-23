@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import PrivacyPolicyModal from "@/components/common/PrivacyPolicyModal";
 
 export default function Home() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function Home() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -497,15 +499,38 @@ export default function Home() {
       <footer
         id="footer"
         className="relative z-10 
-             bg-zinc-800/25 backdrop-blur-sm 
-             text-white p-6 text-center 
-             border-t border-yellow-600/20 
-             shadow-[0_-2px_15px_rgba(0,0,0,0.4)]"
+       bg-zinc-800/25 backdrop-blur-sm 
+       text-white p-6 text-center 
+       border-t border-yellow-600/20 
+       shadow-[0_-2px_15px_rgba(0,0,0,0.4)]"
       >
-        <p className="text-sm text-gray-400">
-          © {new Date().getFullYear()} TyöUkkoset – Jesse Ukkonen
-        </p>
+        <div className="flex justify-center items-center gap-3">
+          <p className="text-sm text-gray-400">
+            © {new Date().getFullYear()} Tmi TyöUkkoset
+          </p>
+
+          <span className="text-gray-500">|</span>
+
+          <button
+            onClick={() => setShowPrivacy(true)}
+            className="
+        text-sm text-gray-400
+        underline underline-offset-4
+        decoration-gray-500/60
+        hover:text-yellow-400
+        hover:decoration-yellow-400
+        transition-colors
+      "
+          >
+            Tietosuojaseloste
+          </button>
+        </div>
       </footer>
+
+      <PrivacyPolicyModal
+        open={showPrivacy}
+        onClose={() => setShowPrivacy(false)}
+      />
     </div>
   );
 }
