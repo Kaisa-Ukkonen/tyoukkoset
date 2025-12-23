@@ -36,7 +36,7 @@ app.prepare().then(() => {
       if (pathname.startsWith("/admin")) {
         // Sallitaan login-sivu ja login API ilman tokenia
         if (
-          pathname === "/admin/login" ||
+          pathname === "/adminLogin" ||
           pathname.startsWith("/api/login")
         ) {
           return handle(req, res, parsedUrl);
@@ -47,7 +47,7 @@ app.prepare().then(() => {
 
         if (!token) {
           res.statusCode = 302;
-          res.setHeader("Location", "/admin/login");
+          res.setHeader("Location", "/adminLogin");
           return res.end();
         }
 
@@ -55,7 +55,7 @@ app.prepare().then(() => {
           jwt.verify(token, process.env.JWT_SECRET);
         } catch (err) {
           res.statusCode = 302;
-          res.setHeader("Location", "/admin/login");
+          res.setHeader("Location", "/adminLogin");
           return res.end();
         }
       }
