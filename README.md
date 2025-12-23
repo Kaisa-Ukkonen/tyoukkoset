@@ -29,18 +29,4 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-# Jesse Ukkonen – Verkkosivusto (Next.js + Prisma + MySQL)
-
-## 🔧 Kehitysympäristön käynnistys
-
-### 1. Käynnistä Docker
-Avaa **Docker Desktop** ja odota, että valas-kuvake muuttuu vihreäksi.
-
-### 2. Käynnistä MySQL-kontti (vain jos se ei ole vielä päällä)
-```bash
-docker start jesse-mysql
-
-npm run dev
-
-API löytyy osoitteesta:
-👉 http://localhost:3000/api/test
+#  Verkkosivusto (Next.js + Prisma + MySQL)
