@@ -25,7 +25,7 @@ Sähköposti: ${email}
 Puhelin: ${phone}
 Palvelu: ${service}
 
-ViestI:
+Viesti:
 ${message}
     `,
     replyTo: email, // Vastaukset menevät asiakkaalle
